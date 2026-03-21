@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>台灣潮汐釣點助手</title>
+<title>台灣潮汐釣點助手｜即時模式</title>
 <style>
   :root {
     --bg:#07101c;
@@ -150,6 +150,38 @@
     background:linear-gradient(180deg, rgba(70,178,255,.25), rgba(70,178,255,.12));
     border-color:rgba(118,224,255,.35);
     color:#dcf5ff;
+  }
+  .chip.alt {
+    background:#1a2b46;
+    border:1px solid var(--line);
+    color:#dcecff;
+  }
+  .fav-item {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#1a2b46;
+    border:1px solid var(--line);
+    color:#dcecff;
+    border-radius:999px;
+    padding:6px 8px 6px 12px;
+  }
+  .fav-open {
+    background:transparent;
+    color:#dcecff;
+    border:none;
+    width:auto;
+    padding:0;
+    font-size:13px;
+  }
+  .fav-remove {
+    background:#2c3b59;
+    color:#ffd6d6;
+    border:1px solid rgba(255,255,255,.08);
+    width:auto;
+    padding:4px 8px;
+    font-size:12px;
+    border-radius:999px;
   }
   .status {
     white-space:pre-wrap;
@@ -398,8 +430,18 @@
       </div>
 
       <div class="btn-row">
-        <button class="btn-secondary" id="findFavBtn" type="button">匹配收藏點</button>
+        <button class="btn-secondary" id="addFavBtn" type="button">新增收藏點</button>
+        <button class="btn-secondary" id="showFavBtn" type="button">查看收藏</button>
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>收藏點清單</label>
+        <div id="favoriteList" class="chip-row"></div>
+      </div>
+
+      <div class="btn-row">
         <button class="btn-secondary" id="debugBtn" type="button">原始回應</button>
+        <button class="btn-secondary" id="todayBtn2" type="button">快速回今天</button>
       </div>
 
       <div id="status" class="status">準備中…</div>
@@ -440,11 +482,12 @@
           <div class="section-title">
             <h2>潮位曲線圖</h2>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <button class="chip" id="todayQuickBtn" type="button" style="padding:7px 12px;">今天</button>
+              <button class="chip" id="todayQuickBtn" type="button" style="padding:7px 12px;">今天</button>
               <button class="chip" id="tomorrowQuickBtn" type="button" style="padding:7px 12px;">明天</button>
               <button class="chip" id="dayAfterQuickBtn" type="button" style="padding:7px 12px;">後天</button>
               <button class="chip" id="threeDaysLaterQuickBtn" type="button" style="padding:7px 12px;">大後天</button>
               <div class="mini" id="chartTitle">尚未載入</div>
+              <div class="mini" id="dragHint">今天顯示即時模式；明天後天顯示該日潮汐</div>
             </div>
           </div>
           <div class="chart-wrap">
@@ -453,9 +496,10 @@
           <div class="legend">
             <span><i class="line-mark"></i> 潮位曲線</span>
             <span><i class="dot-mark"></i> 滿／乾潮點</span>
-            <span><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
+            <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
+            <span><i class="line-mark" style="background:#ffd56a;height:10px;opacity:.8;"></i> 滿潮前後黃金時段</span>
           </div>
-          <div class="footer-note" id="chartNote">圖表預設顯示今天起連續 4 天（今天、明天、後天、大後天）的潮位變化，並以「現在」標記目前潮位所在位置。</div>
+          <div class="footer-note" id="chartNote">今天會顯示即時模式（過去 2 小時＋未來 24 小時）；明天、後天、大後天則顯示該日完整潮汐，不再標記現在潮位。</div>
         </section>
 
         <section class="card">
@@ -732,6 +776,86 @@ function renderFavChips(active='') {
   });
 }
 
+function getMatchedFavorites() {
+  return state.favorites.map(f => {
+    const match = findBestMatch(f);
+    return { favorite: f, match };
+  });
+}
+
+function addFavoriteFromCurrent() {
+  const candidate = $('search').value.trim() || state.selectedLocation || '';
+  if (!candidate) {
+    setStatus('請先搜尋或選擇一個地點，再新增收藏。', true);
+    return;
+  }
+  if (state.favorites.includes(candidate)) {
+    setStatus(`收藏點「${candidate}」已存在。`, true);
+    return;
+  }
+  state.favorites.push(candidate);
+  renderFavChips(state.selectedLocation);
+  renderFavoriteList();
+  setStatus(`已新增收藏點：${candidate}`);
+}
+
+function removeFavorite(name) {
+  state.favorites = state.favorites.filter(f => f !== name);
+  renderFavChips(state.selectedLocation);
+  renderFavoriteList();
+  setStatus(`已移除收藏點：${name}`);
+}
+
+function renderFavoriteList() {
+  const box = $('favoriteList');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!state.favorites.length) {
+    const span = document.createElement('div');
+    span.className = 'mini';
+    span.textContent = '目前尚未新增收藏點。可先搜尋地點，再按「新增收藏點」。';
+    box.appendChild(span);
+    return;
+  }
+
+  const matched = getMatchedFavorites();
+  matched.forEach(item => {
+    const wrap = document.createElement('div');
+    wrap.className = 'fav-item' + (state.selectedLocation === item.match ? ' active' : '');
+
+    const openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'fav-open';
+    openBtn.textContent = item.match ? `${item.favorite}｜${item.match}` : `${item.favorite}｜尚未匹配`;
+    openBtn.addEventListener('click', () => {
+      if (!item.match) {
+        $('search').value = item.favorite;
+        populateLocationSelect(findBestMatch(item.favorite));
+        renderAll();
+        setStatus(`收藏點「${item.favorite}」目前尚未匹配到資料集，可再調整名稱搜尋。`, true);
+        return;
+      }
+      state.selectedLocation = item.match;
+      $('locationSelect').value = item.match;
+      renderAll();
+      setStatus(`已切換到收藏釣點：${item.match}`);
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'fav-remove';
+    removeBtn.textContent = '移除';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFavorite(item.favorite);
+    });
+
+    wrap.appendChild(openBtn);
+    wrap.appendChild(removeBtn);
+    box.appendChild(wrap);
+  });
+}
+
 function findBestMatch(keyword) {
   const names = [...state.rowsByLocation.keys()];
   if (!keyword) return '';
@@ -804,7 +928,79 @@ function getMultiDayRows(days = 4, startDate = state.selectedDate) {
   for (let i = 0; i < days; i++) {
     targetDates.push(shiftDate(baseDate, i));
   }
+
+function getPagedMultiDayRows(days = 4) {
+  return getMultiDayRows(days);
+}
+
   return rows.filter(r => targetDates.includes(r.date));
+}
+
+function getAvailableDates() {
+  const rows = getSelectedRows();
+  return [...new Set(rows.map(r => r.date).filter(Boolean))].sort();
+}
+
+function clampStartDate(dateStr, windowDays = 4) {
+  const dates = getAvailableDates();
+  if (!dates.length) return dateStr || todayLocal();
+  const maxStartIdx = Math.max(0, dates.length - windowDays);
+  let idx = dates.indexOf(dateStr);
+  if (idx === -1) {
+    idx = dates.findIndex(d => d >= (dateStr || todayLocal()));
+    if (idx === -1) idx = maxStartIdx;
+  }
+  idx = Math.max(0, Math.min(maxStartIdx, idx));
+  return dates[idx];
+}
+
+function shiftChartWindow(step, windowDays = 4) {
+  const dates = getAvailableDates();
+  if (!dates.length) {
+    state.selectedDate = shiftDate(state.selectedDate || todayLocal(), step);
+    $('dateInput').value = state.selectedDate;
+    renderAll();
+    return;
+  }
+  const current = clampStartDate(state.selectedDate, windowDays);
+  let idx = dates.indexOf(current);
+  if (idx === -1) idx = 0;
+  const maxStartIdx = Math.max(0, dates.length - windowDays);
+  idx = Math.max(0, Math.min(maxStartIdx, idx + step));
+  state.selectedDate = dates[idx];
+  $('dateInput').value = state.selectedDate;
+  renderAll();
+}
+
+function getImmediateWindow(rows, pastHours = 2, futureHours = 24) {
+  const rawPts = rows
+    .filter(r => !Number.isNaN(r.aboveLocalMSL))
+    .map(r => ({
+      ...r,
+      ts: new Date(r.dateTime).getTime()
+    }))
+    .sort((a,b) => a.ts - b.ts);
+
+  if (!rawPts.length) {
+    return { rows: [], minT: null, maxT: null };
+  }
+
+  const now = Date.now();
+  const desiredMin = now - pastHours * 60 * 60 * 1000;
+  const desiredMax = now + futureHours * 60 * 60 * 1000;
+
+  let visible = rawPts.filter(p => p.ts >= desiredMin && p.ts <= desiredMax);
+
+  if (!visible.length) {
+    visible = rawPts;
+  }
+
+  // 補一點前後邊界點，讓曲線在視窗邊緣更自然
+  const firstIdx = rawPts.findIndex(p => visible.length && p.ts === visible[0].ts);
+  const lastIdx = rawPts.findIndex(p => visible.length && p.ts === visible[visible.length - 1].ts);
+  if (firstIdx > 0) visible.unshift(rawPts[firstIdx - 1]);
+  if (lastIdx >= 0 && lastIdx < rawPts.length - 1) visible.push(rawPts[lastIdx + 1]);
+  return { rows: visible, minT: desiredMin, maxT: desiredMax };
 }
 
 function interpolateSeries(rows) {
@@ -972,6 +1168,7 @@ function renderTable() {
   `).join('');
 }
 
+
 function drawChart() {
   const canvas = $('tideCanvas');
   const ctx = canvas.getContext('2d');
@@ -985,11 +1182,21 @@ function drawChart() {
   const w = cssW, h = cssH;
   ctx.clearRect(0,0,w,h);
 
-  const rows = getDayRows();
-  const endDate = shiftDate(state.selectedDate || todayLocal(), 3);
+  const isTodayView = (state.selectedDate || todayLocal()) === todayLocal();
+  const allRows = (typeof getPagedMultiDayRows === 'function' ? getPagedMultiDayRows(4) : getMultiDayRows(4));
+  const dayRows = getDayRows(state.selectedDate);
+  const rows = isTodayView ? allRows : dayRows;
+
   $('chartTitle').textContent = state.selectedLocation
-    ? `${state.selectedLocation}｜${state.selectedDate} ～ ${endDate}`
+    ? (isTodayView
+        ? `${state.selectedLocation}｜即時模式（過去2小時～未來24小時）`
+        : `${state.selectedLocation}｜${state.selectedDate} 當日潮汐`)
     : '尚未載入';
+
+  $('dragHint').textContent = isTodayView
+    ? '今天：即時模式，跨日顯示未來潮汐'
+    : '未來日期：顯示該日完整潮汐';
+  $('currentLegend').style.display = isTodayView ? 'inline-flex' : 'none';
 
   if (!rows.length) {
     ctx.fillStyle = 'rgba(238,246,255,.7)';
@@ -998,8 +1205,25 @@ function drawChart() {
     return;
   }
 
-  const pts = interpolateSeries(rows);
-  const rawPts = rows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
+  let visibleRows;
+  let forcedMinT = null;
+  let forcedMaxT = null;
+
+  if (isTodayView) {
+    const immediate = getImmediateWindow(rows, 2, 24);
+    visibleRows = immediate.rows;
+    forcedMinT = immediate.minT;
+    forcedMaxT = immediate.maxT;
+    $('chartNote').textContent = '以當地平均海平面潮高繪製。今天採即時模式：顯示過去 2 小時與未來 24 小時，方便看接下來潮水。';
+  } else {
+    visibleRows = rows
+      .filter(r => !Number.isNaN(r.aboveLocalMSL))
+      .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+    $('chartNote').textContent = '以當地平均海平面潮高繪製。未來日期顯示該日完整潮汐，不標記現在潮位。';
+  }
+
+  const pts = interpolateSeries(visibleRows);
+  const rawPts = visibleRows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
     ts:new Date(r.dateTime).getTime(),
     h:r.aboveLocalMSL,
     label:r.tideType,
@@ -1014,8 +1238,8 @@ function drawChart() {
   }
 
   const pad = { left:40, right:18, top:20, bottom:34 };
-  const minT = Math.min(...pts.map(p=>p.ts));
-  const maxT = Math.max(...pts.map(p=>p.ts));
+  const minT = forcedMinT ?? Math.min(...pts.map(p=>p.ts));
+  const maxT = forcedMaxT ?? Math.max(...pts.map(p=>p.ts));
   const minH = Math.min(...pts.map(p=>p.h));
   const maxH = Math.max(...pts.map(p=>p.h));
   const hPad = Math.max((maxH - minH) * .18, 20);
@@ -1024,6 +1248,19 @@ function drawChart() {
 
   const x = t => pad.left + (t - minT) / (maxT - minT || 1) * (w - pad.left - pad.right);
   const y = val => h - pad.bottom - (val - lo) / (hi - lo || 1) * (h - pad.top - pad.bottom);
+
+  // 滿潮前後黃金時段：以前後各 1 小時標示
+  const goldenWindows = rawPts
+    .filter(p => String(p.label || '').includes('滿潮'))
+    .map(p => ({ start: p.ts - 60 * 60 * 1000, end: p.ts + 60 * 60 * 1000, center: p.ts }))
+    .filter(g => g.end >= minT && g.start <= maxT);
+
+  goldenWindows.forEach(g => {
+    const sx = x(Math.max(g.start, minT));
+    const ex = x(Math.min(g.end, maxT));
+    ctx.fillStyle = 'rgba(255,213,106,.14)';
+    ctx.fillRect(sx, pad.top, Math.max(ex - sx, 2), h - pad.top - pad.bottom);
+  });
 
   ctx.strokeStyle = 'rgba(255,255,255,.08)';
   ctx.lineWidth = 1;
@@ -1034,6 +1271,13 @@ function drawChart() {
     ctx.lineTo(w - pad.right, yy);
   }
   ctx.stroke();
+
+  goldenWindows.forEach(g => {
+    const cx = x(Math.max(minT, Math.min(maxT, g.center)));
+    ctx.fillStyle = 'rgba(255,225,160,.9)';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('滿潮前後', cx - 18, pad.top + 14);
+  });
 
   ctx.fillStyle = 'rgba(200,220,245,.65)';
   ctx.font = '12px sans-serif';
@@ -1081,7 +1325,9 @@ function drawChart() {
   ctx.font = '12px sans-serif';
   let lastDateLabel = '';
   rawPts.forEach((p, idx) => {
-    const px = x(p.ts), py = y(p.h);
+    const showDense = !isTodayView;
+    if (!showDense && idx !== 0 && idx !== rawPts.length - 1 && idx % 2 !== 0) return;
+    const px = x(p.ts);
     const d = new Date(p.ts);
     const md = `${d.getMonth()+1}/${d.getDate()}`;
     const label = md !== lastDateLabel ? `${md} ${p.time}` : p.time;
@@ -1089,54 +1335,52 @@ function drawChart() {
     ctx.fillText(label, px - 24, h - 12);
   });
 
-  const now = Date.now();
-  if (now >= minT && now <= maxT) {
-    const nx = x(now);
-
-    let currentH = null;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const a = pts[i], b = pts[i + 1];
-      if (a.ts <= now && now <= b.ts) {
-        const ratioNow = (now - a.ts) / (b.ts - a.ts || 1);
-        currentH = a.h + (b.h - a.h) * ratioNow;
-        break;
+  if (isTodayView) {
+    const now = Date.now();
+    if (now >= minT && now <= maxT) {
+      const nx = x(now);
+      let currentH = null;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = pts[i], b = pts[i + 1];
+        if (a.ts <= now && now <= b.ts) {
+          const ratioNow = (now - a.ts) / (b.ts - a.ts || 1);
+          currentH = a.h + (b.h - a.h) * ratioNow;
+          break;
+        }
       }
+      if (currentH === null && pts.length) currentH = pts[pts.length - 1].h;
+      const ny = y(currentH);
+
+      ctx.beginPath();
+      ctx.moveTo(nx, pad.top);
+      ctx.lineTo(nx, h - pad.bottom);
+      ctx.strokeStyle = 'rgba(118,224,255,.35)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([5,5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(nx, ny, 7, 0, Math.PI * 2);
+      ctx.fillStyle = '#76e0ff';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(nx, ny, 13, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(118,224,255,.35)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#d8f6ff';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('現在潮位', nx - 20, Math.max(pad.top + 14, ny - 16));
+
+      const currentDate = new Date(now);
+      const md = `${currentDate.getMonth()+1}/${currentDate.getDate()}`;
+      const hm = `${String(currentDate.getHours()).padStart(2,'0')}:${String(currentDate.getMinutes()).padStart(2,'0')}`;
+      ctx.fillText(`${md} ${hm}`, nx - 18, Math.min(h - pad.bottom - 6, ny + 24));
     }
-    if (currentH === null && pts.length) currentH = pts[pts.length - 1].h;
-
-    const ny = y(currentH);
-
-    ctx.beginPath();
-    ctx.moveTo(nx, pad.top);
-    ctx.lineTo(nx, h - pad.bottom);
-    ctx.strokeStyle = 'rgba(118,224,255,.35)';
-    ctx.lineWidth = 1.2;
-    ctx.setLineDash([5,5]);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.beginPath();
-    ctx.arc(nx, ny, 7, 0, Math.PI * 2);
-    ctx.fillStyle = '#76e0ff';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(nx, ny, 13, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(118,224,255,.35)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.fillStyle = '#d8f6ff';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('現在潮位', nx - 20, Math.max(pad.top + 14, ny - 16));
-
-    const currentDate = new Date(now);
-    const md = `${currentDate.getMonth()+1}/${currentDate.getDate()}`;
-    const hm = `${String(currentDate.getHours()).padStart(2,'0')}:${String(currentDate.getMinutes()).padStart(2,'0')}`;
-    ctx.fillText(`${md} ${hm}`, nx - 18, Math.min(h - pad.bottom - 6, ny + 24));
   }
-
-  $('chartNote').textContent = '以當地平均海平面潮高繪製，預設顯示今天起 4 天，並以「現在」標記目前所在潮位位置。';
 }
 
 function renderAll() {
@@ -1144,6 +1388,7 @@ function renderAll() {
   renderTable();
   drawChart();
   renderFavChips(state.selectedLocation);
+  renderFavoriteList();
 }
 
 async function loadData() {
@@ -1197,9 +1442,23 @@ $('debugBtn').addEventListener('click', () => {
   wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
   if (wrap.style.display === 'block') wrap.open = true;
 });
-$('findFavBtn').addEventListener('click', () => {
-  const current = $('search').value.trim() || state.favorites[0];
-  selectFavorite(current);
+$('addFavBtn').addEventListener('click', () => {
+  addFavoriteFromCurrent();
+});
+$('showFavBtn').addEventListener('click', () => {
+  renderFavoriteList();
+  const matched = getMatchedFavorites();
+  if (!state.favorites.length) {
+    setStatus('目前尚未新增收藏點。', true);
+  } else {
+    const okCount = matched.filter(x => x.match).length;
+    setStatus(`收藏點共 ${state.favorites.length} 個，已顯示在左側清單；其中 ${okCount} 個已匹配到可查看地點。`);
+  }
+});
+$('todayBtn2').addEventListener('click', () => {
+  state.selectedDate = todayLocal();
+  $('dateInput').value = state.selectedDate;
+  renderAll();
 });
 $('search').addEventListener('input', () => {
   populateLocationSelect(findBestMatch($('search').value.trim()));
@@ -1210,13 +1469,14 @@ $('locationSelect').addEventListener('change', e => {
   renderAll();
 });
 $('dateInput').addEventListener('change', e => {
-  state.selectedDate = e.target.value;
+  state.selectedDate = clampStartDate(e.target.value, 4);
+  $('dateInput').value = state.selectedDate;
   renderAll();
 });
-$('todayQuickBtn').addEventListener('click', () => setQuickDate(0));
-$('tomorrowQuickBtn').addEventListener('click', () => setQuickDate(1));
-$('dayAfterQuickBtn').addEventListener('click', () => setQuickDate(2));
-$('threeDaysLaterQuickBtn').addEventListener('click', () => setQuickDate(3));
+$('todayQuickBtn').addEventListener('click', () => { state.selectedDate = clampStartDate(todayLocal(), 4); $('dateInput').value = state.selectedDate; renderAll(); });
+$('tomorrowQuickBtn').addEventListener('click', () => { state.selectedDate = clampStartDate(shiftDate(todayLocal(), 1), 4); $('dateInput').value = state.selectedDate; renderAll(); });
+$('dayAfterQuickBtn').addEventListener('click', () => { state.selectedDate = clampStartDate(shiftDate(todayLocal(), 2), 4); $('dateInput').value = state.selectedDate; renderAll(); });
+$('threeDaysLaterQuickBtn').addEventListener('click', () => { state.selectedDate = clampStartDate(shiftDate(todayLocal(), 3), 4); $('dateInput').value = state.selectedDate; renderAll(); });
 
 async function testApiConnection() {
   const key = $('apiKey').value.trim();
@@ -1245,47 +1505,61 @@ $('openApiBtn').addEventListener('click', () => {
 
 window.addEventListener('resize', () => drawChart());
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') moveAvailableDate(-1);
-  if (e.key === 'ArrowRight') moveAvailableDate(1);
+  if (e.key === 'ArrowLeft') shiftChartWindow(-1, 4);
+  if (e.key === 'ArrowRight') shiftChartWindow(1, 4);
 });
 
-let touchStartX = 0;
-let touchStartY = 0;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragging = false;
 
-function bindChartSwipe() {
+function bindChartDrag() {
   const canvas = $('tideCanvas');
   if (!canvas) return;
 
+  function start(x, y) {
+    dragStartX = x;
+    dragStartY = y;
+    dragging = true;
+  }
+
+  function end(x, y) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = x - dragStartX;
+    const dy = y - dragStartY;
+    if (Math.abs(dx) < 35) return;
+    if (Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) shiftChartWindow(1, 4);
+    else shiftChartWindow(-1, 4);
+  }
+
   canvas.addEventListener('touchstart', (e) => {
     if (!e.touches || !e.touches.length) return;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    start(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: true });
 
   canvas.addEventListener('touchend', (e) => {
     if (!e.changedTouches || !e.changedTouches.length) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const dx = endX - touchStartX;
-    const dy = endY - touchStartY;
-
-    if (Math.abs(dx) < 40) return;
-    if (Math.abs(dx) < Math.abs(dy)) return;
-
-    if (dx < 0) {
-      moveAvailableDate(1);
-    } else {
-      moveAvailableDate(-1);
-    }
+    end(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   }, { passive: true });
+
+  canvas.addEventListener('mousedown', (e) => {
+    start(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    end(e.clientX, e.clientY);
+  });
 }
 
 (function init() {
   state.selectedDate = todayLocal();
   $('dateInput').value = state.selectedDate;
   renderFavChips('');
+  renderFavoriteList();
   drawChart();
-  bindChartSwipe();
+  bindChartDrag();
 })();
 </script>
 </body>
