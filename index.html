@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>台灣潮汐釣點助手</title>
+<style>
+  :root {
+    --bg:#07101c;
+    --bg2:#0b1626;
+    --card:#101d31;
+    --card2:#162640;
+    --line:rgba(255,255,255,.10);
+    --text:#eef6ff;
+    --muted:#9fb3cf;
+    --blue:#46b2ff;
+    --cyan:#76e0ff;
+    --green:#70d8b2;
+    --orange:#ffb35c;
+    --red:#ff8d8d;
+    --shadow:0 14px 34px rgba(0,0,0,.28);
+  }
+  * { box-sizing:border-box; }
+  html,body {
+    margin:0;
+    background:
+      radial-gradient(circle at top, rgba(70,178,255,.16), transparent 30%),
+      linear-gradient(180deg, #07101c, #0a1422 55%, #08111d);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",Arial,sans-serif;
+  }
+  body { min-height:100vh; }
+  .app {
+    max-width:1180px;
+    margin:0 auto;
+    padding:18px 14px 42px;
+  }
+  .hero {
+    padding:14px 4px 16px;
+  }
+  .hero h1 {
+    margin:0;
+    font-size:clamp(26px, 4vw, 34px);
+    letter-spacing:.5px;
+  }
+  .hero p {
+    margin:8px 0 0;
+    color:var(--muted);
+    line-height:1.6;
+    font-size:14px;
+  }
+  .shell {
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:14px;
+  }
+  @media (max-width: 980px) {
+    .shell { grid-template-columns:1fr; }
+  }
+  .panel {
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    border:1px solid var(--line);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    backdrop-filter: blur(6px);
+  }
+  .side {
+    padding:14px;
+    position:sticky;
+    top:12px;
+    align-self:start;
+  }
+  @media (max-width: 980px) {
+    .side { position:static; }
+  }
+  .main {
+    padding:14px;
+  }
+  .section-title {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 0 10px;
+  }
+  .section-title h2 {
+    margin:0;
+    font-size:17px;
+  }
+  .mini {
+    font-size:12px;
+    color:var(--muted);
+  }
+  .field {
+    margin-bottom:12px;
+  }
+  label {
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  input, select, button {
+    width:100%;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:15px;
+  }
+  input, select {
+    color:var(--text);
+    background:var(--card2);
+    border:1px solid var(--line);
+  }
+  button {
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary {
+    color:white;
+    background:linear-gradient(180deg, #43b2ff, #1488ff);
+    box-shadow:0 12px 24px rgba(20,136,255,.24);
+  }
+  .btn-secondary {
+    color:var(--text);
+    background:#21324f;
+    border:1px solid var(--line);
+  }
+  .btn-row {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .chip-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip {
+    border:1px solid var(--line);
+    background:#15243b;
+    color:var(--text);
+    border-radius:999px;
+    padding:9px 12px;
+    font-size:13px;
+    width:auto;
+  }
+  .chip.active {
+    background:linear-gradient(180deg, rgba(70,178,255,.25), rgba(70,178,255,.12));
+    border-color:rgba(118,224,255,.35);
+    color:#dcf5ff;
+  }
+  .status {
+    white-space:pre-wrap;
+    margin-top:10px;
+    background:rgba(70,178,255,.08);
+    border:1px solid rgba(70,178,255,.18);
+    color:#d9efff;
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:13px;
+    line-height:1.55;
+  }
+  .status.err {
+    background:rgba(255,141,141,.08);
+    border-color:rgba(255,141,141,.18);
+    color:#ffd6d6;
+  }
+  .top-cards {
+    display:grid;
+    grid-template-columns:1.05fr 1fr 1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width: 900px) {
+    .top-cards { grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .top-cards { grid-template-columns:1fr; }
+  }
+  .card {
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:14px;
+  }
+  .k {
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:8px;
+  }
+  .v {
+    font-size:clamp(22px, 3vw, 29px);
+    font-weight:800;
+    line-height:1.18;
+  }
+  .m {
+    margin-top:8px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+  }
+  .trend {
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .trend-dot {
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 6px rgba(112,216,178,.12);
+    flex:0 0 auto;
+  }
+  .trend-dot.falling {
+    background:var(--orange);
+    box-shadow:0 0 0 6px rgba(255,179,92,.12);
+  }
+  .trend-dot.flat {
+    background:var(--cyan);
+    box-shadow:0 0 0 6px rgba(118,224,255,.12);
+  }
+  .content-grid {
+    display:grid;
+    grid-template-columns:1.25fr .95fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  @media (max-width: 980px) {
+    .content-grid { grid-template-columns:1fr; }
+  }
+  .chart-wrap {
+    position:relative;
+    height:320px;
+  }
+  @media (max-width: 560px) {
+    .chart-wrap { height:270px; }
+  }
+  canvas {
+    width:100%;
+    height:100%;
+    display:block;
+    border-radius:16px;
+    background:linear-gradient(180deg, rgba(13,29,47,.92), rgba(9,20,35,.92));
+  }
+  .toolbar {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .toolbar-left, .toolbar-right {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#15243b;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 12px;
+    color:var(--text);
+    font-size:13px;
+  }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  th, td {
+    padding:12px 10px;
+    text-align:left;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  th {
+    color:#d8e7ff;
+    font-size:13px;
+  }
+  td {
+    color:#eef6ff;
+  }
+  tr:hover td {
+    background:rgba(255,255,255,.03);
+  }
+  .tag {
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:999px;
+    font-size:12px;
+    background:rgba(70,178,255,.12);
+    color:#d7f1ff;
+    border:1px solid rgba(118,224,255,.16);
+  }
+  .table-wrap {
+    overflow:auto;
+    border-radius:18px;
+  }
+  .legend {
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:8px;
+  }
+  .legend span {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .line-mark {
+    width:18px;
+    height:3px;
+    border-radius:3px;
+    background:var(--blue);
+  }
+  .dot-mark {
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--orange);
+  }
+  details {
+    margin-top:12px;
+  }
+  pre {
+    margin:0;
+    background:#07101d;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    overflow:auto;
+    max-height:340px;
+    color:#d8e7ff;
+    font-size:12px;
+    line-height:1.5;
+  }
+  .footer-note {
+    margin-top:12px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.65;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <h1>台灣潮汐釣點助手</h1>
+    <p>適合磯釣快速判斷潮汐、釣點與當前漲退潮方向。已內建常用釣點收藏，手機畫面也調成更接近釣魚 APP 的資訊卡介面。</p>
+  </div>
+
+  <div class="shell">
+    <aside class="panel side">
+      <div class="section-title">
+        <h2>查詢設定</h2>
+        <div class="mini">CWA F-A0021-001</div>
+      </div>
+
+      <div class="field">
+        <label for="apiKey">API 授權碼</label>
+        <input id="apiKey" value="CWA-21333DF4-B9DB-4810-ABC6-BE0F5BA71485">
+      </div>
+
+      <div class="field">
+        <label for="search">搜尋地點</label>
+        <input id="search" placeholder="例如：深澳、鼻頭、富貴角">
+      </div>
+
+      <div class="field">
+        <label for="dateInput">查詢日期</label>
+        <input id="dateInput" type="date">
+      </div>
+
+      <div class="field">
+        <label for="locationSelect">地點選擇</label>
+        <select id="locationSelect">
+          <option value="">請先載入資料</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="loadBtn" type="button">載入潮汐</button>
+        <button class="btn-secondary" id="todayBtn" type="button">切到今天</button>
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>常用釣點收藏</label>
+        <div class="chip-row" id="favChips"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" id="findFavBtn" type="button">匹配收藏點</button>
+        <button class="btn-secondary" id="debugBtn" type="button">原始回應</button>
+      </div>
+
+      <div id="status" class="status">準備中…</div>
+    </aside>
+
+    <main class="panel main">
+      <div class="top-cards">
+        <div class="card">
+          <div class="k">目前潮勢判斷</div>
+          <div class="trend">
+            <div class="trend-dot" id="trendDot"></div>
+            <div class="v" id="trendTitle">—</div>
+          </div>
+          <div class="m" id="trendMeta">載入資料後自動判斷現在是漲潮還是退潮。</div>
+        </div>
+
+        <div class="card">
+          <div class="k">下一個潮汐事件</div>
+          <div class="v" id="nextEvent">—</div>
+          <div class="m" id="nextEventMeta">—</div>
+        </div>
+
+        <div class="card">
+          <div class="k">下一次滿潮</div>
+          <div class="v" id="nextHigh">—</div>
+          <div class="m" id="nextHighMeta">—</div>
+        </div>
+
+        <div class="card">
+          <div class="k">下一次乾潮</div>
+          <div class="v" id="nextLow">—</div>
+          <div class="m" id="nextLowMeta">—</div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <section class="card">
+          <div class="section-title">
+            <h2>潮位曲線圖</h2>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <button class="chip" id="todayQuickBtn" type="button" style="padding:7px 12px;">今天</button>
+              <button class="chip" id="tomorrowQuickBtn" type="button" style="padding:7px 12px;">明天</button>
+              <button class="chip" id="dayAfterQuickBtn" type="button" style="padding:7px 12px;">後天</button>
+              <button class="chip" id="threeDaysLaterQuickBtn" type="button" style="padding:7px 12px;">大後天</button>
+              <div class="mini" id="chartTitle">尚未載入</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="tideCanvas" width="900" height="380"></canvas>
+          </div>
+          <div class="legend">
+            <span><i class="line-mark"></i> 潮位曲線</span>
+            <span><i class="dot-mark"></i> 滿／乾潮點</span>
+            <span><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
+          </div>
+          <div class="footer-note" id="chartNote">圖表預設顯示今天起連續 4 天（今天、明天、後天、大後天）的潮位變化，並以「現在」標記目前潮位所在位置。</div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h2>當日判讀</h2>
+            <div class="mini">釣魚視角</div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <div class="pill" id="selectedInfo">地點：—</div>
+              <div class="pill" id="rangeInfo">潮差：—</div>
+            </div>
+            <div class="toolbar-right">
+              <div class="pill" id="lunarInfo">農曆：—</div>
+            </div>
+          </div>
+          <div class="m" id="adviceBox" style="margin-top:6px;">載入資料後，這裡會顯示目前潮勢與簡短釣況判讀。</div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:12px;">
+        <div class="section-title">
+          <h2>潮汐表</h2>
+          <div class="mini" id="tableHint">載入後可查看指定地點的當日潮汐表</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>時間</th>
+                <th>潮汐</th>
+                <th>潮差</th>
+                <th>潮高(當地平均海平面)</th>
+                <th>潮高(海圖基準面)</th>
+                <th>農曆</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="7" style="color:var(--muted)">尚未載入資料</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      
+<div class="card" style="margin-top:12px;">
+  <div class="section-title">
+    <h2>連線測試</h2>
+    <div class="mini">手機除錯</div>
+  </div>
+  <div class="btn-row" style="margin-bottom:10px;">
+    <button class="btn-secondary" id="testApiBtn" type="button">測試 API 連線</button>
+    <button class="btn-secondary" id="openApiBtn" type="button">開啟 API 連結</button>
+  </div>
+  <div class="m" id="testApiStatus">若手機直接從 LINE / 郵件 / 檔案預覽開啟 HTML，可能不會正常送出跨站請求。</div>
+</div>
+
+<details id="debugWrap" style="display:none;">
+        <summary>原始回應（除錯用）</summary>
+        <pre id="debugPre"></pre>
+      </details>
+    </main>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
+const FAV_DEFAULT = ['深澳', '南雅', '鼻頭', '富貴角'];
+
+const state = {
+  raw: null,
+  rawText: '',
+  rowsByLocation: new Map(),
+  selectedLocation: '',
+  selectedDate: '',
+  favorites: [...FAV_DEFAULT]
+};
+
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+
+function setStatus(msg, isErr=false) {
+  statusEl.textContent = msg;
+  statusEl.className = 'status' + (isErr ? ' err' : '');
+}
+
+function todayLocal() {
+  const n = new Date();
+  const y = n.getFullYear();
+  const m = String(n.getMonth()+1).padStart(2,'0');
+  const d = String(n.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function shiftDate(dateStr, days) {
+  const base = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
+  base.setDate(base.getDate() + days);
+  const y = base.getFullYear();
+  const m = String(base.getMonth()+1).padStart(2,'0');
+  const d = String(base.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function availableDatesForLocation() {
+  const rows = getSelectedRows();
+  return [...new Set(rows.map(r => r.date).filter(Boolean))].sort();
+}
+
+function setQuickDate(offsetDays) {
+  state.selectedDate = shiftDate(todayLocal(), offsetDays);
+  $('dateInput').value = state.selectedDate;
+  renderAll();
+}
+
+function moveAvailableDate(step) {
+  const dates = availableDatesForLocation();
+  if (!dates.length) {
+    state.selectedDate = shiftDate(state.selectedDate || todayLocal(), step);
+    $('dateInput').value = state.selectedDate;
+    renderAll();
+    return;
+  }
+  let idx = dates.indexOf(state.selectedDate);
+  if (idx === -1) {
+    idx = step >= 0 ? 0 : dates.length - 1;
+  } else {
+    idx = Math.max(0, Math.min(dates.length - 1, idx + step));
+  }
+  state.selectedDate = dates[idx];
+  $('dateInput').value = state.selectedDate;
+  renderAll();
+}
+
+function fmtDate(dt) {
+  if (!dt) return '—';
+  const d = new Date(dt);
+  if (Number.isNaN(d.getTime())) return String(dt);
+  return new Intl.DateTimeFormat('zh-TW', {
+    year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false
+  }).format(d);
+}
+
+function onlyDate(dt) { return String(dt || '').slice(0,10); }
+function onlyTime(dt) { return String(dt || '').slice(11,16) || '—'; }
+function arrayify(v) { return Array.isArray(v) ? v : (v == null ? [] : [v]); }
+function normalizeHeight(h) { return (h == null || Number.isNaN(h) || h === '') ? '—' : `${h} cm`; }
+
+function collectByKeyDeep(node, targetKey, acc = []) {
+  if (!node) return acc;
+  if (Array.isArray(node)) {
+    for (const item of node) collectByKeyDeep(item, targetKey, acc);
+    return acc;
+  }
+  if (typeof node === 'object') {
+    for (const [k, v] of Object.entries(node)) {
+      if (k === targetKey) {
+        if (Array.isArray(v)) acc.push(...v);
+        else acc.push(v);
+      }
+      collectByKeyDeep(v, targetKey, acc);
+    }
+  }
+  return acc;
+}
+
+function xmlNodeToObj(node) {
+  const children = [...(node.children || [])];
+  if (!children.length) return (node.textContent || '').trim();
+  const obj = {};
+  for (const child of children) {
+    const key = child.localName || child.nodeName;
+    const val = xmlNodeToObj(child);
+    if (obj[key] === undefined) obj[key] = val;
+    else if (Array.isArray(obj[key])) obj[key].push(val);
+    else obj[key] = [obj[key], val];
+  }
+  return obj;
+}
+
+function parseMaybeJsonOrXml(text, contentType='') {
+  const t = String(text || '').trim();
+  if (!t) throw new Error('回應為空白');
+  if (contentType.includes('json') || t.startsWith('{') || t.startsWith('[')) return JSON.parse(t);
+  if (contentType.includes('xml') || t.startsWith('<')) {
+    const doc = new DOMParser().parseFromString(t, 'application/xml');
+    const parseErr = doc.querySelector('parsererror');
+    if (parseErr) throw new Error('XML 解析失敗');
+    return xmlNodeToObj(doc.documentElement);
+  }
+  try { return JSON.parse(t); } catch {}
+  throw new Error('無法辨識回應格式');
+}
+
+function extractTideForecastItems(data) {
+  const found = collectByKeyDeep(data, 'TideForecasts', []);
+  const items = [];
+  for (const block of found) {
+    if (Array.isArray(block)) {
+      for (const item of block) items.push(item);
+    } else if (block && typeof block === 'object') {
+      if (Array.isArray(block.Location)) {
+        for (const loc of block.Location) items.push({ Location: loc });
+      } else if (block.Location) {
+        items.push({ Location: block.Location });
+      } else {
+        items.push(block);
+      }
+    }
+  }
+  if (items.length) return items;
+
+  const locations = collectByKeyDeep(data, 'Location', []);
+  for (const loc of locations) {
+    if (loc && typeof loc === 'object' && loc.TimePeriods) items.push({ Location: loc });
+  }
+  return items;
+}
+
+function parseRows(data) {
+  const items = extractTideForecastItems(data);
+  if (!items.length) {
+    const topKeys = data && typeof data === 'object' ? Object.keys(data).slice(0, 12).join(', ') : '(非物件)';
+    throw new Error('找不到 TideForecasts / Location 資料。頂層鍵：' + topKeys);
+  }
+
+  const map = new Map();
+  for (const item of items) {
+    const loc = item?.Location || item;
+    const name = loc?.LocationName || loc?.locationName || loc?.Name;
+    const daily = arrayify(loc?.TimePeriods?.Daily || loc?.Daily || loc?.timePeriods?.daily);
+    if (!name || !daily.length) continue;
+
+    const rows = [];
+    for (const day of daily) {
+      const date = day?.Date || day?.date || '';
+      const lunar = day?.LunarDate || day?.lunarDate || '';
+      const tideRange = day?.TideRange || day?.tideRange || '—';
+      const times = arrayify(day?.Time || day?.time);
+      for (const t of times) {
+        const dt = t?.DateTime || t?.dateTime || '';
+        const heights = t?.TideHeights || t?.tideHeights || {};
+        rows.push({
+          locationName: name,
+          date: date || onlyDate(dt),
+          time: onlyTime(dt),
+          dateTime: dt,
+          tideType: t?.Tide || t?.tide || '—',
+          tideRange,
+          lunarDate: lunar,
+          aboveLocalMSL: Number(heights?.AboveLocalMSL ?? heights?.aboveLocalMSL ?? heights?.AboveLocalMsl ?? NaN),
+          aboveTWVD: Number(heights?.AboveTWVD ?? heights?.aboveTWVD ?? NaN),
+          aboveChartDatum: Number(heights?.AboveChartDatum ?? heights?.aboveChartDatum ?? NaN)
+        });
+      }
+    }
+
+    rows.sort((a,b)=> new Date(a.dateTime) - new Date(b.dateTime));
+    if (rows.length) map.set(name, rows);
+  }
+  return map;
+}
+
+function renderFavChips(active='') {
+  const box = $('favChips');
+  box.innerHTML = '';
+  state.favorites.forEach(f => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (active && active.includes(f) ? ' active' : '');
+    b.textContent = f;
+    b.addEventListener('click', () => selectFavorite(f));
+    box.appendChild(b);
+  });
+}
+
+function findBestMatch(keyword) {
+  const names = [...state.rowsByLocation.keys()];
+  if (!keyword) return '';
+  const exact = names.find(n => n === keyword);
+  if (exact) return exact;
+  const contain = names.find(n => n.includes(keyword));
+  if (contain) return contain;
+  const reverse = names.find(n => keyword.includes(n));
+  return reverse || '';
+}
+
+function selectFavorite(keyword) {
+  const match = findBestMatch(keyword);
+  if (!match) {
+    setStatus(`收藏點「${keyword}」目前在資料集中找不到可對應地點。你可改用搜尋欄找相近地名。`, true);
+    renderFavChips('');
+    return;
+  }
+  $('search').value = keyword;
+  populateLocationSelect(match);
+  state.selectedLocation = match;
+  $('locationSelect').value = match;
+  renderFavChips(match);
+  renderAll();
+  setStatus(`已切換到收藏釣點：${match}`);
+}
+
+function populateLocationSelect(preferred='') {
+  const q = $('search').value.trim();
+  const names = [...state.rowsByLocation.keys()].sort((a,b)=>a.localeCompare(b, 'zh-Hant'));
+  const filtered = q ? names.filter(n => n.includes(q)) : names;
+  const select = $('locationSelect');
+  select.innerHTML = '';
+
+  if (!filtered.length) {
+    select.innerHTML = '<option value="">查無符合地點</option>';
+    state.selectedLocation = '';
+    return;
+  }
+
+  filtered.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+
+  const target = preferred && filtered.includes(preferred)
+    ? preferred
+    : (filtered.includes(state.selectedLocation) ? state.selectedLocation : filtered[0]);
+
+  state.selectedLocation = target;
+  select.value = target;
+}
+
+function getSelectedRows() {
+  return state.rowsByLocation.get(state.selectedLocation) || [];
+}
+
+function getDayRows(dateStr = state.selectedDate) {
+  return getSelectedRows().filter(r => r.date === dateStr);
+}
+
+function getMultiDayRows(days = 4, startDate = state.selectedDate) {
+  const rows = getSelectedRows();
+  if (!rows.length) return [];
+
+  const baseDate = startDate || todayLocal();
+  const targetDates = [];
+  for (let i = 0; i < days; i++) {
+    targetDates.push(shiftDate(baseDate, i));
+  }
+  return rows.filter(r => targetDates.includes(r.date));
+}
+
+function interpolateSeries(rows) {
+  if (!rows.length) return [];
+  const pts = rows
+    .filter(r => !Number.isNaN(r.aboveLocalMSL))
+    .map(r => {
+      const d = new Date(r.dateTime);
+      return {
+        ts: d.getTime(),
+        h: r.aboveLocalMSL,
+        label: r.tideType,
+        dateTime: r.dateTime
+      };
+    });
+
+  if (pts.length < 2) return pts;
+
+  const out = [];
+  for (let i=0; i<pts.length-1; i++) {
+    const a = pts[i], b = pts[i+1];
+    const steps = 18;
+    for (let s=0; s<steps; s++) {
+      const t = s / steps;
+      const ts = a.ts + (b.ts - a.ts) * t;
+      const eased = 0.5 - 0.5 * Math.cos(Math.PI * t);
+      const h = a.h + (b.h - a.h) * eased;
+      out.push({ ts, h });
+    }
+  }
+  out.push({ ts: pts[pts.length-1].ts, h: pts[pts.length-1].h });
+  return out;
+}
+
+function getTrendInfo(dayRows) {
+  const now = new Date();
+  const pts = dayRows
+    .filter(r => !Number.isNaN(r.aboveLocalMSL))
+    .map(r => ({ t: new Date(r.dateTime).getTime(), h: r.aboveLocalMSL, tideType: r.tideType }))
+    .sort((a,b)=>a.t-b.t);
+
+  if (pts.length < 2) {
+    return {
+      title:'資料不足',
+      dot:'flat',
+      meta:'當日潮高資料不足，無法判斷漲退潮。',
+      advice:'目前資料不足，先以潮汐事件時間為主做判讀。'
+    };
+  }
+
+  let prev = pts[0], next = pts[pts.length-1];
+  for (let i=0; i<pts.length-1; i++) {
+    if (pts[i].t <= now.getTime() && now.getTime() <= pts[i+1].t) {
+      prev = pts[i];
+      next = pts[i+1];
+      break;
+    }
+  }
+
+  const delta = next.h - prev.h;
+  const minsToNext = Math.round((next.t - now.getTime()) / 60000);
+  const nextLabel = next.tideType || '下一潮汐點';
+
+  if (Math.abs(delta) < 1) {
+    return {
+      title:'潮勢平緩',
+      dot:'flat',
+      meta:`目前潮位變化小，距離 ${nextLabel} 約 ${Math.max(minsToNext,0)} 分鐘。`,
+      advice:'潮勢平緩時魚訊常偏細，阿波與子線可再輕一點，盡量讓餌更自然。'
+    };
+  }
+
+  if (delta > 0) {
+    return {
+      title:'漲潮中',
+      dot:'',
+      meta:`目前潮位往上，距離 ${nextLabel} 約 ${Math.max(minsToNext,0)} 分鐘。`,
+      advice:'漲潮中水位上推，外流邊緣、潮目與貼壁帶常有魚進來巡。適合先找有帶流的交界。'
+    };
+  }
+
+  return {
+    title:'退潮中',
+    dot:'falling',
+    meta:`目前潮位往下，距離 ${nextLabel} 約 ${Math.max(minsToNext,0)} 分鐘。`,
+    advice:'退潮中可留意溝槽、岬角前緣與回流邊。若退得快，釣組要再穩一點，避免被流拖快。'
+  };
+}
+
+function renderSummary() {
+  const rows = getSelectedRows();
+  const dayRows = getDayRows();
+  const multiRows = getMultiDayRows(4);
+  const now = new Date();
+
+  $('nextEvent').textContent = '—';
+  $('nextEventMeta').textContent = '—';
+  $('nextHigh').textContent = '—';
+  $('nextHighMeta').textContent = '—';
+  $('nextLow').textContent = '—';
+  $('nextLowMeta').textContent = '—';
+  $('selectedInfo').textContent = `地點：${state.selectedLocation || '—'}`;
+  $('rangeInfo').textContent = '潮差：—';
+  $('lunarInfo').textContent = '農曆：—';
+
+  if (!rows.length) {
+    $('trendTitle').textContent = '—';
+    $('trendMeta').textContent = '載入資料後自動判斷現在是漲潮還是退潮。';
+    $('adviceBox').textContent = '尚未選到可用地點。';
+    $('trendDot').className = 'trend-dot flat';
+    return;
+  }
+
+  const future = multiRows.filter(r => new Date(r.dateTime) >= now);
+  const next = future[0];
+  const nextHigh = future.find(r => String(r.tideType).includes('滿潮'));
+  const nextLow = future.find(r => String(r.tideType).includes('乾潮'));
+
+  if (next) {
+    $('nextEvent').textContent = next.tideType;
+    $('nextEventMeta').textContent = `${fmtDate(next.dateTime)}｜${next.locationName}`;
+  }
+  if (nextHigh) {
+    $('nextHigh').textContent = onlyTime(nextHigh.dateTime);
+    $('nextHighMeta').textContent = `${onlyDate(nextHigh.dateTime)}｜海平面 ${normalizeHeight(nextHigh.aboveLocalMSL)}`;
+  }
+  if (nextLow) {
+    $('nextLow').textContent = onlyTime(nextLow.dateTime);
+    $('nextLowMeta').textContent = `${onlyDate(nextLow.dateTime)}｜海平面 ${normalizeHeight(nextLow.aboveLocalMSL)}`;
+  }
+
+  if (dayRows.length) {
+    $('rangeInfo').textContent = `潮差：${dayRows[0].tideRange || '—'}`;
+    $('lunarInfo').textContent = `農曆：${dayRows[0].lunarDate || '—'}`;
+  }
+
+  const trend = getTrendInfo(dayRows.length ? dayRows : rows.filter(r => r.date === todayLocal()));
+  $('trendTitle').textContent = trend.title;
+  $('trendMeta').textContent = trend.meta;
+  $('adviceBox').textContent = trend.advice;
+  $('trendDot').className = 'trend-dot' + (trend.dot ? ' ' + trend.dot : '');
+}
+
+function renderTable() {
+  const rows = getMultiDayRows(4);
+  $('tableHint').textContent = state.selectedLocation
+    ? `地點：${state.selectedLocation}｜日期：${state.selectedDate || '—'}`
+    : '尚未選擇地點';
+
+  if (!rows.length) {
+    $('tbody').innerHTML = '<tr><td colspan="7" style="color:var(--muted)">查無符合資料</td></tr>';
+    return;
+  }
+
+  $('tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td><span class="tag">${r.tideType}</span></td>
+      <td>${r.tideRange}</td>
+      <td>${normalizeHeight(r.aboveLocalMSL)}</td>
+      <td>${normalizeHeight(r.aboveChartDatum)}</td>
+      <td>${r.lunarDate || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function drawChart() {
+  const canvas = $('tideCanvas');
+  const ctx = canvas.getContext('2d');
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const cssW = canvas.clientWidth || 900;
+  const cssH = canvas.clientHeight || 380;
+  canvas.width = Math.floor(cssW * ratio);
+  canvas.height = Math.floor(cssH * ratio);
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+
+  const w = cssW, h = cssH;
+  ctx.clearRect(0,0,w,h);
+
+  const rows = getDayRows();
+  const endDate = shiftDate(state.selectedDate || todayLocal(), 3);
+  $('chartTitle').textContent = state.selectedLocation
+    ? `${state.selectedLocation}｜${state.selectedDate} ～ ${endDate}`
+    : '尚未載入';
+
+  if (!rows.length) {
+    ctx.fillStyle = 'rgba(238,246,255,.7)';
+    ctx.font = '15px sans-serif';
+    ctx.fillText('尚無可繪製的潮位資料', 24, 40);
+    return;
+  }
+
+  const pts = interpolateSeries(rows);
+  const rawPts = rows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
+    ts:new Date(r.dateTime).getTime(),
+    h:r.aboveLocalMSL,
+    label:r.tideType,
+    time:r.time
+  }));
+
+  if (!pts.length || rawPts.length < 2) {
+    ctx.fillStyle = 'rgba(238,246,255,.7)';
+    ctx.font = '15px sans-serif';
+    ctx.fillText('潮高資料不足，無法繪圖', 24, 40);
+    return;
+  }
+
+  const pad = { left:40, right:18, top:20, bottom:34 };
+  const minT = Math.min(...pts.map(p=>p.ts));
+  const maxT = Math.max(...pts.map(p=>p.ts));
+  const minH = Math.min(...pts.map(p=>p.h));
+  const maxH = Math.max(...pts.map(p=>p.h));
+  const hPad = Math.max((maxH - minH) * .18, 20);
+  const lo = minH - hPad;
+  const hi = maxH + hPad;
+
+  const x = t => pad.left + (t - minT) / (maxT - minT || 1) * (w - pad.left - pad.right);
+  const y = val => h - pad.bottom - (val - lo) / (hi - lo || 1) * (h - pad.top - pad.bottom);
+
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i=0; i<4; i++) {
+    const yy = pad.top + i * ((h - pad.top - pad.bottom) / 3);
+    ctx.moveTo(pad.left, yy);
+    ctx.lineTo(w - pad.right, yy);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(200,220,245,.65)';
+  ctx.font = '12px sans-serif';
+  for (let i=0; i<4; i++) {
+    const val = hi - i * ((hi - lo) / 3);
+    const yy = pad.top + i * ((h - pad.top - pad.bottom) / 3);
+    ctx.fillText(`${Math.round(val)}`, 6, yy + 4);
+  }
+
+  const grad = ctx.createLinearGradient(0, pad.top, 0, h-pad.bottom);
+  grad.addColorStop(0, 'rgba(70,178,255,.30)');
+  grad.addColorStop(1, 'rgba(70,178,255,.02)');
+
+  ctx.beginPath();
+  pts.forEach((p, idx) => {
+    const px = x(p.ts), py = y(p.h);
+    if (!idx) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  });
+  ctx.lineTo(x(pts[pts.length-1].ts), h-pad.bottom);
+  ctx.lineTo(x(pts[0].ts), h-pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  pts.forEach((p, idx) => {
+    const px = x(p.ts), py = y(p.h);
+    if (!idx) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  });
+  ctx.strokeStyle = '#4bb8ff';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  rawPts.forEach(p => {
+    const px = x(p.ts), py = y(p.h);
+    ctx.beginPath();
+    ctx.arc(px, py, 4.5, 0, Math.PI*2);
+    ctx.fillStyle = '#ffb35c';
+    ctx.fill();
+  });
+
+  ctx.fillStyle = 'rgba(220,238,255,.75)';
+  ctx.font = '12px sans-serif';
+  let lastDateLabel = '';
+  rawPts.forEach((p, idx) => {
+    const px = x(p.ts), py = y(p.h);
+    const d = new Date(p.ts);
+    const md = `${d.getMonth()+1}/${d.getDate()}`;
+    const label = md !== lastDateLabel ? `${md} ${p.time}` : p.time;
+    lastDateLabel = md;
+    ctx.fillText(label, px - 24, h - 12);
+  });
+
+  const now = Date.now();
+  if (now >= minT && now <= maxT) {
+    const nx = x(now);
+
+    let currentH = null;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      if (a.ts <= now && now <= b.ts) {
+        const ratioNow = (now - a.ts) / (b.ts - a.ts || 1);
+        currentH = a.h + (b.h - a.h) * ratioNow;
+        break;
+      }
+    }
+    if (currentH === null && pts.length) currentH = pts[pts.length - 1].h;
+
+    const ny = y(currentH);
+
+    ctx.beginPath();
+    ctx.moveTo(nx, pad.top);
+    ctx.lineTo(nx, h - pad.bottom);
+    ctx.strokeStyle = 'rgba(118,224,255,.35)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([5,5]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.arc(nx, ny, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#76e0ff';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(nx, ny, 13, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(118,224,255,.35)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#d8f6ff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('現在潮位', nx - 20, Math.max(pad.top + 14, ny - 16));
+
+    const currentDate = new Date(now);
+    const md = `${currentDate.getMonth()+1}/${currentDate.getDate()}`;
+    const hm = `${String(currentDate.getHours()).padStart(2,'0')}:${String(currentDate.getMinutes()).padStart(2,'0')}`;
+    ctx.fillText(`${md} ${hm}`, nx - 18, Math.min(h - pad.bottom - 6, ny + 24));
+  }
+
+  $('chartNote').textContent = '以當地平均海平面潮高繪製，預設顯示今天起 4 天，並以「現在」標記目前所在潮位位置。';
+}
+
+function renderAll() {
+  renderSummary();
+  renderTable();
+  drawChart();
+  renderFavChips(state.selectedLocation);
+}
+
+async function loadData() {
+  const key = $('apiKey').value.trim();
+  if (!key) {
+    setStatus('請先輸入 API 授權碼', true);
+    return;
+  }
+
+  setStatus('正在讀取中央氣象署潮汐資料…');
+  const url = `${API_URL}?Authorization=${encodeURIComponent(key)}&format=JSON`;
+
+  try {
+    const res = await fetch(url, { cache:'no-store' });
+    const text = await res.text();
+    state.rawText = text;
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}：${text.slice(0, 300)}`);
+
+    const contentType = res.headers.get('content-type') || '';
+    const data = parseMaybeJsonOrXml(text, contentType);
+    state.raw = data;
+    state.rowsByLocation = parseRows(data);
+
+    if (!state.rowsByLocation.size) throw new Error('已取得資料，但解析後沒有任何地點。');
+
+    $('debugPre').textContent = typeof data === 'object'
+      ? JSON.stringify(data, null, 2).slice(0, 120000)
+      : String(data).slice(0, 120000);
+
+    populateLocationSelect(findBestMatch($('search').value.trim()));
+    state.selectedDate = $('dateInput').value || todayLocal();
+    $('dateInput').value = state.selectedDate;
+    renderAll();
+    setStatus(`載入成功：共 ${state.rowsByLocation.size} 個地點。已可查看潮勢曲線、常用釣點與當日潮汐表。`);
+  } catch (err) {
+    console.error(err);
+    if (state.rawText) $('debugPre').textContent = state.rawText.slice(0, 120000);
+    setStatus(`讀取失敗：\n${err.message}\n\n可按「原始回應」查看目前 API 回傳內容。`, true);
+  }
+}
+
+$('loadBtn').addEventListener('click', loadData);
+$('todayBtn').addEventListener('click', () => {
+  state.selectedDate = todayLocal();
+  $('dateInput').value = state.selectedDate;
+  renderAll();
+});
+$('debugBtn').addEventListener('click', () => {
+  const wrap = $('debugWrap');
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  if (wrap.style.display === 'block') wrap.open = true;
+});
+$('findFavBtn').addEventListener('click', () => {
+  const current = $('search').value.trim() || state.favorites[0];
+  selectFavorite(current);
+});
+$('search').addEventListener('input', () => {
+  populateLocationSelect(findBestMatch($('search').value.trim()));
+  renderAll();
+});
+$('locationSelect').addEventListener('change', e => {
+  state.selectedLocation = e.target.value;
+  renderAll();
+});
+$('dateInput').addEventListener('change', e => {
+  state.selectedDate = e.target.value;
+  renderAll();
+});
+$('todayQuickBtn').addEventListener('click', () => setQuickDate(0));
+$('tomorrowQuickBtn').addEventListener('click', () => setQuickDate(1));
+$('dayAfterQuickBtn').addEventListener('click', () => setQuickDate(2));
+$('threeDaysLaterQuickBtn').addEventListener('click', () => setQuickDate(3));
+
+async function testApiConnection() {
+  const key = $('apiKey').value.trim();
+  const box = $('testApiStatus');
+  if (!key) {
+    box.textContent = '請先輸入 API 授權碼。';
+    return;
+  }
+  const url = `${API_URL}?Authorization=${encodeURIComponent(key)}&format=JSON`;
+  box.textContent = '測試中…';
+  try {
+    const res = await fetch(url, { cache:'no-store' });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    box.textContent = `API 可連線，已收到 ${text.length} 字元資料。`;
+  } catch (err) {
+    box.textContent = `API 測試失敗：${err.message}`;
+  }
+}
+$('testApiBtn').addEventListener('click', testApiConnection);
+$('openApiBtn').addEventListener('click', () => {
+  const key = $('apiKey').value.trim();
+  const url = `${API_URL}?Authorization=${encodeURIComponent(key)}&format=JSON`;
+  window.open(url, '_blank');
+});
+
+window.addEventListener('resize', () => drawChart());
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') moveAvailableDate(-1);
+  if (e.key === 'ArrowRight') moveAvailableDate(1);
+});
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+function bindChartSwipe() {
+  const canvas = $('tideCanvas');
+  if (!canvas) return;
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (!e.changedTouches || !e.changedTouches.length) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const dx = endX - touchStartX;
+    const dy = endY - touchStartY;
+
+    if (Math.abs(dx) < 40) return;
+    if (Math.abs(dx) < Math.abs(dy)) return;
+
+    if (dx < 0) {
+      moveAvailableDate(1);
+    } else {
+      moveAvailableDate(-1);
+    }
+  }, { passive: true });
+}
+
+(function init() {
+  state.selectedDate = todayLocal();
+  $('dateInput').value = state.selectedDate;
+  renderFavChips('');
+  drawChart();
+  bindChartSwipe();
+})();
+</script>
+</body>
+</html>
