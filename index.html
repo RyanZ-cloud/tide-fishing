@@ -59,6 +59,19 @@
   input, select {
     color:var(--text); background:var(--card2); border:1px solid var(--line);
   }
+  input[type="date"]{
+    display:block;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  .field input, .field select{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
   button { font-weight:700; cursor:pointer; }
   .btn-primary {
     color:white; background:linear-gradient(180deg, #43b2ff, #1488ff); box-shadow:0 12px 24px rgba(20,136,255,.24);
@@ -164,7 +177,7 @@
 <div class="app">
   <div class="hero">
     <h1>台灣潮汐釣點助手｜地圖整合版</h1>
-    <p>免費架構設計：GitHub Pages + 中央氣象署 API + Leaflet + OpenStreetMap。可用地圖直接點潮汐點選釣場、管理收藏、查看黃金時段與即時潮位。</p>
+    <p>免費架構設計：GitHub Pages + 中央氣象署 API + Leaflet + OpenStreetMap。可用地圖直接點潮汐點選釣場、管理收藏與查看即時潮位。</p>
   </div>
 
   <div class="shell">
@@ -280,9 +293,8 @@
             <span><i class="line-mark"></i> 潮位曲線</span>
             <span><i class="dot-mark"></i> 滿／乾潮點</span>
             <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
-            <span><i class="line-mark" style="background:#ffd56a;height:10px;opacity:.8;"></i> 滿潮前後黃金時段</span>
           </div>
-          <div class="footer-note" id="chartNote">今天顯示即時模式（過去 2 小時＋未來 24 小時）；明天、後天、大後天則顯示該日完整潮汐，不再標記現在潮位。</div>
+          <div class="footer-note" id="chartNote">今天顯示即時模式（過去 2 小時＋未來 24 小時）；明天、後天、大後天則顯示該日完整潮汐。</div>
         </section>
 
         <section class="card">
@@ -1008,17 +1020,6 @@ function drawChart() {
   const x = t => pad.left + (t - minT) / (maxT - minT || 1) * (w - pad.left - pad.right);
   const y = val => h - pad.bottom - (val - lo) / (hi - lo || 1) * (h - pad.top - pad.bottom);
 
-  const goldenWindows = rawPts
-    .filter(p => String(p.label || '').includes('滿潮'))
-    .map(p => ({ start: p.ts - 60 * 60 * 1000, end: p.ts + 60 * 60 * 1000, center: p.ts }))
-    .filter(g => g.end >= minT && g.start <= maxT);
-
-  goldenWindows.forEach(g => {
-    const sx = x(Math.max(g.start, minT));
-    const ex = x(Math.min(g.end, maxT));
-    ctx.fillStyle = 'rgba(255,213,106,.14)';
-    ctx.fillRect(sx, pad.top, Math.max(ex - sx, 2), h - pad.top - pad.bottom);
-  });
 
   ctx.strokeStyle = 'rgba(255,255,255,.08)';
   ctx.lineWidth = 1;
@@ -1030,12 +1031,6 @@ function drawChart() {
   }
   ctx.stroke();
 
-  goldenWindows.forEach(g => {
-    const cx = x(Math.max(minT, Math.min(maxT, g.center)));
-    ctx.fillStyle = 'rgba(255,225,160,.9)';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('滿潮前後', cx - 18, pad.top + 14);
-  });
 
   ctx.fillStyle = 'rgba(200,220,245,.65)';
   ctx.font = '12px sans-serif';
