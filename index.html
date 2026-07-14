@@ -160,6 +160,15 @@
     overflow:auto; max-height:340px; color:#d8e7ff; font-size:12px; line-height:1.5;
   }
   .footer-note { margin-top:12px; color:var(--muted); font-size:12px; line-height:1.65; }
+  .golden-card { margin-top:12px; background:linear-gradient(135deg, rgba(255,213,106,.20), rgba(255,179,92,.08)); border:1px solid rgba(255,213,106,.34); }
+  .golden-title { display:flex; align-items:center; gap:9px; font-size:20px; font-weight:800; }
+  .golden-badge { display:inline-flex; padding:5px 10px; border-radius:999px; font-size:12px; font-weight:800; background:rgba(255,213,106,.18); color:#ffe59a; border:1px solid rgba(255,213,106,.28); }
+  .golden-badge.active { background:#ffd56a; color:#3b2a00; }
+  .golden-grid { display:grid; grid-template-columns:1.2fr 1fr auto; gap:10px; align-items:center; margin-top:12px; }
+  @media (max-width:700px) { .golden-grid { grid-template-columns:1fr; } }
+  .golden-time { font-size:24px; font-weight:850; line-height:1.25; }
+  .golden-countdown { color:#ffe59a; font-weight:750; }
+  .golden-card button { width:auto; min-width:170px; }
 </style>
 </head>
 <body>
@@ -205,6 +214,10 @@
 
       <button class="btn-secondary" id="locateBtn" type="button" style="margin-top:10px;">
         📍 自動定位最近潮汐點
+      </button>
+
+      <button class="btn-secondary" id="notifyBtn" type="button" style="margin-top:10px;">
+        🔔 開啟黃金潮汐提醒
       </button>
 
       <div class="field" style="margin-top:12px;">
@@ -254,6 +267,26 @@
           <div class="m" id="nextLowMeta">—</div>
         </div>
       </div>
+
+      <section class="card golden-card" id="goldenCard">
+        <div class="section-title">
+          <div class="golden-title">🌟 黃金潮汐提醒 <span class="golden-badge" id="goldenBadge">等待資料</span></div>
+          <div class="mini">滿潮前 2 小時至滿潮後 1 小時</div>
+        </div>
+        <div class="golden-grid">
+          <div>
+            <div class="k">下一個黃金時段</div>
+            <div class="golden-time" id="goldenTime">—</div>
+            <div class="m" id="goldenMeta">載入潮汐資料後自動計算。</div>
+          </div>
+          <div>
+            <div class="k">距離黃金時段</div>
+            <div class="golden-countdown" id="goldenCountdown">—</div>
+            <div class="m" id="goldenAdvice">實際魚況仍需搭配流水、風浪、濁度與釣場地形判斷。</div>
+          </div>
+          <button class="btn-secondary" id="goldenNotifyBtn" type="button">🔔 開啟瀏覽器提醒</button>
+        </div>
+      </section>
 
       <div class="content-grid">
         <section class="card">
@@ -341,7 +374,9 @@ const state = {
   map: null,
   mapMarkers: [],
   userMarker: null,
-  userLocation: null
+  userLocation: null,
+  goldenReminderKey: '',
+  goldenTimer: null
 };
 
 const $ = id => document.getElementById(id);
@@ -769,6 +804,97 @@ function getTrendInfo(dayRows) {
   };
 }
 
+const GOLDEN_BEFORE_MINUTES = 120;
+const GOLDEN_AFTER_MINUTES = 60;
+const GOLDEN_NOTIFY_LEAD_MINUTES = 30;
+
+function formatDuration(ms) {
+  const totalMinutes = Math.max(0, Math.round(ms / 60000));
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  const parts = [];
+  if (days) parts.push(`${days} 天`);
+  if (hours) parts.push(`${hours} 小時`);
+  parts.push(`${minutes} 分鐘`);
+  return parts.join(' ');
+}
+
+function getGoldenWindowInfo() {
+  const rows = getSelectedRows();
+  if (!rows.length) return null;
+  const now = Date.now();
+  const highs = rows.filter(r => String(r.tideType).includes('滿潮'))
+    .map(r => ({ ...r, ts: new Date(r.dateTime).getTime() }))
+    .filter(r => Number.isFinite(r.ts)).sort((a,b) => a.ts - b.ts);
+  for (const high of highs) {
+    const start = high.ts - GOLDEN_BEFORE_MINUTES * 60000;
+    const end = high.ts + GOLDEN_AFTER_MINUTES * 60000;
+    if (end >= now) return { high, start, end, active: now >= start && now <= end };
+  }
+  return null;
+}
+
+function updateGoldenReminder() {
+  const info = getGoldenWindowInfo();
+  const badge = $('goldenBadge');
+  if (!badge) return;
+  if (!info) {
+    badge.textContent = '暫無資料'; badge.className = 'golden-badge';
+    $('goldenTime').textContent = '—';
+    $('goldenMeta').textContent = '目前資料範圍內找不到下一次滿潮。';
+    $('goldenCountdown').textContent = '—';
+    $('goldenAdvice').textContent = '可重新載入潮汐資料或切換其他潮汐點。';
+    return;
+  }
+  const now = Date.now();
+  const sd = new Date(info.start), ed = new Date(info.end), hd = new Date(info.high.ts);
+  const hm = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  $('goldenTime').textContent = `${onlyDate(info.high.dateTime)} ${hm(sd)}－${hm(ed)}`;
+  $('goldenMeta').textContent = `${state.selectedLocation}｜滿潮 ${hm(hd)}｜滿潮前 2 小時至滿潮後 1 小時`;
+  if (info.active) {
+    badge.textContent = '黃金時段中'; badge.className = 'golden-badge active';
+    $('goldenCountdown').textContent = `剩餘約 ${formatDuration(info.end - now)}`;
+    $('goldenAdvice').textContent = '目前位於黃金時段，可優先把握漲滿前後的流水轉折；仍須注意風浪與安全。';
+  } else {
+    badge.textContent = '下一時段'; badge.className = 'golden-badge';
+    $('goldenCountdown').textContent = `${formatDuration(info.start - now)}後開始`;
+    $('goldenAdvice').textContent = '建議提早 30～60 分鐘到場觀察流水、打誘餌並調整釣棚。';
+  }
+  maybeSendGoldenNotification(info);
+}
+
+function maybeSendGoldenNotification(info) {
+  if (!info || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = Date.now();
+  const reminderAt = info.start - GOLDEN_NOTIFY_LEAD_MINUTES * 60000;
+  if (now < reminderAt || now > info.end) return;
+  const phase = info.active ? 'active' : 'soon';
+  const key = `${state.selectedLocation}|${info.high.dateTime}|${phase}`;
+  if (state.goldenReminderKey === key) return;
+  state.goldenReminderKey = key;
+  const title = info.active ? '🌟 黃金潮汐時段已開始' : '🌟 黃金潮汐即將開始';
+  const body = info.active
+    ? `${state.selectedLocation}目前進入黃金時段，滿潮 ${onlyTime(info.high.dateTime)}。`
+    : `${state.selectedLocation}黃金時段將於 30 分鐘內開始，滿潮 ${onlyTime(info.high.dateTime)}。`;
+  try { new Notification(title, { body }); } catch (e) { console.warn(e); }
+}
+
+async function requestGoldenNotification() {
+  if (!('Notification' in window)) {
+    setStatus('目前瀏覽器不支援通知；頁面內提醒仍可正常顯示。', true); return;
+  }
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      $('notifyBtn').textContent = '🔔 黃金潮汐提醒已開啟';
+      $('goldenNotifyBtn').textContent = '🔔 瀏覽器提醒已開啟';
+      setStatus('黃金潮汐提醒已開啟。網頁保持開啟時，會在黃金時段前 30 分鐘及開始時提醒。');
+      updateGoldenReminder();
+    } else setStatus('未取得通知權限；頁面內仍會顯示黃金潮汐時段。', true);
+  } catch (err) { setStatus(`開啟通知失敗：${err.message}`, true); }
+}
+
 function renderSummary() {
   const rows = getSelectedRows();
   const dayRows = getDayRows();
@@ -1108,6 +1234,7 @@ function renderAll() {
   renderTable();
   drawChart();
   renderMapPoints();
+  updateGoldenReminder();
 }
 
 async function loadData() {
@@ -1156,6 +1283,8 @@ async function loadData() {
 }
 
 $('loadBtn').addEventListener('click', loadData);
+$('notifyBtn').addEventListener('click', requestGoldenNotification);
+$('goldenNotifyBtn').addEventListener('click', requestGoldenNotification);
 $('locateBtn').addEventListener('click', () => locateNearestTidePoint());
 $('todayBtn').addEventListener('click', () => {
   state.selectedDate = todayLocal();
@@ -1252,6 +1381,7 @@ function bindChartDrag() {
   initMap();
   drawChart();
   bindChartDrag();
+  state.goldenTimer = window.setInterval(updateGoldenReminder, 60000);
 
   // 自動載入中央氣象署潮汐資料；完成後會要求定位並選擇最近潮汐點。
   loadData();
