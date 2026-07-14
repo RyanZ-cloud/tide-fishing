@@ -166,6 +166,67 @@
     background:rgba(255,213,106,.28); border:1px solid rgba(255,213,106,.85);
   }
 
+
+
+  /* 手機版資訊順序：潮汐曲線 → 潮汐趨勢 → 地圖 → 查詢設定 */
+  @media (max-width:980px) {
+    .shell {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .main, .content-grid {
+      display:contents;
+    }
+    .chart-card { order:1; }
+    .top-cards { order:2; }
+    .map-card { order:3; }
+    .side {
+      order:4;
+      position:static;
+      width:100%;
+      max-width:100%;
+      min-width:0;
+      overflow:hidden;
+      align-self:stretch;
+    }
+    .side .section-title,
+    .side .field,
+    .side .btn-row,
+    .side .chip-row,
+    .side .status {
+      width:100%;
+      max-width:100%;
+      min-width:0;
+    }
+    .side input,
+    .side select,
+    .side button {
+      max-width:100%;
+      min-width:0;
+    }
+    .side .section-title {
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .side .section-title .mini {
+      overflow-wrap:anywhere;
+    }
+    .main > details { order:5; }
+  }
+
+  @media (max-width:560px) {
+    .app { padding-left:10px; padding-right:10px; }
+    .side { padding:12px; border-radius:20px; }
+    .side .btn-row { grid-template-columns:1fr; }
+    .side .chip-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .side .chip { width:100%; padding-left:8px; padding-right:8px; }
+    .side input,
+    .side select,
+    .side button { font-size:16px; }
+    .side #apiKey { font-size:13px; }
+  }
+
 </style>
 </head>
 <body>
@@ -262,7 +323,7 @@
       </div>
 
       <div class="content-grid">
-        <section class="card">
+        <section class="card chart-card">
           <div class="section-title">
             <h2>潮位曲線圖</h2>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -279,10 +340,10 @@
             <span><i class="golden-zone-mark"></i> 黃金潮汐時段</span>
             <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
           </div>
-          <div class="footer-note" id="chartNote">所有日期皆固定顯示 00:00–24:00 完整潮汐；今天另標示目前潮位。</div>
+          <div class="footer-note" id="chartNote">今天顯示現在前 2 小時至後 12 小時；其他日期顯示 00:00–24:00 完整潮汐。</div>
         </section>
 
-        <section class="card">
+        <section class="card map-card">
           <div class="section-title">
             <h2>台灣潮汐地圖選點</h2>
             <div class="mini">點地圖直接切換地點</div>
@@ -908,12 +969,14 @@ function drawChart() {
   const dayRows = allLocationRows.filter(r => r.date === selectedDate);
 
   $('chartTitle').textContent = state.selectedLocation
-    ? `${state.selectedLocation}｜${selectedDate}｜00:00–24:00`
+    ? (isTodayView
+        ? `${state.selectedLocation}｜即時潮汐（前 2 小時～後 12 小時）`
+        : `${state.selectedLocation}｜${selectedDate}｜00:00–24:00`)
     : '尚未載入';
 
   $('dragHint').textContent = isTodayView
-    ? '今天：完整 24 小時｜滑鼠移動或手指拖曳可查時間與潮高'
-    : '指定日期：滑鼠移動或手指拖曳可查夜間潮況';
+    ? '今天：聚焦接下來 12 小時｜滑鼠移動或手指拖曳可查時間與潮高'
+    : '指定日期：完整 24 小時｜可查看晚間與凌晨潮況';
   $('currentLegend').style.display = isTodayView ? 'inline-flex' : 'none';
 
   if (!dayRows.length) {
@@ -935,21 +998,27 @@ function drawChart() {
   if (firstDayIndex > 0) visibleRows.unshift(allLocationRows[firstDayIndex - 1]);
   if (lastDayIndex >= 0 && lastDayIndex < allLocationRows.length - 1) visibleRows.push(allLocationRows[lastDayIndex + 1]);
 
-  const forcedMinT = dayStart;
-  const forcedMaxT = dayEnd;
+  const nowTs = Date.now();
+  const forcedMinT = isTodayView ? nowTs - 2 * 60 * 60 * 1000 : dayStart;
+  const forcedMaxT = isTodayView ? nowTs + 12 * 60 * 60 * 1000 : dayEnd;
   $('chartNote').textContent = isTodayView
-    ? '固定顯示今天 00:00–24:00；黃色區塊為黃金潮汐時段，可滑動查看任一時間的預估潮高。'
+    ? '即時模式顯示現在前 2 小時至後 12 小時；黃色區塊為黃金潮汐時段，可滑動查看預估潮高。'
     : '固定顯示所選日期 00:00–24:00；黃色區塊為黃金潮汐時段，可滑動查看晚間與凌晨潮況。';
 
   const pts = interpolateSeries(visibleRows);
-  const rawPts = dayRows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
-    ts:new Date(r.dateTime).getTime(),
-    h:r.aboveLocalMSL,
-    label:r.tideType,
-    time:r.time
-  }));
+  const rawPts = allLocationRows
+    .filter(r => {
+      const ts = new Date(r.dateTime).getTime();
+      return !Number.isNaN(r.aboveLocalMSL) && ts >= forcedMinT && ts <= forcedMaxT;
+    })
+    .map(r => ({
+      ts:new Date(r.dateTime).getTime(),
+      h:r.aboveLocalMSL,
+      label:r.tideType,
+      time:r.time
+    }));
 
-  if (!pts.length || rawPts.length < 2) {
+  if (pts.length < 2) {
     ctx.fillStyle = 'rgba(238,246,255,.7)';
     ctx.font = '15px sans-serif';
     ctx.fillText('潮高資料不足，無法繪圖', 24, 40);
@@ -1001,13 +1070,13 @@ function drawChart() {
   ctx.clip();
 
   // 黃金潮汐時段：每次滿潮前 2 小時至滿潮後 1 小時。
-  const goldenWindows = dayRows
+  const goldenWindows = allLocationRows
     .filter(r => String(r.tideType).includes('滿潮'))
     .map(r => {
       const highTs = new Date(r.dateTime).getTime();
       return {
-        startTs: Math.max(dayStart, highTs - GOLDEN_BEFORE_MINUTES * 60000),
-        endTs: Math.min(dayEnd, highTs + GOLDEN_AFTER_MINUTES * 60000),
+        startTs: Math.max(forcedMinT, highTs - GOLDEN_BEFORE_MINUTES * 60000),
+        endTs: Math.min(forcedMaxT, highTs + GOLDEN_AFTER_MINUTES * 60000),
         highTs,
         label: `${formatClock(new Date(highTs - GOLDEN_BEFORE_MINUTES * 60000))}–${formatClock(new Date(highTs + GOLDEN_AFTER_MINUTES * 60000))}`
       };
@@ -1073,14 +1142,26 @@ function drawChart() {
     ctx.fill();
   });
 
-  // 固定 24 小時橫軸，每 3 小時顯示一次，確保晚間潮況清楚可見。
+  // 今天採 14 小時視窗，每 2 小時標示；其他日期維持 24 小時、每 3 小時標示。
   ctx.fillStyle = 'rgba(220,238,255,.75)';
   ctx.font = '12px sans-serif';
   ctx.textAlign = 'center';
-  for (let hour = 0; hour <= 24; hour += 3) {
-    const tickT = dayStart + hour * 60 * 60 * 1000;
-    const px = x(tickT);
-    ctx.fillText(`${String(hour).padStart(2,'0')}:00`, px, h - 12);
+  if (isTodayView) {
+    const tickStep = 2 * 60 * 60 * 1000;
+    let tickT = Math.ceil(minT / tickStep) * tickStep;
+    for (; tickT <= maxT; tickT += tickStep) {
+      const d = new Date(tickT);
+      const px = x(tickT);
+      const hm = `${String(d.getHours()).padStart(2,'0')}:00`;
+      const label = d.getDate() !== new Date(minT).getDate() ? `${d.getMonth()+1}/${d.getDate()} ${hm}` : hm;
+      ctx.fillText(label, px, h - 12);
+    }
+  } else {
+    for (let hour = 0; hour <= 24; hour += 3) {
+      const tickT = dayStart + hour * 60 * 60 * 1000;
+      const px = x(tickT);
+      ctx.fillText(`${String(hour).padStart(2,'0')}:00`, px, h - 12);
+    }
   }
   ctx.textAlign = 'start';
 
