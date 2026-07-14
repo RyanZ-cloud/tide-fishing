@@ -210,9 +210,13 @@
       </div>
 
       <div class="btn-row">
-        <button class="btn-primary" id="loadBtn" type="button">載入潮汐</button>
+        <button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button>
         <button class="btn-secondary" id="todayBtn" type="button">切到今天</button>
       </div>
+
+      <button class="btn-secondary" id="locateBtn" type="button" style="margin-top:10px;">
+        📍 自動定位最近潮汐點
+      </button>
 
       <div class="field" style="margin-top:12px;">
         <label>快速日期</label>
@@ -363,7 +367,9 @@ const state = {
   selectedDate: '',
   favorites: [...FAV_DEFAULT],
   map: null,
-  mapMarkers: []
+  mapMarkers: [],
+  userMarker: null,
+  userLocation: null
 };
 
 const $ = id => document.getElementById(id);
@@ -380,6 +386,100 @@ function todayLocal() {
   const m = String(n.getMonth()+1).padStart(2,'0');
   const d = String(n.getDate()).padStart(2,'0');
   return `${y}-${m}-${d}`;
+}
+
+
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const toRad = deg => deg * Math.PI / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+    * Math.sin(dLon / 2) ** 2;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function findNearestTideLocation(userLat, userLon) {
+  let nearest = null;
+  for (const [name, rows] of state.rowsByLocation.entries()) {
+    if (!rows || !rows.length) continue;
+    const lat = Number(rows[0].lat);
+    const lon = Number(rows[0].lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    const km = distanceKm(userLat, userLon, lat, lon);
+    if (!nearest || km < nearest.distanceKm) {
+      nearest = { name, lat, lon, distanceKm: km };
+    }
+  }
+  return nearest;
+}
+
+function showUserPositionOnMap(lat, lon) {
+  if (!state.map) return;
+  if (state.userMarker) state.map.removeLayer(state.userMarker);
+  state.userMarker = L.circleMarker([lat, lon], {
+    radius: 8,
+    color: '#ffffff',
+    fillColor: '#ff5f6d',
+    weight: 3,
+    fillOpacity: 1
+  }).addTo(state.map);
+  state.userMarker.bindPopup('<div style="color:#111"><strong>你目前的位置</strong></div>');
+}
+
+function locateNearestTidePoint({ silentStart = false } = {}) {
+  return new Promise(resolve => {
+    if (!state.rowsByLocation.size) {
+      setStatus('潮汐資料尚未載入，請先按「重新載入潮汐」。', true);
+      resolve(null);
+      return;
+    }
+    if (!navigator.geolocation) {
+      setStatus('此瀏覽器不支援定位，請改用地圖或下拉選單選擇潮汐點。', true);
+      resolve(null);
+      return;
+    }
+    if (!silentStart) setStatus('正在取得目前位置並尋找最近潮汐點…');
+
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+      state.userLocation = { lat: userLat, lon: userLon };
+      const nearest = findNearestTideLocation(userLat, userLon);
+      if (!nearest) {
+        setStatus('已取得位置，但潮汐資料中沒有可比較的座標。', true);
+        resolve(null);
+        return;
+      }
+
+      state.selectedLocation = nearest.name;
+      $('search').value = nearest.name;
+      populateLocationSelect(nearest.name);
+      $('locationSelect').value = nearest.name;
+      showUserPositionOnMap(userLat, userLon);
+      renderAll();
+
+      if (state.map) {
+        const bounds = L.latLngBounds([[userLat, userLon], [nearest.lat, nearest.lon]]);
+        state.map.fitBounds(bounds.pad(0.35), { maxZoom: 11 });
+      }
+
+      setStatus(`已自動選擇最近潮汐點：${nearest.name}\n直線距離約 ${nearest.distanceKm.toFixed(1)} 公里。`);
+      resolve(nearest);
+    }, error => {
+      let msg = '目前無法取得定位，仍可使用地圖或下拉選單手動選擇。';
+      if (error.code === error.PERMISSION_DENIED) msg = '你尚未允許定位權限，仍可手動選擇潮汐點。若要使用自動定位，請在瀏覽器網址列開啟位置權限。';
+      else if (error.code === error.POSITION_UNAVAILABLE) msg = '裝置目前無法提供位置，仍可手動選擇潮汐點。';
+      else if (error.code === error.TIMEOUT) msg = '定位逾時，仍可手動選擇潮汐點，或稍後再按定位按鈕。';
+      setStatus(msg, true);
+      resolve(null);
+    }, {
+      enableHighAccuracy: true,
+      timeout: 12000,
+      maximumAge: 300000
+    });
+  });
 }
 
 function shiftDate(dateStr, days) {
@@ -1178,7 +1278,11 @@ async function loadData() {
     $('dateInput').value = state.selectedDate;
     initMap();
     renderAll();
-    setStatus(`載入成功：共 ${state.rowsByLocation.size} 個地點。可用地圖直接點選潮汐點。`);
+
+    const nearest = await locateNearestTidePoint({ silentStart: true });
+    if (!nearest) {
+      setStatus(`潮汐資料載入成功：共 ${state.rowsByLocation.size} 個地點。定位未完成，可用地圖或下拉選單手動選擇。`, true);
+    }
   } catch (err) {
     console.error(err);
     if (state.rawText) $('debugPre').textContent = state.rawText.slice(0, 120000);
@@ -1187,6 +1291,7 @@ async function loadData() {
 }
 
 $('loadBtn').addEventListener('click', loadData);
+$('locateBtn').addEventListener('click', () => locateNearestTidePoint());
 $('todayBtn').addEventListener('click', () => {
   state.selectedDate = todayLocal();
   $('dateInput').value = state.selectedDate;
@@ -1292,6 +1397,7 @@ function bindChartDrag() {
 }
 
 (function init() {
+  // 每次開啟網頁都預設為使用者裝置的今天日期。
   state.selectedDate = todayLocal();
   $('dateInput').value = state.selectedDate;
   renderFavChips('');
@@ -1299,6 +1405,9 @@ function bindChartDrag() {
   initMap();
   drawChart();
   bindChartDrag();
+
+  // 自動載入中央氣象署潮汐資料；完成後會要求定位並選擇最近潮汐點。
+  loadData();
 })();
 </script>
 </body>
