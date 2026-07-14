@@ -121,6 +121,7 @@
   @media (max-width:560px) { .chart-wrap { height:270px; } }
   canvas {
     width:100%; height:100%; display:block; border-radius:16px;
+    cursor:crosshair; touch-action:pan-y;
     background:linear-gradient(180deg, rgba(13,29,47,.92), rgba(9,20,35,.92));
   }
 
@@ -160,15 +161,11 @@
     overflow:auto; max-height:340px; color:#d8e7ff; font-size:12px; line-height:1.5;
   }
   .footer-note { margin-top:12px; color:var(--muted); font-size:12px; line-height:1.65; }
-  .golden-card { margin-top:12px; background:linear-gradient(135deg, rgba(255,213,106,.20), rgba(255,179,92,.08)); border:1px solid rgba(255,213,106,.34); }
-  .golden-title { display:flex; align-items:center; gap:9px; font-size:20px; font-weight:800; }
-  .golden-badge { display:inline-flex; padding:5px 10px; border-radius:999px; font-size:12px; font-weight:800; background:rgba(255,213,106,.18); color:#ffe59a; border:1px solid rgba(255,213,106,.28); }
-  .golden-badge.active { background:#ffd56a; color:#3b2a00; }
-  .golden-grid { display:grid; grid-template-columns:1.2fr 1fr auto; gap:10px; align-items:center; margin-top:12px; }
-  @media (max-width:700px) { .golden-grid { grid-template-columns:1fr; } }
-  .golden-time { font-size:24px; font-weight:850; line-height:1.25; }
-  .golden-countdown { color:#ffe59a; font-weight:750; }
-  .golden-card button { width:auto; min-width:170px; }
+  .golden-zone-mark {
+    width:18px; height:10px; border-radius:3px;
+    background:rgba(255,213,106,.28); border:1px solid rgba(255,213,106,.85);
+  }
+
 </style>
 </head>
 <body>
@@ -214,10 +211,6 @@
 
       <button class="btn-secondary" id="locateBtn" type="button" style="margin-top:10px;">
         📍 自動定位最近潮汐點
-      </button>
-
-      <button class="btn-secondary" id="notifyBtn" type="button" style="margin-top:10px;">
-        🔔 開啟黃金潮汐提醒
       </button>
 
       <div class="field" style="margin-top:12px;">
@@ -268,26 +261,6 @@
         </div>
       </div>
 
-      <section class="card golden-card" id="goldenCard">
-        <div class="section-title">
-          <div class="golden-title">🌟 黃金潮汐提醒 <span class="golden-badge" id="goldenBadge">等待資料</span></div>
-          <div class="mini">滿潮前 2 小時至滿潮後 1 小時</div>
-        </div>
-        <div class="golden-grid">
-          <div>
-            <div class="k">下一個黃金時段</div>
-            <div class="golden-time" id="goldenTime">—</div>
-            <div class="m" id="goldenMeta">載入潮汐資料後自動計算。</div>
-          </div>
-          <div>
-            <div class="k">距離黃金時段</div>
-            <div class="golden-countdown" id="goldenCountdown">—</div>
-            <div class="m" id="goldenAdvice">實際魚況仍需搭配流水、風浪、濁度與釣場地形判斷。</div>
-          </div>
-          <button class="btn-secondary" id="goldenNotifyBtn" type="button">🔔 開啟瀏覽器提醒</button>
-        </div>
-      </section>
-
       <div class="content-grid">
         <section class="card">
           <div class="section-title">
@@ -303,6 +276,7 @@
           <div class="legend">
             <span><i class="line-mark"></i> 潮位曲線</span>
             <span><i class="dot-mark"></i> 滿／乾潮點</span>
+            <span><i class="golden-zone-mark"></i> 黃金潮汐時段</span>
             <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
           </div>
           <div class="footer-note" id="chartNote">所有日期皆固定顯示 00:00–24:00 完整潮汐；今天另標示目前潮位。</div>
@@ -327,31 +301,6 @@
         </section>
       </div>
 
-      <section class="card" style="margin-top:12px;">
-        <div class="section-title">
-          <h2>潮汐表</h2>
-          <div class="mini" id="tableHint">載入後可查看指定地點的當日潮汐表</div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>日期</th>
-                <th>時間</th>
-                <th>潮汐</th>
-                <th>潮差</th>
-                <th>潮高(當地平均海平面)</th>
-                <th>潮高(海圖基準面)</th>
-                <th>農曆</th>
-              </tr>
-            </thead>
-            <tbody id="tbody">
-              <tr><td colspan="7" style="color:var(--muted)">尚未載入資料</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       <details id="debugWrap" style="display:none;">
         <summary>原始回應（除錯用）</summary>
         <pre id="debugPre"></pre>
@@ -374,9 +323,7 @@ const state = {
   map: null,
   mapMarkers: [],
   userMarker: null,
-  userLocation: null,
-  goldenReminderKey: '',
-  goldenTimer: null
+  userLocation: null
 };
 
 const $ = id => document.getElementById(id);
@@ -806,93 +753,22 @@ function getTrendInfo(dayRows) {
 
 const GOLDEN_BEFORE_MINUTES = 120;
 const GOLDEN_AFTER_MINUTES = 60;
-const GOLDEN_NOTIFY_LEAD_MINUTES = 30;
 
-function formatDuration(ms) {
-  const totalMinutes = Math.max(0, Math.round(ms / 60000));
-  const days = Math.floor(totalMinutes / 1440);
-  const hours = Math.floor((totalMinutes % 1440) / 60);
-  const minutes = totalMinutes % 60;
-  const parts = [];
-  if (days) parts.push(`${days} 天`);
-  if (hours) parts.push(`${hours} 小時`);
-  parts.push(`${minutes} 分鐘`);
-  return parts.join(' ');
+function formatClock(date) {
+  return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 }
 
-function getGoldenWindowInfo() {
-  const rows = getSelectedRows();
-  if (!rows.length) return null;
-  const now = Date.now();
-  const highs = rows.filter(r => String(r.tideType).includes('滿潮'))
-    .map(r => ({ ...r, ts: new Date(r.dateTime).getTime() }))
-    .filter(r => Number.isFinite(r.ts)).sort((a,b) => a.ts - b.ts);
-  for (const high of highs) {
-    const start = high.ts - GOLDEN_BEFORE_MINUTES * 60000;
-    const end = high.ts + GOLDEN_AFTER_MINUTES * 60000;
-    if (end >= now) return { high, start, end, active: now >= start && now <= end };
-  }
-  return null;
-}
-
-function updateGoldenReminder() {
-  const info = getGoldenWindowInfo();
-  const badge = $('goldenBadge');
-  if (!badge) return;
-  if (!info) {
-    badge.textContent = '暫無資料'; badge.className = 'golden-badge';
-    $('goldenTime').textContent = '—';
-    $('goldenMeta').textContent = '目前資料範圍內找不到下一次滿潮。';
-    $('goldenCountdown').textContent = '—';
-    $('goldenAdvice').textContent = '可重新載入潮汐資料或切換其他潮汐點。';
-    return;
-  }
-  const now = Date.now();
-  const sd = new Date(info.start), ed = new Date(info.end), hd = new Date(info.high.ts);
-  const hm = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  $('goldenTime').textContent = `${onlyDate(info.high.dateTime)} ${hm(sd)}－${hm(ed)}`;
-  $('goldenMeta').textContent = `${state.selectedLocation}｜滿潮 ${hm(hd)}｜滿潮前 2 小時至滿潮後 1 小時`;
-  if (info.active) {
-    badge.textContent = '黃金時段中'; badge.className = 'golden-badge active';
-    $('goldenCountdown').textContent = `剩餘約 ${formatDuration(info.end - now)}`;
-    $('goldenAdvice').textContent = '目前位於黃金時段，可優先把握漲滿前後的流水轉折；仍須注意風浪與安全。';
-  } else {
-    badge.textContent = '下一時段'; badge.className = 'golden-badge';
-    $('goldenCountdown').textContent = `${formatDuration(info.start - now)}後開始`;
-    $('goldenAdvice').textContent = '建議提早 30～60 分鐘到場觀察流水、打誘餌並調整釣棚。';
-  }
-  maybeSendGoldenNotification(info);
-}
-
-function maybeSendGoldenNotification(info) {
-  if (!info || !('Notification' in window) || Notification.permission !== 'granted') return;
-  const now = Date.now();
-  const reminderAt = info.start - GOLDEN_NOTIFY_LEAD_MINUTES * 60000;
-  if (now < reminderAt || now > info.end) return;
-  const phase = info.active ? 'active' : 'soon';
-  const key = `${state.selectedLocation}|${info.high.dateTime}|${phase}`;
-  if (state.goldenReminderKey === key) return;
-  state.goldenReminderKey = key;
-  const title = info.active ? '🌟 黃金潮汐時段已開始' : '🌟 黃金潮汐即將開始';
-  const body = info.active
-    ? `${state.selectedLocation}目前進入黃金時段，滿潮 ${onlyTime(info.high.dateTime)}。`
-    : `${state.selectedLocation}黃金時段將於 30 分鐘內開始，滿潮 ${onlyTime(info.high.dateTime)}。`;
-  try { new Notification(title, { body }); } catch (e) { console.warn(e); }
-}
-
-async function requestGoldenNotification() {
-  if (!('Notification' in window)) {
-    setStatus('目前瀏覽器不支援通知；頁面內提醒仍可正常顯示。', true); return;
-  }
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      $('notifyBtn').textContent = '🔔 黃金潮汐提醒已開啟';
-      $('goldenNotifyBtn').textContent = '🔔 瀏覽器提醒已開啟';
-      setStatus('黃金潮汐提醒已開啟。網頁保持開啟時，會在黃金時段前 30 分鐘及開始時提醒。');
-      updateGoldenReminder();
-    } else setStatus('未取得通知權限；頁面內仍會顯示黃金潮汐時段。', true);
-  } catch (err) { setStatus(`開啟通知失敗：${err.message}`, true); }
+function getGoldenWindowForHigh(row) {
+  if (!row || !String(row.tideType).includes('滿潮')) return null;
+  const highTs = new Date(row.dateTime).getTime();
+  if (!Number.isFinite(highTs)) return null;
+  const start = new Date(highTs - GOLDEN_BEFORE_MINUTES * 60000);
+  const end = new Date(highTs + GOLDEN_AFTER_MINUTES * 60000);
+  return {
+    start,
+    end,
+    label: `${formatClock(start)}–${formatClock(end)}`
+  };
 }
 
 function renderSummary() {
@@ -948,30 +824,6 @@ function renderSummary() {
   $('trendMeta').textContent = trend.meta;
   $('adviceBox').textContent = trend.advice;
   $('trendDot').className = 'trend-dot' + (trend.dot ? ' ' + trend.dot : '');
-}
-
-function renderTable() {
-  const rows = getDayRows();
-  $('tableHint').textContent = state.selectedLocation
-    ? `地點：${state.selectedLocation}｜日期：${state.selectedDate || '—'}`
-    : '尚未選擇地點';
-
-  if (!rows.length) {
-    $('tbody').innerHTML = '<tr><td colspan="7" style="color:var(--muted)">查無符合資料</td></tr>';
-    return;
-  }
-
-  $('tbody').innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.date}</td>
-      <td>${r.time}</td>
-      <td><span class="tag">${r.tideType}</span></td>
-      <td>${r.tideRange}</td>
-      <td>${normalizeHeight(r.aboveLocalMSL)}</td>
-      <td>${normalizeHeight(r.aboveChartDatum)}</td>
-      <td>${r.lunarDate || '—'}</td>
-    </tr>
-  `).join('');
 }
 
 function initMap() {
@@ -1060,8 +912,8 @@ function drawChart() {
     : '尚未載入';
 
   $('dragHint').textContent = isTodayView
-    ? '今天：完整 24 小時，並標示現在潮位'
-    : '指定日期：完整顯示凌晨至深夜潮況';
+    ? '今天：完整 24 小時｜滑鼠移動或手指拖曳可查時間與潮高'
+    : '指定日期：滑鼠移動或手指拖曳可查夜間潮況';
   $('currentLegend').style.display = isTodayView ? 'inline-flex' : 'none';
 
   if (!dayRows.length) {
@@ -1086,8 +938,8 @@ function drawChart() {
   const forcedMinT = dayStart;
   const forcedMaxT = dayEnd;
   $('chartNote').textContent = isTodayView
-    ? '固定顯示今天 00:00–24:00 的完整潮位曲線，藍色標記為目前潮位。'
-    : '固定顯示所選日期 00:00–24:00 的完整潮位曲線，可直接查看晚間與凌晨潮況。';
+    ? '固定顯示今天 00:00–24:00；黃色區塊為黃金潮汐時段，可滑動查看任一時間的預估潮高。'
+    : '固定顯示所選日期 00:00–24:00；黃色區塊為黃金潮汐時段，可滑動查看晚間與凌晨潮況。';
 
   const pts = interpolateSeries(visibleRows);
   const rawPts = dayRows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
@@ -1116,6 +968,13 @@ function drawChart() {
   const x = t => pad.left + (t - minT) / (maxT - minT || 1) * (w - pad.left - pad.right);
   const y = val => h - pad.bottom - (val - lo) / (hi - lo || 1) * (h - pad.top - pad.bottom);
 
+  state.chartGeometry = { pad, minT, maxT, width:w, height:h };
+  if (state.chartInspectTs == null || state.chartInspectTs < minT || state.chartInspectTs > maxT) {
+    state.chartInspectTs = isTodayView && Date.now() >= minT && Date.now() <= maxT
+      ? Date.now()
+      : minT + 12 * 60 * 60 * 1000;
+  }
+
 
   ctx.strokeStyle = 'rgba(255,255,255,.08)';
   ctx.lineWidth = 1;
@@ -1140,6 +999,44 @@ function drawChart() {
   ctx.beginPath();
   ctx.rect(pad.left, pad.top, w - pad.left - pad.right, h - pad.top - pad.bottom);
   ctx.clip();
+
+  // 黃金潮汐時段：每次滿潮前 2 小時至滿潮後 1 小時。
+  const goldenWindows = dayRows
+    .filter(r => String(r.tideType).includes('滿潮'))
+    .map(r => {
+      const highTs = new Date(r.dateTime).getTime();
+      return {
+        startTs: Math.max(dayStart, highTs - GOLDEN_BEFORE_MINUTES * 60000),
+        endTs: Math.min(dayEnd, highTs + GOLDEN_AFTER_MINUTES * 60000),
+        highTs,
+        label: `${formatClock(new Date(highTs - GOLDEN_BEFORE_MINUTES * 60000))}–${formatClock(new Date(highTs + GOLDEN_AFTER_MINUTES * 60000))}`
+      };
+    })
+    .filter(g => g.endTs > g.startTs);
+
+  goldenWindows.forEach((g, index) => {
+    const gx1 = x(g.startTs);
+    const gx2 = x(g.endTs);
+    ctx.fillStyle = 'rgba(255,213,106,.14)';
+    ctx.fillRect(gx1, pad.top, gx2 - gx1, h - pad.top - pad.bottom);
+    ctx.strokeStyle = 'rgba(255,213,106,.58)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    ctx.moveTo(gx1, pad.top);
+    ctx.lineTo(gx1, h - pad.bottom);
+    ctx.moveTo(gx2, pad.top);
+    ctx.lineTo(gx2, h - pad.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(255,244,199,.96)';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    const labelY = pad.top + 14 + (index % 2) * 15;
+    ctx.fillText(`🌟 ${g.label}`, (gx1 + gx2) / 2, labelY);
+    ctx.textAlign = 'start';
+  });
 
   const grad = ctx.createLinearGradient(0, pad.top, 0, h-pad.bottom);
   grad.addColorStop(0, 'rgba(70,178,255,.30)');
@@ -1233,14 +1130,94 @@ function drawChart() {
       ctx.fillText(`${md} ${hm}`, nx - 18, Math.min(h - pad.bottom - 6, ny + 24));
     }
   }
+
+  // 可移動潮位查詢線：顯示指定時間、預估潮高與漲退潮。
+  const inspectTs = state.chartInspectTs;
+  if (inspectTs != null && inspectTs >= minT && inspectTs <= maxT) {
+    let inspectH = null;
+    let slope = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      if (a.ts <= inspectTs && inspectTs <= b.ts) {
+        const r = (inspectTs - a.ts) / (b.ts - a.ts || 1);
+        inspectH = a.h + (b.h - a.h) * r;
+        slope = b.h - a.h;
+        break;
+      }
+    }
+    if (inspectH != null) {
+      const ix = x(inspectTs);
+      const iy = y(inspectH);
+      const inspectDate = new Date(inspectTs);
+      const hm = `${String(inspectDate.getHours()).padStart(2,'0')}:${String(inspectDate.getMinutes()).padStart(2,'0')}`;
+      const trendText = Math.abs(slope) < 0.15 ? '潮勢平緩' : (slope > 0 ? '漲潮中' : '退潮中');
+
+      ctx.beginPath();
+      ctx.moveTo(ix, pad.top);
+      ctx.lineTo(ix, h - pad.bottom);
+      ctx.strokeStyle = 'rgba(255,213,106,.9)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4,4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.arc(ix, iy, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd56a';
+      ctx.fill();
+      ctx.strokeStyle = '#fff3c4';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const activeGolden = dayRows
+        .filter(r => String(r.tideType).includes('滿潮'))
+        .map(r => {
+          const highTs = new Date(r.dateTime).getTime();
+          return { startTs: highTs - GOLDEN_BEFORE_MINUTES * 60000, endTs: highTs + GOLDEN_AFTER_MINUTES * 60000 };
+        })
+        .some(g => inspectTs >= g.startTs && inspectTs <= g.endTs);
+      const lines = [hm, `預估潮高 ${Math.round(inspectH)} cm`, trendText];
+      if (activeGolden) lines.push('🌟 黃金潮汐時段');
+      ctx.font = 'bold 13px sans-serif';
+      const boxW = Math.max(...lines.map(line => ctx.measureText(line).width)) + 24;
+      const boxH = activeGolden ? 90 : 70;
+      let boxX = ix + 12;
+      if (boxX + boxW > w - 6) boxX = ix - boxW - 12;
+      let boxY = iy - boxH - 14;
+      if (boxY < 6) boxY = iy + 14;
+      if (boxY + boxH > h - 4) boxY = h - boxH - 4;
+
+      ctx.fillStyle = 'rgba(7,16,29,.94)';
+      ctx.strokeStyle = 'rgba(255,213,106,.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(boxX, boxY, boxW, boxH, 10);
+      else ctx.rect(boxX, boxY, boxW, boxH);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff4c7';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(lines[0], boxX + 12, boxY + 21);
+      ctx.fillStyle = '#eef6ff';
+      ctx.font = '12px sans-serif';
+      ctx.fillText(lines[1], boxX + 12, boxY + 42);
+      ctx.fillStyle = slope > 0 ? '#70d8b2' : (slope < 0 ? '#ffb35c' : '#76e0ff');
+      ctx.fillText(lines[2], boxX + 12, boxY + 60);
+      if (activeGolden) {
+        ctx.fillStyle = '#ffd56a';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(lines[3], boxX + 12, boxY + 80);
+      }
+    }
+  }
+
 }
 
 function renderAll() {
   renderSummary();
-  renderTable();
   drawChart();
   renderMapPoints();
-  updateGoldenReminder();
 }
 
 async function loadData() {
@@ -1289,8 +1266,6 @@ async function loadData() {
 }
 
 $('loadBtn').addEventListener('click', loadData);
-$('notifyBtn').addEventListener('click', requestGoldenNotification);
-$('goldenNotifyBtn').addEventListener('click', requestGoldenNotification);
 $('locateBtn').addEventListener('click', () => locateNearestTidePoint());
 $('todayBtn').addEventListener('click', () => {
   state.selectedDate = todayLocal();
@@ -1340,44 +1315,44 @@ window.addEventListener('resize', () => {
   drawChart();
 });
 
-let dragStartX = 0;
-let dragStartY = 0;
-let dragging = false;
-function bindChartDrag() {
+let chartPointerActive = false;
+function bindChartInspector() {
   const canvas = $('tideCanvas');
   if (!canvas) return;
 
-  function start(x, y) {
-    dragStartX = x;
-    dragStartY = y;
-    dragging = true;
+  function updateFromClientX(clientX) {
+    const g = state.chartGeometry;
+    if (!g) return;
+    const rect = canvas.getBoundingClientRect();
+    const localX = clientX - rect.left;
+    const plotLeft = g.pad.left;
+    const plotRight = g.width - g.pad.right;
+    const clampedX = Math.max(plotLeft, Math.min(plotRight, localX));
+    const ratio = (clampedX - plotLeft) / (plotRight - plotLeft || 1);
+    state.chartInspectTs = g.minT + ratio * (g.maxT - g.minT);
+    drawChart();
   }
 
-  function end(x, y) {
-    if (!dragging) return;
-    dragging = false;
-    const dx = x - dragStartX;
-    const dy = y - dragStartY;
-    if (Math.abs(dx) < 35) return;
-    if (Math.abs(dx) < Math.abs(dy)) return;
-    const base = state.selectedDate || todayLocal();
-    state.selectedDate = shiftDate(base, dx < 0 ? 1 : -1);
-    $('dateInput').value = state.selectedDate;
-    renderAll();
-  }
+  canvas.addEventListener('mousemove', e => updateFromClientX(e.clientX));
+  canvas.addEventListener('mousedown', e => {
+    chartPointerActive = true;
+    updateFromClientX(e.clientX);
+  });
+  window.addEventListener('mouseup', () => { chartPointerActive = false; });
+  window.addEventListener('mousemove', e => {
+    if (chartPointerActive) updateFromClientX(e.clientX);
+  });
 
-  canvas.addEventListener('touchstart', (e) => {
-    if (!e.touches || !e.touches.length) return;
-    start(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-
-  canvas.addEventListener('touchend', (e) => {
-    if (!e.changedTouches || !e.changedTouches.length) return;
-    end(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-  }, { passive: true });
-
-  canvas.addEventListener('mousedown', (e) => start(e.clientX, e.clientY));
-  window.addEventListener('mouseup', (e) => end(e.clientX, e.clientY));
+  canvas.addEventListener('touchstart', e => {
+    if (!e.touches?.length) return;
+    chartPointerActive = true;
+    updateFromClientX(e.touches[0].clientX);
+  }, { passive:true });
+  canvas.addEventListener('touchmove', e => {
+    if (!chartPointerActive || !e.touches?.length) return;
+    updateFromClientX(e.touches[0].clientX);
+  }, { passive:true });
+  canvas.addEventListener('touchend', () => { chartPointerActive = false; }, { passive:true });
 }
 
 (function init() {
@@ -1386,8 +1361,7 @@ function bindChartDrag() {
   $('dateInput').value = state.selectedDate;
   initMap();
   drawChart();
-  bindChartDrag();
-  state.goldenTimer = window.setInterval(updateGoldenReminder, 60000);
+  bindChartInspector();
 
   // 自動載入中央氣象署潮汐資料；完成後會要求定位並選擇最近潮汐點。
   loadData();
