@@ -89,17 +89,6 @@
     background:linear-gradient(180deg, rgba(70,178,255,.25), rgba(70,178,255,.12));
     border-color:rgba(118,224,255,.35); color:#dcf5ff;
   }
-  .fav-item {
-    display:inline-flex; align-items:center; gap:6px; background:#1a2b46; border:1px solid var(--line);
-    color:#dcecff; border-radius:999px; padding:6px 8px 6px 12px;
-  }
-  .fav-open {
-    background:transparent; color:#dcecff; border:none; width:auto; padding:0; font-size:13px;
-  }
-  .fav-remove {
-    background:#2c3b59; color:#ffd6d6; border:1px solid rgba(255,255,255,.08); width:auto;
-    padding:4px 8px; font-size:12px; border-radius:999px;
-  }
   .status {
     white-space:pre-wrap; margin-top:10px; background:rgba(70,178,255,.08); border:1px solid rgba(70,178,255,.18);
     color:#d9efff; border-radius:14px; padding:12px 14px; font-size:13px; line-height:1.55;
@@ -177,7 +166,7 @@
 <div class="app">
   <div class="hero">
     <h1>台灣潮汐釣點助手｜地圖整合版</h1>
-    <p>免費架構設計：GitHub Pages + 中央氣象署 API + Leaflet + OpenStreetMap。可用地圖直接點潮汐點選釣場、管理收藏與查看即時潮位。</p>
+    <p>免費架構設計：GitHub Pages + 中央氣象署 API + Leaflet + OpenStreetMap。可用地圖直接點潮汐點選釣場並查看即時潮位。</p>
   </div>
 
   <div class="shell">
@@ -194,7 +183,7 @@
 
       <div class="field">
         <label for="search">搜尋地點</label>
-        <input id="search" placeholder="例如：深澳、鼻頭、富貴角">
+        <input id="search" placeholder="例如：基隆、宜蘭、高雄">
       </div>
 
       <div class="field">
@@ -226,21 +215,6 @@
           <button class="chip" id="dayAfterQuickBtn" type="button">後天</button>
           <button class="chip" id="threeDaysLaterQuickBtn" type="button">大後天</button>
         </div>
-      </div>
-
-      <div class="field" style="margin-top:12px;">
-        <label>收藏點捷徑</label>
-        <div class="chip-row" id="favChips"></div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn-secondary" id="addFavBtn" type="button">新增收藏點</button>
-        <button class="btn-secondary" id="showFavBtn" type="button">查看收藏</button>
-      </div>
-
-      <div class="field" style="margin-top:12px;">
-        <label>收藏點清單</label>
-        <div id="favoriteList" class="chip-row"></div>
       </div>
 
       <div class="btn-row">
@@ -316,7 +290,7 @@
               <div class="pill" id="lunarInfo">農曆：—</div>
             </div>
           </div>
-          <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點，收藏點會用不同顏色標示。</div>
+          <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點，</div>
         </section>
       </div>
 
@@ -357,7 +331,6 @@
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
-const FAV_DEFAULT = ['深澳', '南雅', '鼻頭', '富貴角'];
 
 const state = {
   raw: null,
@@ -365,7 +338,6 @@ const state = {
   rowsByLocation: new Map(),
   selectedLocation: '',
   selectedDate: '',
-  favorites: [...FAV_DEFAULT],
   map: null,
   mapMarkers: [],
   userMarker: null,
@@ -797,110 +769,6 @@ function getTrendInfo(dayRows) {
   };
 }
 
-function renderFavChips(active='') {
-  const box = $('favChips');
-  box.innerHTML = '';
-  state.favorites.forEach(f => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'chip' + (active && active.includes(f) ? ' active' : '');
-    b.textContent = f;
-    b.addEventListener('click', () => selectFavorite(f));
-    box.appendChild(b);
-  });
-}
-
-function getMatchedFavorites() {
-  return state.favorites.map(f => {
-    const match = findBestMatch(f);
-    return { favorite: f, match };
-  });
-}
-
-function addFavoriteFromCurrent() {
-  const candidate = $('search').value.trim() || state.selectedLocation || '';
-  if (!candidate) {
-    setStatus('請先搜尋或選擇一個地點，再新增收藏。', true);
-    return;
-  }
-  if (state.favorites.includes(candidate)) {
-    setStatus(`收藏點「${candidate}」已存在。`, true);
-    return;
-  }
-  state.favorites.push(candidate);
-  renderAll();
-  setStatus(`已新增收藏點：${candidate}`);
-}
-
-function removeFavorite(name) {
-  state.favorites = state.favorites.filter(f => f !== name);
-  renderAll();
-  setStatus(`已移除收藏點：${name}`);
-}
-
-function renderFavoriteList() {
-  const box = $('favoriteList');
-  box.innerHTML = '';
-  if (!state.favorites.length) {
-    const span = document.createElement('div');
-    span.className = 'mini';
-    span.textContent = '目前尚未新增收藏點。可先搜尋地點，再按「新增收藏點」。';
-    box.appendChild(span);
-    return;
-  }
-
-  const matched = getMatchedFavorites();
-  matched.forEach(item => {
-    const wrap = document.createElement('div');
-    wrap.className = 'fav-item';
-
-    const openBtn = document.createElement('button');
-    openBtn.type = 'button';
-    openBtn.className = 'fav-open';
-    openBtn.textContent = item.match ? `${item.favorite}｜${item.match}` : `${item.favorite}｜尚未匹配`;
-    openBtn.addEventListener('click', () => {
-      if (!item.match) {
-        $('search').value = item.favorite;
-        populateLocationSelect(findBestMatch(item.favorite));
-        renderAll();
-        setStatus(`收藏點「${item.favorite}」目前尚未匹配到資料集，可再調整名稱搜尋。`, true);
-        return;
-      }
-      state.selectedLocation = item.match;
-      $('locationSelect').value = item.match;
-      renderAll();
-      setStatus(`已切換到收藏釣點：${item.match}`);
-    });
-
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'fav-remove';
-    removeBtn.textContent = '移除';
-    removeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      removeFavorite(item.favorite);
-    });
-
-    wrap.appendChild(openBtn);
-    wrap.appendChild(removeBtn);
-    box.appendChild(wrap);
-  });
-}
-
-function selectFavorite(keyword) {
-  const match = findBestMatch(keyword);
-  if (!match) {
-    setStatus(`收藏點「${keyword}」目前在資料集中找不到可對應地點。你可改用搜尋欄找相近地名。`, true);
-    return;
-  }
-  $('search').value = keyword;
-  populateLocationSelect(match);
-  state.selectedLocation = match;
-  $('locationSelect').value = match;
-  renderAll();
-  setStatus(`已切換到收藏釣點：${match}`);
-}
-
 function renderSummary() {
   const rows = getSelectedRows();
   const dayRows = getDayRows();
@@ -1003,13 +871,12 @@ function renderMapPoints() {
     const lon = rows[0].lon;
     if (Number.isNaN(lat) || Number.isNaN(lon)) return;
 
-    const isFav = state.favorites.includes(name) || state.favorites.some(f => name.includes(f));
     const isSelected = name === state.selectedLocation;
 
     const marker = L.circleMarker([lat, lon], {
-      radius: isSelected ? 10 : (isFav ? 8 : 5),
-      color: isSelected ? '#76e0ff' : (isFav ? '#ffd56a' : '#4bb8ff'),
-      fillColor: isSelected ? '#76e0ff' : (isFav ? '#ffd56a' : '#4bb8ff'),
+      radius: isSelected ? 10 : 5,
+      color: isSelected ? '#76e0ff' : '#4bb8ff',
+      fillColor: isSelected ? '#76e0ff' : '#4bb8ff',
       weight: isSelected ? 3 : 2,
       fillOpacity: 0.9
     }).addTo(state.map);
@@ -1240,8 +1107,6 @@ function renderAll() {
   renderSummary();
   renderTable();
   drawChart();
-  renderFavChips(state.selectedLocation);
-  renderFavoriteList();
   renderMapPoints();
 }
 
@@ -1306,22 +1171,6 @@ $('debugBtn').addEventListener('click', () => {
   const wrap = $('debugWrap');
   wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
   if (wrap.style.display === 'block') wrap.open = true;
-});
-$('showFavBtn').addEventListener('click', () => {
-  renderFavoriteList();
-  if (!state.favorites.length) {
-    setStatus('目前尚未新增收藏點。', true);
-  } else {
-    const okCount = getMatchedFavorites().filter(x => x.match).length;
-    setStatus(`收藏點共 ${state.favorites.length} 個，已顯示在左側清單；其中 ${okCount} 個已匹配到可查看地點。`);
-  }
-});
-$('addFavBtn').addEventListener('click', () => addFavoriteFromCurrent());
-
-$('todayQuickBtn').addEventListener('click', () => {
-  state.selectedDate = todayLocal();
-  $('dateInput').value = state.selectedDate;
-  renderAll();
 });
 $('tomorrowQuickBtn').addEventListener('click', () => {
   state.selectedDate = shiftDate(todayLocal(), 1);
@@ -1400,8 +1249,6 @@ function bindChartDrag() {
   // 每次開啟網頁都預設為使用者裝置的今天日期。
   state.selectedDate = todayLocal();
   $('dateInput').value = state.selectedDate;
-  renderFavChips('');
-  renderFavoriteList();
   initMap();
   drawChart();
   bindChartDrag();
