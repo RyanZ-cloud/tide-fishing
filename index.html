@@ -305,7 +305,7 @@
             <span><i class="dot-mark"></i> 滿／乾潮點</span>
             <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
           </div>
-          <div class="footer-note" id="chartNote">今天顯示即時模式（過去 2 小時＋未來 24 小時）；明天、後天、大後天則顯示該日完整潮汐。</div>
+          <div class="footer-note" id="chartNote">所有日期皆固定顯示 00:00–24:00 完整潮汐；今天另標示目前潮位。</div>
         </section>
 
         <section class="card">
@@ -1048,46 +1048,49 @@ function drawChart() {
   const w = cssW, h = cssH;
   ctx.clearRect(0,0,w,h);
 
-  const isTodayView = (state.selectedDate || todayLocal()) === todayLocal();
-  const allRows = getPagedMultiDayRows(4);
-  const dayRows = getDayRows(state.selectedDate);
-  const rows = isTodayView ? allRows : dayRows;
+  const selectedDate = state.selectedDate || todayLocal();
+  const isTodayView = selectedDate === todayLocal();
+  const allLocationRows = getSelectedRows()
+    .filter(r => !Number.isNaN(r.aboveLocalMSL))
+    .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+  const dayRows = allLocationRows.filter(r => r.date === selectedDate);
 
   $('chartTitle').textContent = state.selectedLocation
-    ? (isTodayView
-        ? `${state.selectedLocation}｜即時模式（過去2小時～未來24小時）`
-        : `${state.selectedLocation}｜${state.selectedDate} 當日潮汐`)
+    ? `${state.selectedLocation}｜${selectedDate}｜00:00–24:00`
     : '尚未載入';
 
   $('dragHint').textContent = isTodayView
-    ? '今天：即時模式，跨日顯示未來潮汐'
-    : '未來日期：顯示該日完整潮汐';
+    ? '今天：完整 24 小時，並標示現在潮位'
+    : '指定日期：完整顯示凌晨至深夜潮況';
   $('currentLegend').style.display = isTodayView ? 'inline-flex' : 'none';
 
-  if (!rows.length) {
+  if (!dayRows.length) {
     ctx.fillStyle = 'rgba(238,246,255,.7)';
     ctx.font = '15px sans-serif';
-    ctx.fillText('尚無可繪製的潮位資料', 24, 40);
+    ctx.fillText('此日期沒有可繪製的潮位資料', 24, 40);
     return;
   }
 
-  let visibleRows;
-  let forcedMinT = null;
-  let forcedMaxT = null;
-
-  if (isTodayView) {
-    const immediate = getImmediateWindow(rows, 2, 24);
-    visibleRows = immediate.rows;
-    forcedMinT = immediate.minT;
-    forcedMaxT = immediate.maxT;
-    $('chartNote').textContent = '以當地平均海平面潮高繪製。今天採即時模式：顯示過去 2 小時與未來 24 小時，方便看接下來潮水。';
-  } else {
-    visibleRows = rows.filter(r => !Number.isNaN(r.aboveLocalMSL)).sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    $('chartNote').textContent = '以當地平均海平面潮高繪製。未來日期顯示該日完整潮汐，不標記現在潮位。';
+  const dayStart = new Date(`${selectedDate}T00:00:00`).getTime();
+  const dayEnd = new Date(`${selectedDate}T00:00:00`).getTime() + 24 * 60 * 60 * 1000;
+  const firstDayIndex = allLocationRows.findIndex(r => r.date === selectedDate);
+  let lastDayIndex = -1;
+  for (let i = allLocationRows.length - 1; i >= 0; i--) {
+    if (allLocationRows[i].date === selectedDate) { lastDayIndex = i; break; }
   }
 
+  const visibleRows = [...dayRows];
+  if (firstDayIndex > 0) visibleRows.unshift(allLocationRows[firstDayIndex - 1]);
+  if (lastDayIndex >= 0 && lastDayIndex < allLocationRows.length - 1) visibleRows.push(allLocationRows[lastDayIndex + 1]);
+
+  const forcedMinT = dayStart;
+  const forcedMaxT = dayEnd;
+  $('chartNote').textContent = isTodayView
+    ? '固定顯示今天 00:00–24:00 的完整潮位曲線，藍色標記為目前潮位。'
+    : '固定顯示所選日期 00:00–24:00 的完整潮位曲線，可直接查看晚間與凌晨潮況。';
+
   const pts = interpolateSeries(visibleRows);
-  const rawPts = visibleRows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
+  const rawPts = dayRows.filter(r => !Number.isNaN(r.aboveLocalMSL)).map(r => ({
     ts:new Date(r.dateTime).getTime(),
     h:r.aboveLocalMSL,
     label:r.tideType,
@@ -1133,6 +1136,11 @@ function drawChart() {
     ctx.fillText(`${Math.round(val)}`, 6, yy + 4);
   }
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pad.left, pad.top, w - pad.left - pad.right, h - pad.top - pad.bottom);
+  ctx.clip();
+
   const grad = ctx.createLinearGradient(0, pad.top, 0, h-pad.bottom);
   grad.addColorStop(0, 'rgba(70,178,255,.30)');
   grad.addColorStop(1, 'rgba(70,178,255,.02)');
@@ -1158,6 +1166,7 @@ function drawChart() {
   ctx.strokeStyle = '#4bb8ff';
   ctx.lineWidth = 3;
   ctx.stroke();
+  ctx.restore();
 
   rawPts.forEach(p => {
     const px = x(p.ts), py = y(p.h);
@@ -1167,19 +1176,16 @@ function drawChart() {
     ctx.fill();
   });
 
+  // 固定 24 小時橫軸，每 3 小時顯示一次，確保晚間潮況清楚可見。
   ctx.fillStyle = 'rgba(220,238,255,.75)';
   ctx.font = '12px sans-serif';
-  let lastDateLabel = '';
-  rawPts.forEach((p, idx) => {
-    const showDense = !isTodayView;
-    if (!showDense && idx !== 0 && idx !== rawPts.length - 1 && idx % 2 !== 0) return;
-    const px = x(p.ts);
-    const d = new Date(p.ts);
-    const md = `${d.getMonth()+1}/${d.getDate()}`;
-    const label = md !== lastDateLabel ? `${md} ${p.time}` : p.time;
-    lastDateLabel = md;
-    ctx.fillText(label, px - 24, h - 12);
-  });
+  ctx.textAlign = 'center';
+  for (let hour = 0; hour <= 24; hour += 3) {
+    const tickT = dayStart + hour * 60 * 60 * 1000;
+    const px = x(tickT);
+    ctx.fillText(`${String(hour).padStart(2,'0')}:00`, px, h - 12);
+  }
+  ctx.textAlign = 'start';
 
   if (isTodayView) {
     const now = Date.now();
