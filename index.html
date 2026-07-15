@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>台灣潮汐釣點助手｜地圖整合版</title>
+<title>台灣磯釣助手｜零成本功能預覽版</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07101c">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
@@ -96,9 +99,21 @@
   .status.err {
     background:rgba(255,141,141,.08); border-color:rgba(255,141,141,.18); color:#ffd6d6;
   }
-  .top-cards { display:grid; grid-template-columns:1.05fr 1fr 1fr 1fr; gap:12px; }
-  @media (max-width:900px) { .top-cards { grid-template-columns:1fr 1fr; } }
-  @media (max-width:560px) { .top-cards { grid-template-columns:1fr; } }
+  .top-cards { display:grid; grid-template-columns:1fr 1.45fr; gap:12px; }
+  @media (max-width:700px) { .top-cards { grid-template-columns:1fr; } }
+  .next-tide-card { display:flex; flex-direction:column; gap:10px; }
+  .next-primary { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .next-primary-main { min-width:0; }
+  .next-event-line { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .next-event-type { font-size:clamp(22px,3vw,29px); font-weight:800; }
+  .next-event-time { font-size:18px; font-weight:800; color:var(--cyan); }
+  .next-event-date { margin-top:5px; color:var(--muted); font-size:12px; }
+  .next-mini-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .next-mini { background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:14px; padding:10px 12px; }
+  .next-mini-label { color:var(--muted); font-size:12px; margin-bottom:5px; }
+  .next-mini-value { font-size:20px; font-weight:800; line-height:1.2; }
+  .next-mini-meta { margin-top:4px; color:var(--muted); font-size:11px; line-height:1.4; }
+  @media (max-width:420px) { .next-mini-grid { grid-template-columns:1fr; } }
   .card {
     background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
     border:1px solid var(--line); border-radius:20px; padding:14px;
@@ -227,13 +242,79 @@
     .side #apiKey { font-size:13px; }
   }
 
+  .hero-info { margin-bottom:0; }
+  .hero-info .toolbar-left { width:100%; }
+  @media (max-width:560px) {
+    .hero-info .toolbar-left { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+    .hero-info .pill:first-child { grid-column:1 / -1; }
+    .hero-info .pill { justify-content:center; min-width:0; }
+  }
+
+
+
+  .product-footer {
+    margin:18px 0 0;
+    padding:20px 16px 24px;
+    text-align:center;
+    color:var(--muted);
+    border-top:1px solid var(--line);
+  }
+  .footer-brand { color:var(--text); font-size:16px; font-weight:800; margin-bottom:12px; }
+  .footer-stats {
+    display:flex; justify-content:center; align-items:stretch; gap:10px; flex-wrap:wrap;
+    max-width:620px; margin:0 auto 12px;
+  }
+  .footer-stat {
+    min-width:145px; padding:11px 14px; border-radius:15px;
+    background:rgba(255,255,255,.035); border:1px solid var(--line);
+  }
+  .footer-stat-label { display:block; font-size:11px; margin-bottom:5px; }
+  .footer-stat-value { display:block; color:#eaf5ff; font-size:15px; font-weight:800; }
+  .footer-contact { margin:10px 0 7px; font-size:13px; }
+  .footer-contact a { color:#9edcff; text-decoration:none; }
+  .footer-contact a:hover { text-decoration:underline; }
+  .footer-copy { font-size:12px; }
+  .version-details { max-width:620px; margin:10px auto 0; text-align:left; }
+  .version-details summary {
+    cursor:pointer; list-style:none; text-align:center; color:#bcdcff; font-size:12px;
+  }
+  .version-details summary::-webkit-details-marker { display:none; }
+  .version-log {
+    margin-top:10px; padding:13px 15px; border-radius:14px;
+    background:rgba(0,0,0,.16); border:1px solid var(--line);
+    font-size:12px; line-height:1.75;
+  }
+  .version-log strong { color:#eef6ff; }
+  @media (max-width:560px) {
+    .product-footer { padding:18px 8px 22px; }
+    .footer-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .footer-stat { min-width:0; padding:10px 8px; }
+    .footer-stat:last-child { grid-column:1 / -1; }
+  }
+
+
+  .insight-grid { display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:12px; margin-top:12px; }
+  @media (max-width:900px){ .insight-grid{grid-template-columns:1fr;} }
+  .score-ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--score,0)*1%),rgba(255,255,255,.08) 0);position:relative;flex:0 0 auto;}
+  .score-ring:after{content:'';position:absolute;inset:8px;border-radius:50%;background:#101d31;}
+  .score-ring strong{position:relative;z-index:1;font-size:26px}.score-wrap{display:flex;gap:14px;align-items:center}.score-reasons{font-size:13px;line-height:1.65;color:var(--muted)}
+  .sea-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sea-item{background:#15243b;border:1px solid var(--line);border-radius:14px;padding:10px}.sea-item b{display:block;font-size:18px;margin-top:4px}.sea-item span{font-size:11px;color:var(--muted)}
+  .spot-list{display:grid;gap:8px}.spot-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:#15243b;border:1px solid var(--line);border-radius:14px;padding:10px 11px}.spot-main{min-width:0}.spot-name{font-weight:800}.spot-meta{font-size:11px;color:var(--muted);margin-top:3px}.spot-action,.spot-fav{width:auto;padding:7px 10px;border-radius:10px;font-size:12px}.spot-fav{padding:7px 9px}.spot-fav.active{color:#ffd56a;background:rgba(255,213,106,.12)}
+  .install-row{display:flex;gap:8px;justify-content:center;margin-top:12px}.install-row button{width:auto}.data-source-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+
 </style>
 </head>
 <body>
 <div class="app">
   <div class="hero">
-    <h1>台灣潮汐釣點助手｜地圖整合版</h1>
-    <p>免費架構設計：GitHub Pages + 中央氣象署 API + Leaflet + OpenStreetMap。可用地圖直接點潮汐點選釣場並查看即時潮位。</p>
+    <h1>台灣磯釣助手｜零成本功能預覽版</h1>
+    <div class="toolbar hero-info" style="margin-top:10px;">
+      <div class="toolbar-left">
+        <div class="pill" id="selectedInfo">地點：—</div>
+        <div class="pill" id="lunarInfo">農曆：—</div>
+        <div class="pill" id="rangeInfo">潮差：—</div>
+      </div>
+    </div>
   </div>
 
   <div class="shell">
@@ -274,20 +355,7 @@
         📍 自動定位最近潮汐點
       </button>
 
-      <div class="field" style="margin-top:12px;">
-        <label>快速日期</label>
-        <div class="chip-row">
-          <button class="chip" id="todayQuickBtn" type="button">今天</button>
-          <button class="chip" id="tomorrowQuickBtn" type="button">明天</button>
-          <button class="chip" id="dayAfterQuickBtn" type="button">後天</button>
-          <button class="chip" id="threeDaysLaterQuickBtn" type="button">大後天</button>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn-secondary" id="debugBtn" type="button">原始回應</button>
-        <button class="btn-secondary" id="todayBtn2" type="button">快速回今天</button>
-      </div>
+      <button class="btn-secondary" id="debugBtn" type="button" style="margin-top:10px;">原始回應</button>
 
       <div id="status" class="status">準備中…</div>
     </aside>
@@ -303,33 +371,54 @@
           <div class="m" id="trendMeta">載入資料後自動判斷現在是漲潮還是退潮。</div>
         </div>
 
-        <div class="card">
-          <div class="k">下一個潮汐事件</div>
-          <div class="v" id="nextEvent">—</div>
-          <div class="m" id="nextEventMeta">—</div>
+        <div class="card next-tide-card">
+          <div class="next-primary">
+            <div class="next-primary-main">
+              <div class="k">下一波潮汐</div>
+              <div class="next-event-line">
+                <span class="next-event-type" id="nextEvent">—</span>
+                <span class="next-event-time" id="nextEventTime">—</span>
+              </div>
+              <div class="next-event-date" id="nextEventMeta">—</div>
+            </div>
+          </div>
+          <div class="next-mini-grid">
+            <div class="next-mini">
+              <div class="next-mini-label">▲ 下一次滿潮</div>
+              <div class="next-mini-value" id="nextHigh">—</div>
+              <div class="next-mini-meta" id="nextHighMeta">—</div>
+            </div>
+            <div class="next-mini">
+              <div class="next-mini-label">▼ 下一次乾潮</div>
+              <div class="next-mini-value" id="nextLow">—</div>
+              <div class="next-mini-meta" id="nextLowMeta">—</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="card">
-          <div class="k">下一次滿潮</div>
-          <div class="v" id="nextHigh">—</div>
-          <div class="m" id="nextHighMeta">—</div>
-        </div>
-
-        <div class="card">
-          <div class="k">下一次乾潮</div>
-          <div class="v" id="nextLow">—</div>
-          <div class="m" id="nextLowMeta">—</div>
-        </div>
+      <div class="insight-grid">
+        <section class="card">
+          <div class="section-title"><h2>🎣 今日釣況</h2><div class="mini">瀏覽器本機運算</div></div>
+          <div class="score-wrap"><div class="score-ring" id="scoreRing"><strong id="fishingScore">—</strong></div><div><div class="v" id="scoreLabel">資料載入中</div><div class="score-reasons" id="scoreReasons">依潮勢、潮差與黃金潮汐計算。</div></div></div>
+        </section>
+        <section class="card">
+          <div class="section-title"><h2>🌬️ 即時風浪</h2><div class="mini">免費公開預報</div></div>
+          <div class="sea-grid">
+            <div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div>
+            <div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div>
+          </div><div class="data-source-note">風浪為模式預報，僅供出發前初判；現場仍以安全與海象公告為準。</div>
+        </section>
+        <section class="card">
+          <div class="section-title"><h2>📍 附近釣點</h2><div class="mini">⭐ 收藏只存在本機</div></div>
+          <div class="spot-list" id="nearbySpots"><div class="mini">定位後顯示附近釣點。</div></div>
+        </section>
       </div>
 
       <div class="content-grid">
         <section class="card chart-card">
           <div class="section-title">
             <h2>潮位曲線圖</h2>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <div class="mini" id="chartTitle">尚未載入</div>
-              <div class="mini" id="dragHint">今天：即時模式，明天後天顯示該日潮汐</div>
-            </div>
           </div>
           <div class="chart-wrap">
             <canvas id="tideCanvas" width="900" height="380"></canvas>
@@ -340,7 +429,7 @@
             <span><i class="golden-zone-mark"></i> 黃金潮汐時段</span>
             <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
           </div>
-          <div class="footer-note" id="chartNote">今天顯示現在前 2 小時至後 12 小時；其他日期顯示 00:00–24:00 完整潮汐。</div>
+          <div class="footer-note" id="chartNote">左右滑動曲線，可查看時間與預估潮高。</div>
         </section>
 
         <section class="card map-card">
@@ -349,15 +438,6 @@
             <div class="mini">點地圖直接切換地點</div>
           </div>
           <div id="map"></div>
-          <div class="toolbar" style="margin-top:12px;">
-            <div class="toolbar-left">
-              <div class="pill" id="selectedInfo">地點：—</div>
-              <div class="pill" id="rangeInfo">潮差：—</div>
-            </div>
-            <div class="toolbar-right">
-              <div class="pill" id="lunarInfo">農曆：—</div>
-            </div>
-          </div>
           <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點，</div>
         </section>
       </div>
@@ -370,10 +450,67 @@
   </div>
 </div>
 
+
+<footer class="product-footer" aria-label="網站資訊">
+  <div class="footer-brand">🌊 台灣潮汐釣點助手</div>
+  <div class="footer-stats">
+    <div class="footer-stat">
+      <span class="footer-stat-label">👥 使用人次</span>
+      <span class="footer-stat-value" id="visitorCount">統計中…</span>
+    </div>
+    <div class="footer-stat">
+      <span class="footer-stat-label">📦 版本</span>
+      <span class="footer-stat-value" id="footerVersion">—</span>
+    </div>
+    <div class="footer-stat">
+      <span class="footer-stat-label">🗓 最後更新</span>
+      <span class="footer-stat-value" id="footerUpdate">—</span>
+    </div>
+  </div>
+  <div class="footer-contact">📧 <a href="mailto:Service@nexsoar.com">Service@nexsoar.com</a></div>
+  <div class="footer-copy">© 2026 NEXSOAR</div><div class="install-row"><button class="btn-secondary" id="installBtn" type="button" style="display:none">安裝到手機</button></div>
+  <details class="version-details">
+    <summary>查看版本更新紀錄</summary>
+    <div class="version-log">
+      <strong>v2.1.0-preview</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・潮汐規則釣況評分<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
+      ・手機版資訊順序與查詢介面優化<br>
+      ・自動定位最近潮汐點<br>
+      ・今日前 2 小時至後 12 小時潮位曲線<br>
+      ・非今日完整 24 小時曲線<br>
+      ・滑動查詢時間、潮高與漲退潮<br>
+      ・曲線圖黃金潮汐區間<br>
+      ・整合下一波潮汐資訊<br><br>
+      <strong>v1.0.0</strong><br>
+      ・中央氣象署潮汐資料與地圖查詢
+    </div>
+  </details>
+</footer>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+const APP_VERSION = 'v2.1.0-preview';
+const LAST_UPDATE = '2026-07-15';
+const VISITOR_COUNTER_ENDPOINT = 'https://api.counterapi.dev/v1/nexsoar/taiwan-tide-fishing-assistant';
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
+const FISHING_SPOTS = [
+  {name:'大武崙澳底漁港',lat:25.1584,lon:121.7062,keyword:'基隆'},
+  {name:'外木山漁港',lat:25.1596,lon:121.7285,keyword:'基隆'},
+  {name:'萬里漁港',lat:25.1807,lon:121.6891,keyword:'野柳'},
+  {name:'野柳漁港',lat:25.2054,lon:121.6918,keyword:'野柳'},
+  {name:'水尾漁港',lat:25.2286,lon:121.6397,keyword:'富貴角'},
+  {name:'八斗子漁港',lat:25.1425,lon:121.7988,keyword:'基隆'},
+  {name:'望海巷漁港',lat:25.1383,lon:121.8059,keyword:'基隆'},
+  {name:'深澳漁港',lat:25.1267,lon:121.8188,keyword:'深澳'},
+  {name:'鼻頭漁港',lat:25.1194,lon:121.9168,keyword:'鼻頭'},
+  {name:'南雅漁港',lat:25.1210,lon:121.8950,keyword:'南雅'},
+  {name:'龍洞漁港',lat:25.1125,lon:121.9189,keyword:'龍洞'},
+  {name:'澳底漁港',lat:25.0552,lon:121.9255,keyword:'澳底'},
+  {name:'福隆漁港',lat:25.0167,lon:121.9481,keyword:'福隆'}
+];
+let forecastCacheKey = '';
+let deferredInstallPrompt = null;
+
 
 const state = {
   raw: null,
@@ -839,6 +976,7 @@ function renderSummary() {
   const now = new Date();
 
   $('nextEvent').textContent = '—';
+  $('nextEventTime').textContent = '—';
   $('nextEventMeta').textContent = '—';
   $('nextHigh').textContent = '—';
   $('nextHighMeta').textContent = '—';
@@ -863,7 +1001,8 @@ function renderSummary() {
 
   if (next) {
     $('nextEvent').textContent = next.tideType;
-    $('nextEventMeta').textContent = `${fmtDate(next.dateTime)}｜${next.locationName}`;
+    $('nextEventTime').textContent = onlyTime(next.dateTime);
+    $('nextEventMeta').textContent = `${onlyDate(next.dateTime)}｜${next.locationName}｜${normalizeHeight(next.aboveLocalMSL)}`;
   }
   if (nextHigh) {
     $('nextHigh').textContent = onlyTime(nextHigh.dateTime);
@@ -968,15 +1107,6 @@ function drawChart() {
     .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
   const dayRows = allLocationRows.filter(r => r.date === selectedDate);
 
-  $('chartTitle').textContent = state.selectedLocation
-    ? (isTodayView
-        ? `${state.selectedLocation}｜即時潮汐（前 2 小時～後 12 小時）`
-        : `${state.selectedLocation}｜${selectedDate}｜00:00–24:00`)
-    : '尚未載入';
-
-  $('dragHint').textContent = isTodayView
-    ? '今天：聚焦接下來 12 小時｜滑鼠移動或手指拖曳可查時間與潮高'
-    : '指定日期：完整 24 小時｜可查看晚間與凌晨潮況';
   $('currentLegend').style.display = isTodayView ? 'inline-flex' : 'none';
 
   if (!dayRows.length) {
@@ -1002,7 +1132,7 @@ function drawChart() {
   const forcedMinT = isTodayView ? nowTs - 2 * 60 * 60 * 1000 : dayStart;
   const forcedMaxT = isTodayView ? nowTs + 12 * 60 * 60 * 1000 : dayEnd;
   $('chartNote').textContent = isTodayView
-    ? '即時模式顯示現在前 2 小時至後 12 小時；黃色區塊為黃金潮汐時段，可滑動查看預估潮高。'
+    ? '黃色區塊為黃金潮汐時段；可左右滑動查看時間與預估潮高。'
     : '固定顯示所選日期 00:00–24:00；黃色區塊為黃金潮汐時段，可滑動查看晚間與凌晨潮況。';
 
   const pts = interpolateSeries(visibleRows);
@@ -1257,8 +1387,7 @@ function drawChart() {
           return { startTs: highTs - GOLDEN_BEFORE_MINUTES * 60000, endTs: highTs + GOLDEN_AFTER_MINUTES * 60000 };
         })
         .some(g => inspectTs >= g.startTs && inspectTs <= g.endTs);
-      const lines = [hm, `預估潮高 ${Math.round(inspectH)} cm`, trendText];
-      if (activeGolden) lines.push('🌟 黃金潮汐時段');
+      const lines = [hm, `預估潮高 ${Math.round(inspectH)} cm`];
       ctx.font = 'bold 13px sans-serif';
       const boxW = Math.max(...lines.map(line => ctx.measureText(line).width)) + 24;
       const boxH = activeGolden ? 90 : 70;
@@ -1295,10 +1424,21 @@ function drawChart() {
 
 }
 
+
+function getFavoriteSpots(){ try{return JSON.parse(localStorage.getItem('tideFavoriteSpots')||'[]')}catch{return []} }
+function toggleFavoriteSpot(name){ const set=new Set(getFavoriteSpots()); set.has(name)?set.delete(name):set.add(name); localStorage.setItem('tideFavoriteSpots',JSON.stringify([...set])); renderNearbySpots(); }
+function selectSpot(spot){ const match=findBestMatch(spot.keyword)||findBestMatch(spot.name); if(match){state.selectedLocation=match;$('locationSelect').value=match;$('search').value=spot.name;renderAll();} if(state.map) state.map.setView([spot.lat,spot.lon],12); }
+function renderNearbySpots(){ const box=$('nearbySpots'); if(!box)return; const origin=state.userLocation; const fav=new Set(getFavoriteSpots()); let spots=FISHING_SPOTS.map(s=>({...s,km:origin?distanceKm(origin.lat,origin.lon,s.lat,s.lon):null})); spots.sort((a,b)=>(fav.has(b.name)-fav.has(a.name))||((a.km??9999)-(b.km??9999))); spots=spots.slice(0,5); box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div><div class="spot-meta">${s.km==null?'常用北海岸釣點':`距離約 ${s.km.toFixed(1)} km`}｜對應 ${s.keyword} 潮汐</div></div><button class="spot-action btn-secondary" data-open="${s.name}">查看</button><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}">${fav.has(s.name)?'★':'☆'}</button></div>`).join(''); box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectSpot(FISHING_SPOTS.find(s=>s.name===b.dataset.open))); box.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFavoriteSpot(b.dataset.fav)); }
+function renderFishingScore(){ const el=$('fishingScore'); if(!el)return; const rows=getDayRows(); if(!rows.length){el.textContent='—';$('scoreLabel').textContent='資料不足';return;} const now=Date.now(); const highs=rows.filter(r=>String(r.tideType).includes('滿潮')).map(r=>new Date(r.dateTime).getTime()); const inGolden=highs.some(t=>now>=t-2*3600000&&now<=t+3600000); const trend=getTrendInfo(rows); let score=50,reasons=[]; if(inGolden){score+=25;reasons.push('正值黃金潮汐');} if(trend.title==='漲潮中'){score+=15;reasons.push('目前漲潮');} else if(trend.title==='退潮中'){score+=5;reasons.push('目前退潮');} const range=String(rows[0].tideRange||''); if(range.includes('大')){score+=10;reasons.push('潮差較大');} else if(range.includes('小')){score-=5;reasons.push('潮差較小');} score=Math.max(0,Math.min(100,score)); el.textContent=score;$('scoreRing').style.setProperty('--score',score);$('scoreLabel').textContent=score>=80?'值得安排':score>=65?'條件不錯':score>=50?'可觀察':'條件普通';$('scoreReasons').textContent=(reasons.length?reasons.join('・'):'依潮汐條件初步評估')+'。'; }
+function degreeToCompass(d){const a=['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'];return a[Math.round(((d%360)+360)%360/22.5)%16];}
+async function updateFreeForecast(){ const rows=getSelectedRows(); if(!rows.length)return; const lat=rows[0].lat,lon=rows[0].lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))return; const key=`${lat.toFixed(3)},${lon.toFixed(3)}`;if(key===forecastCacheKey)return;forecastCacheKey=key; try{ const [w,m]=await Promise.all([fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json()),fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json())]); const c=w.current||{},mc=m.current||{};$('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—';$('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—';$('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—';$('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—'; }catch(e){console.warn(e);forecastCacheKey='';} }
+function renderExtras(){renderFishingScore();renderNearbySpots();updateFreeForecast();}
+
 function renderAll() {
   renderSummary();
   drawChart();
   renderMapPoints();
+  renderExtras();
 }
 
 async function loadData() {
@@ -1353,30 +1493,10 @@ $('todayBtn').addEventListener('click', () => {
   $('dateInput').value = state.selectedDate;
   renderAll();
 });
-$('todayBtn2').addEventListener('click', () => {
-  state.selectedDate = todayLocal();
-  $('dateInput').value = state.selectedDate;
-  renderAll();
-});
 $('debugBtn').addEventListener('click', () => {
   const wrap = $('debugWrap');
   wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
   if (wrap.style.display === 'block') wrap.open = true;
-});
-$('tomorrowQuickBtn').addEventListener('click', () => {
-  state.selectedDate = shiftDate(todayLocal(), 1);
-  $('dateInput').value = state.selectedDate;
-  renderAll();
-});
-$('dayAfterQuickBtn').addEventListener('click', () => {
-  state.selectedDate = shiftDate(todayLocal(), 2);
-  $('dateInput').value = state.selectedDate;
-  renderAll();
-});
-$('threeDaysLaterQuickBtn').addEventListener('click', () => {
-  state.selectedDate = shiftDate(todayLocal(), 3);
-  $('dateInput').value = state.selectedDate;
-  renderAll();
 });
 
 $('search').addEventListener('input', () => {
@@ -1436,7 +1556,49 @@ function bindChartInspector() {
   canvas.addEventListener('touchend', () => { chartPointerActive = false; }, { passive:true });
 }
 
+
+function renderProductMeta() {
+  const versionEl = $('footerVersion');
+  const updateEl = $('footerUpdate');
+  if (versionEl) versionEl.textContent = APP_VERSION;
+  if (updateEl) updateEl.textContent = LAST_UPDATE.replaceAll('-', '/');
+}
+
+async function updateVisitorCount() {
+  const el = $('visitorCount');
+  if (!el) return;
+
+  try {
+    const countedKey = 'tideAssistantCountedThisSession';
+    const alreadyCounted = sessionStorage.getItem(countedKey) === '1';
+    const endpoint = alreadyCounted
+      ? VISITOR_COUNTER_ENDPOINT
+      : `${VISITOR_COUNTER_ENDPOINT}/up`;
+
+    const response = await fetch(endpoint, { cache:'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const count = Number(data?.count ?? data?.value ?? data?.data?.up_count ?? data?.data?.count);
+    if (!Number.isFinite(count)) throw new Error('統計格式無法辨識');
+
+    if (!alreadyCounted) sessionStorage.setItem(countedKey, '1');
+    el.textContent = new Intl.NumberFormat('zh-TW').format(count);
+  } catch (error) {
+    console.warn('使用人次讀取失敗：', error);
+    el.textContent = '暫時無法取得';
+    el.title = '外部統計服務目前無法連線';
+  }
+}
+
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=$('installBtn');if(b)b.style.display='inline-block';});
+$('installBtn')?.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;$('installBtn').style.display='none';});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.warn));}
+
 (function init() {
+  renderProductMeta();
+  updateVisitorCount();
+
   // 每次開啟網頁都預設為使用者裝置的今天日期。
   state.selectedDate = todayLocal();
   $('dateInput').value = state.selectedDate;
