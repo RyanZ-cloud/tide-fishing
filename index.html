@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>台灣磯釣助手｜零成本功能預覽版</title>
+<title>台灣潮汐釣點助手</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07101c">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -183,21 +183,24 @@
 
 
 
-  /* 手機版資訊順序：潮汐曲線 → 潮汐趨勢 → 地圖 → 查詢設定 */
+  /* 手機版資訊順序：潮位曲線 → 即時風浪 → 下一波潮汐 → 附近釣點 → 潮汐地圖 */
   @media (max-width:980px) {
     .shell {
       display:flex;
       flex-direction:column;
       gap:12px;
     }
-    .main, .content-grid {
+    .main, .content-grid, .insight-grid, .top-cards {
       display:contents;
     }
     .chart-card { order:1; }
-    .top-cards { order:2; }
-    .map-card { order:3; }
+    .wind-card { order:2; }
+    .next-tide-card { order:3; }
+    .nearby-card { order:4; }
+    .map-card { order:5; }
+    .top-cards > .card:not(.next-tide-card) { order:6; }
     .side {
-      order:4;
+      order:7;
       position:static;
       width:100%;
       max-width:100%;
@@ -224,10 +227,8 @@
       align-items:flex-start;
       flex-wrap:wrap;
     }
-    .side .section-title .mini {
-      overflow-wrap:anywhere;
-    }
-    .main > details { order:5; }
+    .side .section-title .mini { overflow-wrap:anywhere; }
+    .main > details { order:8; }
   }
 
   @media (max-width:560px) {
@@ -295,9 +296,6 @@
 
   .insight-grid { display:grid; grid-template-columns:1fr 1fr 1.35fr; gap:12px; margin-top:12px; }
   @media (max-width:900px){ .insight-grid{grid-template-columns:1fr;} }
-  .score-ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--score,0)*1%),rgba(255,255,255,.08) 0);position:relative;flex:0 0 auto;}
-  .score-ring:after{content:'';position:absolute;inset:8px;border-radius:50%;background:#101d31;}
-  .score-ring strong{position:relative;z-index:1;font-size:26px}.score-wrap{display:flex;gap:14px;align-items:center}.score-reasons{font-size:13px;line-height:1.65;color:var(--muted)}
   .sea-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sea-item{background:#15243b;border:1px solid var(--line);border-radius:14px;padding:10px}.sea-item b{display:block;font-size:18px;margin-top:4px}.sea-item span{font-size:11px;color:var(--muted)}
   .spot-list{display:grid;gap:8px}.spot-item{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:#15243b;border:1px solid var(--line);border-radius:14px;padding:10px 11px}.spot-main{min-width:0}.spot-name{font-weight:800}.spot-meta{font-size:11px;color:var(--muted);margin-top:3px}.spot-action,.spot-fav{width:auto;padding:7px 10px;border-radius:10px;font-size:12px}.spot-fav{padding:7px 9px}.spot-fav.active{color:#ffd56a;background:rgba(255,213,106,.12)}
   .install-row{display:flex;gap:8px;justify-content:center;margin-top:12px}.install-row button{width:auto}.data-source-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
@@ -307,7 +305,7 @@
 <body>
 <div class="app">
   <div class="hero">
-    <h1>台灣磯釣助手｜零成本功能預覽版</h1>
+    <h1>台灣潮汐釣點助手</h1>
     <div class="toolbar hero-info" style="margin-top:10px;">
       <div class="toolbar-left">
         <div class="pill" id="selectedInfo">地點：—</div>
@@ -398,18 +396,14 @@
       </div>
 
       <div class="insight-grid">
-        <section class="card">
-          <div class="section-title"><h2>🎣 今日釣況</h2><div class="mini">瀏覽器本機運算</div></div>
-          <div class="score-wrap"><div class="score-ring" id="scoreRing"><strong id="fishingScore">—</strong></div><div><div class="v" id="scoreLabel">資料載入中</div><div class="score-reasons" id="scoreReasons">依潮勢、潮差與黃金潮汐計算。</div></div></div>
-        </section>
-        <section class="card">
+        <section class="card wind-card">
           <div class="section-title"><h2>🌬️ 即時風浪</h2><div class="mini">免費公開預報</div></div>
           <div class="sea-grid">
             <div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div>
             <div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div>
           </div><div class="data-source-note">風浪為模式預報，僅供出發前初判；現場仍以安全與海象公告為準。</div>
         </section>
-        <section class="card">
+        <section class="card nearby-card">
           <div class="section-title"><h2>📍 附近釣點</h2><div class="mini">⭐ 收藏只存在本機</div></div>
           <div class="spot-list" id="nearbySpots"><div class="mini">定位後顯示附近釣點。</div></div>
         </section>
@@ -472,7 +466,7 @@
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
-      <strong>v2.1.0-preview</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・潮汐規則釣況評分<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
+      <strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
       ・手機版資訊順序與查詢介面優化<br>
       ・自動定位最近潮汐點<br>
       ・今日前 2 小時至後 12 小時潮位曲線<br>
@@ -489,7 +483,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const APP_VERSION = 'v2.1.0-preview';
+const APP_VERSION = 'v2.1.0';
 const LAST_UPDATE = '2026-07-15';
 const VISITOR_COUNTER_ENDPOINT = 'https://api.counterapi.dev/v1/nexsoar/taiwan-tide-fishing-assistant';
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
@@ -1208,7 +1202,7 @@ function drawChart() {
         startTs: Math.max(forcedMinT, highTs - GOLDEN_BEFORE_MINUTES * 60000),
         endTs: Math.min(forcedMaxT, highTs + GOLDEN_AFTER_MINUTES * 60000),
         highTs,
-        label: `${formatClock(new Date(highTs - GOLDEN_BEFORE_MINUTES * 60000))}–${formatClock(new Date(highTs + GOLDEN_AFTER_MINUTES * 60000))}`
+        label: `${formatClock(new Date(highTs - GOLDEN_BEFORE_MINUTES * 60000)) || '—'}–${formatClock(new Date(highTs + GOLDEN_AFTER_MINUTES * 60000)) || '—'}`
       };
     })
     .filter(g => g.endTs > g.startTs);
@@ -1361,7 +1355,6 @@ function drawChart() {
       const iy = y(inspectH);
       const inspectDate = new Date(inspectTs);
       const hm = `${String(inspectDate.getHours()).padStart(2,'0')}:${String(inspectDate.getMinutes()).padStart(2,'0')}`;
-      const trendText = Math.abs(slope) < 0.15 ? '潮勢平緩' : (slope > 0 ? '漲潮中' : '退潮中');
 
       ctx.beginPath();
       ctx.moveTo(ix, pad.top);
@@ -1380,17 +1373,10 @@ function drawChart() {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      const activeGolden = dayRows
-        .filter(r => String(r.tideType).includes('滿潮'))
-        .map(r => {
-          const highTs = new Date(r.dateTime).getTime();
-          return { startTs: highTs - GOLDEN_BEFORE_MINUTES * 60000, endTs: highTs + GOLDEN_AFTER_MINUTES * 60000 };
-        })
-        .some(g => inspectTs >= g.startTs && inspectTs <= g.endTs);
       const lines = [hm, `預估潮高 ${Math.round(inspectH)} cm`];
       ctx.font = 'bold 13px sans-serif';
       const boxW = Math.max(...lines.map(line => ctx.measureText(line).width)) + 24;
-      const boxH = activeGolden ? 90 : 70;
+      const boxH = 58;
       let boxX = ix + 12;
       if (boxX + boxW > w - 6) boxX = ix - boxW - 12;
       let boxY = iy - boxH - 14;
@@ -1412,13 +1398,6 @@ function drawChart() {
       ctx.fillStyle = '#eef6ff';
       ctx.font = '12px sans-serif';
       ctx.fillText(lines[1], boxX + 12, boxY + 42);
-      ctx.fillStyle = slope > 0 ? '#70d8b2' : (slope < 0 ? '#ffb35c' : '#76e0ff');
-      ctx.fillText(lines[2], boxX + 12, boxY + 60);
-      if (activeGolden) {
-        ctx.fillStyle = '#ffd56a';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText(lines[3], boxX + 12, boxY + 80);
-      }
     }
   }
 
@@ -1429,10 +1408,9 @@ function getFavoriteSpots(){ try{return JSON.parse(localStorage.getItem('tideFav
 function toggleFavoriteSpot(name){ const set=new Set(getFavoriteSpots()); set.has(name)?set.delete(name):set.add(name); localStorage.setItem('tideFavoriteSpots',JSON.stringify([...set])); renderNearbySpots(); }
 function selectSpot(spot){ const match=findBestMatch(spot.keyword)||findBestMatch(spot.name); if(match){state.selectedLocation=match;$('locationSelect').value=match;$('search').value=spot.name;renderAll();} if(state.map) state.map.setView([spot.lat,spot.lon],12); }
 function renderNearbySpots(){ const box=$('nearbySpots'); if(!box)return; const origin=state.userLocation; const fav=new Set(getFavoriteSpots()); let spots=FISHING_SPOTS.map(s=>({...s,km:origin?distanceKm(origin.lat,origin.lon,s.lat,s.lon):null})); spots.sort((a,b)=>(fav.has(b.name)-fav.has(a.name))||((a.km??9999)-(b.km??9999))); spots=spots.slice(0,5); box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div><div class="spot-meta">${s.km==null?'常用北海岸釣點':`距離約 ${s.km.toFixed(1)} km`}｜對應 ${s.keyword} 潮汐</div></div><button class="spot-action btn-secondary" data-open="${s.name}">查看</button><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}">${fav.has(s.name)?'★':'☆'}</button></div>`).join(''); box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectSpot(FISHING_SPOTS.find(s=>s.name===b.dataset.open))); box.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFavoriteSpot(b.dataset.fav)); }
-function renderFishingScore(){ const el=$('fishingScore'); if(!el)return; const rows=getDayRows(); if(!rows.length){el.textContent='—';$('scoreLabel').textContent='資料不足';return;} const now=Date.now(); const highs=rows.filter(r=>String(r.tideType).includes('滿潮')).map(r=>new Date(r.dateTime).getTime()); const inGolden=highs.some(t=>now>=t-2*3600000&&now<=t+3600000); const trend=getTrendInfo(rows); let score=50,reasons=[]; if(inGolden){score+=25;reasons.push('正值黃金潮汐');} if(trend.title==='漲潮中'){score+=15;reasons.push('目前漲潮');} else if(trend.title==='退潮中'){score+=5;reasons.push('目前退潮');} const range=String(rows[0].tideRange||''); if(range.includes('大')){score+=10;reasons.push('潮差較大');} else if(range.includes('小')){score-=5;reasons.push('潮差較小');} score=Math.max(0,Math.min(100,score)); el.textContent=score;$('scoreRing').style.setProperty('--score',score);$('scoreLabel').textContent=score>=80?'值得安排':score>=65?'條件不錯':score>=50?'可觀察':'條件普通';$('scoreReasons').textContent=(reasons.length?reasons.join('・'):'依潮汐條件初步評估')+'。'; }
 function degreeToCompass(d){const a=['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'];return a[Math.round(((d%360)+360)%360/22.5)%16];}
 async function updateFreeForecast(){ const rows=getSelectedRows(); if(!rows.length)return; const lat=rows[0].lat,lon=rows[0].lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))return; const key=`${lat.toFixed(3)},${lon.toFixed(3)}`;if(key===forecastCacheKey)return;forecastCacheKey=key; try{ const [w,m]=await Promise.all([fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json()),fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json())]); const c=w.current||{},mc=m.current||{};$('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—';$('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—';$('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—';$('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—'; }catch(e){console.warn(e);forecastCacheKey='';} }
-function renderExtras(){renderFishingScore();renderNearbySpots();updateFreeForecast();}
+function renderExtras(){renderNearbySpots();updateFreeForecast();}
 
 function renderAll() {
   renderSummary();
