@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>台灣潮汐釣點助手</title>
+<title>台灣磯釣助手｜潮汐、風浪與附近釣點</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07101c">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -302,9 +302,24 @@
   @media(max-width:760px){.spot-list{grid-template-columns:1fr}.spot-item{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'main fav' 'meta meta' 'action action'}}
   .install-row{display:flex;gap:8px;justify-content:center;margin-top:12px}.install-row button{width:auto}.data-source-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
 
+
+  .offline-banner{display:none;position:sticky;top:0;z-index:9999;margin:0 auto 10px;max-width:1180px;padding:10px 14px;border-radius:14px;background:#7a4c00;color:#fff4cf;border:1px solid rgba(255,213,106,.45);font-size:13px;line-height:1.5;box-shadow:var(--shadow)}
+  .offline-banner.show{display:block}
+  .freshness{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}
+  .freshness .cache-badge{display:none;padding:3px 8px;border-radius:999px;background:rgba(255,213,106,.12);border:1px solid rgba(255,213,106,.25);color:#ffe6a3}
+  .freshness.cached .cache-badge{display:inline-flex}
+  .info-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+  .info-tile{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:16px;padding:12px}
+  .info-tile-label{font-size:12px;color:var(--muted);margin-bottom:5px}.info-tile-value{font-size:18px;font-weight:800}.info-tile-meta{font-size:11px;color:var(--muted);margin-top:4px}
+  .safety-box{max-width:900px;margin:14px auto 0;padding:12px 14px;border-radius:14px;background:rgba(255,179,92,.08);border:1px solid rgba(255,179,92,.22);color:#f7d9ad;font-size:12px;line-height:1.7;text-align:left}
+  .spot-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;grid-column:1/-1}.spot-nav{background:#183853!important}
+  .update-toast{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;width:min(92vw,520px);padding:12px 14px;border-radius:16px;background:#16314f;border:1px solid rgba(118,224,255,.28);box-shadow:var(--shadow);align-items:center;gap:10px}.update-toast.show{display:flex}.update-toast span{flex:1;font-size:13px}.update-toast button{width:auto;padding:8px 12px}
+  @media(max-width:560px){.info-strip{grid-template-columns:1fr 1fr}.spot-actions{grid-template-columns:1fr}.offline-banner{margin-left:10px;margin-right:10px}}
+
 </style>
 </head>
 <body>
+<div id="offlineBanner" class="offline-banner" role="status">⚠️ 離線模式：目前顯示最近一次成功下載的資料，請確認資料更新時間。</div>
 <div class="app">
   <div class="hero">
     <h1>台灣潮汐釣點助手</h1>
@@ -375,6 +390,7 @@
           <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
         </div>
         <div class="footer-note" id="chartNote">左右滑動曲線，可查看時間與預估潮高。</div>
+        <div class="freshness" id="tideFreshness"><span>潮汐資料更新：<b id="tideUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
       </section>
 
       <div class="top-cards">
@@ -387,6 +403,8 @@
             <div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div>
           </div>
           <div class="data-source-note">風浪為模式預報，僅供出發前初判；現場仍以安全與海象公告為準。</div>
+          <div class="freshness" id="windFreshness"><span>風浪資料更新：<b id="windUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
+          <div class="info-strip"><div class="info-tile"><div class="info-tile-label">🌙 月相</div><div class="info-tile-value" id="moonPhase">—</div><div class="info-tile-meta" id="moonIllumination">—</div></div><div class="info-tile"><div class="info-tile-label">📅 農曆參考</div><div class="info-tile-value" id="lunarDate">—</div><div class="info-tile-meta">依查詢日期計算</div></div></div>
         </section>
 
         <section class="card next-tide-card">
@@ -439,12 +457,8 @@
 
 
 <footer class="product-footer" aria-label="網站資訊">
-  <div class="footer-brand">🌊 台灣潮汐釣點助手</div>
+  <div class="footer-brand">🎣 台灣磯釣助手</div>
   <div class="footer-stats">
-    <div class="footer-stat">
-      <span class="footer-stat-label">👥 使用人次</span>
-      <span class="footer-stat-value" id="visitorCount">統計中…</span>
-    </div>
     <div class="footer-stat">
       <span class="footer-stat-label">📦 版本</span>
       <span class="footer-stat-value" id="footerVersion">—</span>
@@ -454,12 +468,13 @@
       <span class="footer-stat-value" id="footerUpdate">—</span>
     </div>
   </div>
+  <div class="safety-box"><strong>安全聲明：</strong>本工具之潮汐、風浪、月相及釣點資訊僅供行程規劃參考，不作為航海、救生或海域安全決策依據。出發前請再次確認中央氣象署警特報、海象、港區公告及現場管制；遇長浪、強風、雷雨或封閉區域請勿下竿。</div>
   <div class="footer-contact">📧 <a href="mailto:Service@nexsoar.com">Service@nexsoar.com</a></div>
   <div class="footer-copy">© 2026 NEXSOAR</div><div class="install-row"><button class="btn-secondary" id="installBtn" type="button" style="display:none">安裝到手機</button></div>
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
-      <strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
+      <strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
       ・手機版資訊順序與查詢介面優化<br>
       ・自動定位最近潮汐點<br>
       ・今日前 2 小時至後 12 小時潮位曲線<br>
@@ -476,10 +491,13 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const APP_VERSION = 'v2.1.1';
-const LAST_UPDATE = '2026-07-15';
-const VISITOR_COUNTER_ENDPOINT = 'https://api.counterapi.dev/v1/nexsoar/taiwan-tide-fishing-assistant';
+const APP_VERSION = 'v2.2.0';
+const LAST_UPDATE = '2026-07-17';
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
+const TIDE_CACHE_KEY = 'tideAssistantCwaCacheV220';
+const TIDE_CACHE_MS = 4 * 60 * 60 * 1000;
+const WIND_CACHE_PREFIX = 'tideAssistantWindCacheV220:';
+const WIND_CACHE_MS = 45 * 60 * 1000;
 const FISHING_SPOTS = [
   {name:'大武崙澳底漁港',lat:25.1584,lon:121.7062,keyword:'基隆'},
   {name:'外木山漁港',lat:25.1596,lon:121.7285,keyword:'基隆'},
@@ -1392,10 +1410,40 @@ function drawChart() {
 function getFavoriteSpots(){ try{return JSON.parse(localStorage.getItem('tideFavoriteSpots')||'[]')}catch{return []} }
 function toggleFavoriteSpot(name){ const set=new Set(getFavoriteSpots()); set.has(name)?set.delete(name):set.add(name); localStorage.setItem('tideFavoriteSpots',JSON.stringify([...set])); renderNearbySpots(); }
 function selectSpot(spot){ const match=findBestMatch(spot.keyword)||findBestMatch(spot.name); if(match){state.selectedLocation=match;$('locationSelect').value=match;$('search').value=spot.name;renderAll();} if(state.map) state.map.setView([spot.lat,spot.lon],12); }
-function renderNearbySpots(){ const box=$('nearbySpots'); if(!box)return; const origin=state.userLocation; const fav=new Set(getFavoriteSpots()); let spots=FISHING_SPOTS.map(s=>({...s,km:origin?distanceKm(origin.lat,origin.lon,s.lat,s.lon):null})); spots.sort((a,b)=>(fav.has(b.name)-fav.has(a.name))||((a.km??9999)-(b.km??9999))); spots=spots.slice(0,6); box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div></div><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}" aria-label="收藏 ${s.name}">${fav.has(s.name)?'★':'☆'}</button><div class="spot-meta">${s.km==null?'常用北海岸釣點':`距離約 ${s.km.toFixed(1)} km`}<br>對應 ${s.keyword} 潮汐</div><button class="spot-action btn-secondary" data-open="${s.name}">查看此釣點潮汐</button></div>`).join(''); box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectSpot(FISHING_SPOTS.find(s=>s.name===b.dataset.open))); box.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFavoriteSpot(b.dataset.fav)); }
+function renderNearbySpots(){
+  const box=$('nearbySpots'); if(!box)return;
+  const origin=state.userLocation; const fav=new Set(getFavoriteSpots());
+  let spots=FISHING_SPOTS.map(s=>({...s,km:origin?distanceKm(origin.lat,origin.lon,s.lat,s.lon):null}));
+  spots.sort((a,b)=>(fav.has(b.name)-fav.has(a.name))||((a.km??9999)-(b.km??9999))); spots=spots.slice(0,6);
+  box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div></div><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}" aria-label="收藏 ${s.name}">${fav.has(s.name)?'★':'☆'}</button><div class="spot-meta">${s.km==null?'常用北海岸釣點':`距離約 ${s.km.toFixed(1)} km`}<br>對應 ${s.keyword} 潮汐</div><div class="spot-actions"><button class="spot-action btn-secondary" data-open="${s.name}">查看潮汐</button><button class="spot-nav btn-secondary" data-nav="${s.name}">Google 導航</button></div></div>`).join('');
+  box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectSpot(FISHING_SPOTS.find(s=>s.name===b.dataset.open)));
+  box.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFavoriteSpot(b.dataset.fav));
+  box.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{const spot=FISHING_SPOTS.find(s=>s.name===b.dataset.nav); if(spot) window.open(`https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lon}`,'_blank','noopener');});
+}
 function degreeToCompass(d){const a=['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'];return a[Math.round(((d%360)+360)%360/22.5)%16];}
-async function updateFreeForecast(){ const rows=getSelectedRows(); if(!rows.length)return; const lat=rows[0].lat,lon=rows[0].lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))return; const key=`${lat.toFixed(3)},${lon.toFixed(3)}`;if(key===forecastCacheKey)return;forecastCacheKey=key; try{ const [w,m]=await Promise.all([fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json()),fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`,{cache:'no-store'}).then(r=>r.json())]); const c=w.current||{},mc=m.current||{};$('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—';$('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—';$('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—';$('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—'; }catch(e){console.warn(e);forecastCacheKey='';} }
-function renderExtras(){renderNearbySpots();updateFreeForecast();}
+function formatUpdatedAt(ts){ if(!ts)return '—'; return new Intl.DateTimeFormat('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ts)); }
+function setFreshness(kind,ts,cached=false){ const id=kind==='tide'?'tideFreshness':'windFreshness'; const timeId=kind==='tide'?'tideUpdatedAt':'windUpdatedAt'; const el=$(id); if(el)el.classList.toggle('cached',cached); const t=$(timeId); if(t)t.textContent=formatUpdatedAt(ts); }
+function readCache(key,maxAge){ try{const v=JSON.parse(localStorage.getItem(key)||'null'); if(!v||!v.ts)return null; return {...v,fresh:Date.now()-v.ts<=maxAge};}catch{return null;} }
+function writeCache(key,data){ try{localStorage.setItem(key,JSON.stringify({ts:Date.now(),data}));}catch(e){console.warn('快取寫入失敗',e);} }
+function applyForecastData(data,cached=false){ const c=data.weather||{},mc=data.marine||{}; $('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—'; $('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—'; $('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—'; $('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—'; setFreshness('wind',data.ts||Date.now(),cached); }
+async function updateFreeForecast(){
+  const rows=getSelectedRows(); if(!rows.length)return; const lat=rows[0].lat,lon=rows[0].lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+  const key=`${lat.toFixed(3)},${lon.toFixed(3)}`; const storageKey=WIND_CACHE_PREFIX+key; const cached=readCache(storageKey,WIND_CACHE_MS);
+  if(cached?.fresh){ applyForecastData(cached.data,true); forecastCacheKey=key; return; }
+  if(key===forecastCacheKey && cached){applyForecastData(cached.data,true);return;} forecastCacheKey=key;
+  try{
+    const [wr,mr]=await Promise.all([fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`,{cache:'no-store'}),fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`,{cache:'no-store'})]);
+    if(!wr.ok||!mr.ok)throw new Error(`風浪服務回應 ${wr.status}/${mr.status}`); const w=await wr.json(),m=await mr.json(); const data={weather:w.current||{},marine:m.current||{},ts:Date.now()}; writeCache(storageKey,data); applyForecastData(data,false);
+  }catch(e){ console.warn(e); forecastCacheKey=''; if(cached){applyForecastData(cached.data,true);} else {setFreshness('wind',null,false);} }
+}
+function renderMoonInfo(){
+  const date=new Date((state.selectedDate||todayLocal())+'T12:00:00+08:00');
+  const synodic=29.53058867, known=new Date('2000-01-06T18:14:00Z'); let age=((date-known)/86400000)%synodic; if(age<0)age+=synodic; const illum=Math.round((1-Math.cos(2*Math.PI*age/synodic))/2*100);
+  let icon='🌑',name='新月'; if(age>=1.85&&age<5.54){icon='🌒';name='眉月'} else if(age<9.23){icon='🌓';name='上弦月'} else if(age<12.92){icon='🌔';name='盈凸月'} else if(age<16.61){icon='🌕';name='滿月'} else if(age<20.30){icon='🌖';name='虧凸月'} else if(age<23.99){icon='🌗';name='下弦月'} else if(age<27.68){icon='🌘';name='殘月'}
+  $('moonPhase').textContent=`${icon} ${name}`; $('moonIllumination').textContent=`月面亮度約 ${illum}%`;
+  try{$('lunarDate').textContent=new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{month:'long',day:'numeric'}).format(date);}catch{$('lunarDate').textContent='—';}
+}
+function renderExtras(){renderNearbySpots();updateFreeForecast();renderMoonInfo();}
 
 function renderAll() {
   renderSummary();
@@ -1404,49 +1452,19 @@ function renderAll() {
   renderExtras();
 }
 
+function applyTidePayload(data,text,ts,cached=false){
+  state.raw=data; state.rawText=text||''; state.rowsByLocation=parseRows(data); if(!state.rowsByLocation.size)throw new Error('解析後沒有任何潮汐地點。');
+  $('debugPre').textContent=typeof data==='object'?JSON.stringify(data,null,2).slice(0,120000):String(data).slice(0,120000);
+  populateLocationSelect(findBestMatch($('search').value.trim())); state.selectedDate=$('dateInput').value||todayLocal(); $('dateInput').value=state.selectedDate; initMap(); renderAll(); setFreshness('tide',ts,cached);
+}
 async function loadData() {
-  const key = $('apiKey').value.trim();
-  if (!key) {
-    setStatus('請先輸入 API 授權碼', true);
-    return;
-  }
-
-  setStatus('正在讀取中央氣象署潮汐資料…');
-  const url = `${API_URL}?Authorization=${encodeURIComponent(key)}&format=JSON`;
-
-  try {
-    const res = await fetch(url, { cache:'no-store' });
-    const text = await res.text();
-    state.rawText = text;
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}：${text.slice(0, 300)}`);
-
-    const contentType = res.headers.get('content-type') || '';
-    const data = parseMaybeJsonOrXml(text, contentType);
-    state.raw = data;
-    state.rowsByLocation = parseRows(data);
-
-    if (!state.rowsByLocation.size) throw new Error('已取得資料，但解析後沒有任何地點。');
-
-    $('debugPre').textContent = typeof data === 'object'
-      ? JSON.stringify(data, null, 2).slice(0, 120000)
-      : String(data).slice(0, 120000);
-
-    populateLocationSelect(findBestMatch($('search').value.trim()));
-    state.selectedDate = $('dateInput').value || todayLocal();
-    $('dateInput').value = state.selectedDate;
-    initMap();
-    renderAll();
-
-    const nearest = await locateNearestTidePoint({ silentStart: true });
-    if (!nearest) {
-      setStatus(`潮汐資料載入成功：共 ${state.rowsByLocation.size} 個地點。定位未完成，可用地圖或下拉選單手動選擇。`, true);
-    }
-  } catch (err) {
-    console.error(err);
-    if (state.rawText) $('debugPre').textContent = state.rawText.slice(0, 120000);
-    setStatus(`讀取失敗：\n${err.message}\n\n可按「原始回應」查看目前 API 回傳內容。`, true);
-  }
+  const key=$('apiKey').value.trim(); if(!key){setStatus('請先輸入 API 授權碼',true);return;}
+  const cached=readCache(TIDE_CACHE_KEY,TIDE_CACHE_MS);
+  if(cached?.fresh){ try{applyTidePayload(cached.data.data,cached.data.text,cached.ts,true); setStatus('已載入最近成功的潮汐快取資料。'); const nearest=await locateNearestTidePoint({silentStart:true}); if(!nearest)setStatus('潮汐快取資料已載入，可用地圖或下拉選單選擇地點。'); return;}catch(e){console.warn('快取解析失敗',e);} }
+  setStatus('正在讀取中央氣象署潮汐資料…'); const url=`${API_URL}?Authorization=${encodeURIComponent(key)}&format=JSON`;
+  try{
+    const res=await fetch(url,{cache:'no-store'}); const text=await res.text(); if(!res.ok)throw new Error(`HTTP ${res.status}：${text.slice(0,300)}`); const data=parseMaybeJsonOrXml(text,res.headers.get('content-type')||''); const ts=Date.now(); applyTidePayload(data,text,ts,false); writeCache(TIDE_CACHE_KEY,{data,text}); const nearest=await locateNearestTidePoint({silentStart:true}); if(!nearest)setStatus(`潮汐資料載入成功：共 ${state.rowsByLocation.size} 個地點。定位未完成，可手動選擇。`);
+  }catch(err){ console.error(err); const fallback=readCache(TIDE_CACHE_KEY,Number.MAX_SAFE_INTEGER); if(fallback){ try{applyTidePayload(fallback.data.data,fallback.data.text,fallback.ts,true); setStatus(`即時潮汐更新失敗，已改用最近成功資料（${formatUpdatedAt(fallback.ts)}）。`,true); return;}catch{} } setStatus(`潮汐資料讀取失敗：\n${err.message}`,true); }
 }
 
 $('loadBtn').addEventListener('click', loadData);
@@ -1527,40 +1545,18 @@ function renderProductMeta() {
   if (updateEl) updateEl.textContent = LAST_UPDATE.replaceAll('-', '/');
 }
 
-async function updateVisitorCount() {
-  const el = $('visitorCount');
-  if (!el) return;
-
-  try {
-    const countedKey = 'tideAssistantCountedThisSession';
-    const alreadyCounted = sessionStorage.getItem(countedKey) === '1';
-    const endpoint = alreadyCounted
-      ? VISITOR_COUNTER_ENDPOINT
-      : `${VISITOR_COUNTER_ENDPOINT}/up`;
-
-    const response = await fetch(endpoint, { cache:'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    const count = Number(data?.count ?? data?.value ?? data?.data?.up_count ?? data?.data?.count);
-    if (!Number.isFinite(count)) throw new Error('統計格式無法辨識');
-
-    if (!alreadyCounted) sessionStorage.setItem(countedKey, '1');
-    el.textContent = new Intl.NumberFormat('zh-TW').format(count);
-  } catch (error) {
-    console.warn('使用人次讀取失敗：', error);
-    el.textContent = '暫時無法取得';
-    el.title = '外部統計服務目前無法連線';
-  }
-}
-
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=$('installBtn');if(b)b.style.display='inline-block';});
 $('installBtn')?.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;$('installBtn').style.display='none';});
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.warn));}
+if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./service-worker.js'); if(reg.waiting)showUpdateToast(reg); reg.addEventListener('updatefound',()=>{const w=reg.installing;if(w)w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)showUpdateToast(reg);});});}catch(e){console.warn(e);}}); navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());}
+
+
+function updateOnlineState(){const b=$('offlineBanner');if(b)b.classList.toggle('show',!navigator.onLine);} window.addEventListener('online',updateOnlineState);window.addEventListener('offline',updateOnlineState);
+function showUpdateToast(reg){let t=$('updateToast');if(!t){t=document.createElement('div');t.id='updateToast';t.className='update-toast';t.innerHTML='<span>發現新版，重新整理後即可使用最新功能。</span><button class="btn-primary" type="button">立即更新</button>';document.body.appendChild(t);}t.classList.add('show');t.querySelector('button').onclick=()=>{reg.waiting?.postMessage({type:'SKIP_WAITING'});location.reload();};}
 
 (function init() {
+  updateOnlineState();
   renderProductMeta();
-  updateVisitorCount();
 
   // 每次開啟網頁都預設為使用者裝置的今天日期。
   state.selectedDate = todayLocal();
