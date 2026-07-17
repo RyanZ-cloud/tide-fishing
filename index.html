@@ -341,7 +341,7 @@
   .product-footer{margin-top:12px;padding-bottom:92px}
   @media(max-width:980px){.main{display:block!important}}
   @media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}.sea-grid{grid-template-columns:repeat(2,1fr)}.spot-list{grid-template-columns:repeat(2,1fr)}.chart-wrap{height:330px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill:first-child{grid-column:1/-1}}
-  @media(max-width:560px){.app{padding:8px 10px 26px}.app-header{top:4px;padding:9px}.brand-icon{width:38px;height:38px}.brand-sub{display:none}.header-actions .text-label{display:none}.header-actions button{padding:9px 10px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill{padding:9px 10px;font-size:12px}.chart-card{order:auto}.chart-wrap{height:286px}.chart-card .section-title:after{display:none}.dashboard-grid{display:flex;flex-direction:column}.wind-card{order:1}.next-tide-card{order:2}.sea-grid{grid-template-columns:repeat(2,1fr)}.astro-grid{grid-template-columns:repeat(2,1fr)}.spot-list{grid-template-columns:1fr}.spot-item{min-height:158px}.spot-actions{grid-template-columns:1fr 1fr!important}.map-card #map{height:320px}.quick-bar{bottom:7px}.quick-bar button{font-size:10px}.product-footer{padding-bottom:86px}}
+  @media(max-width:560px){.app{padding:8px 10px 26px}.app-header{top:4px;padding:9px}.brand-icon{width:38px;height:38px}.brand-sub{display:none}.header-actions .text-label{display:none}.header-actions button{padding:9px 10px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill{padding:9px 10px;font-size:12px}.chart-card{order:auto;padding:12px 10px}.chart-wrap{height:300px;min-width:0;overflow:hidden}.chart-wrap canvas{max-width:100%;touch-action:pan-y}.chart-card .section-title:after{display:none}.chart-card .legend{gap:8px;font-size:11px}.chart-card .footer-note{font-size:11px}.dashboard-grid{display:flex;flex-direction:column}.wind-card{order:1}.next-tide-card{order:2}.sea-grid{grid-template-columns:repeat(2,1fr)}.astro-grid{grid-template-columns:repeat(2,1fr)}.spot-list{grid-template-columns:1fr}.spot-item{min-height:158px}.spot-actions{grid-template-columns:1fr 1fr!important}.map-card #map{height:320px}.quick-bar{bottom:7px}.quick-bar button{font-size:10px}.product-footer{padding-bottom:86px}}
 
 </style>
 </head>
@@ -408,7 +408,7 @@
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
-      <strong>v3.0.0</strong><br>・全新 App 化資訊架構與底部快速導覽<br>・新增海況分級、日出日落與一鍵分享海況<br>・潮汐、風浪、下一波潮汐、附近釣點與地圖重新編排<br>・附近釣點改為資訊卡片與雙操作按鈕<br>・設定區移至可收合面板，首頁更聚焦<br><br><strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
+      <strong>v3.0.1</strong><br>・修正即時風浪模組未初始化，風速、風向、浪高與浪週期可獨立載入<br>・修正手機版潮汐曲線時間標籤重疊與邊界裁切<br>・依螢幕寬度自動調整時間刻度密度<br><br><strong>v3.0.0</strong><br>・全新 App 化資訊架構與底部快速導覽<br>・新增海況分級、日出日落與一鍵分享海況<br>・潮汐、風浪、下一波潮汐、附近釣點與地圖重新編排<br>・附近釣點改為資訊卡片與雙操作按鈕<br>・設定區移至可收合面板，首頁更聚焦<br><br><strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
       ・手機版資訊順序與查詢介面優化<br>
       ・自動定位最近潮汐點<br>
       ・今日前 2 小時至後 12 小時潮位曲線<br>
@@ -425,7 +425,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const APP_VERSION = 'v3.0.0';
+const APP_VERSION = 'v3.0.1';
 const LAST_UPDATE = '2026-07-17';
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
 const TIDE_CACHE_KEY = 'tideAssistantCwaCacheV300';
@@ -1086,7 +1086,8 @@ function drawChart() {
     return;
   }
 
-  const pad = { left:40, right:18, top:20, bottom:34 };
+  const isNarrowChart = w <= 560;
+  const pad = { left:isNarrowChart ? 34 : 40, right:isNarrowChart ? 10 : 18, top:20, bottom:isNarrowChart ? 42 : 34 };
   const minT = forcedMinT ?? Math.min(...pts.map(p=>p.ts));
   const maxT = forcedMaxT ?? Math.max(...pts.map(p=>p.ts));
   const minH = Math.min(...pts.map(p=>p.h));
@@ -1203,26 +1204,28 @@ function drawChart() {
     ctx.fill();
   });
 
-  // 今天採 14 小時視窗，每 2 小時標示；其他日期維持 24 小時、每 3 小時標示。
+  // 依畫布寬度動態調整時間刻度，避免手機版標籤互相重疊。
   ctx.fillStyle = 'rgba(220,238,255,.75)';
-  ctx.font = '12px sans-serif';
-  ctx.textAlign = 'center';
-  if (isTodayView) {
-    const tickStep = 2 * 60 * 60 * 1000;
-    let tickT = Math.ceil(minT / tickStep) * tickStep;
-    for (; tickT <= maxT; tickT += tickStep) {
-      const d = new Date(tickT);
-      const px = x(tickT);
-      const hm = `${String(d.getHours()).padStart(2,'0')}:00`;
-      const label = d.getDate() !== new Date(minT).getDate() ? `${d.getMonth()+1}/${d.getDate()} ${hm}` : hm;
-      ctx.fillText(label, px, h - 12);
-    }
-  } else {
-    for (let hour = 0; hour <= 24; hour += 3) {
-      const tickT = dayStart + hour * 60 * 60 * 1000;
-      const px = x(tickT);
-      ctx.fillText(`${String(hour).padStart(2,'0')}:00`, px, h - 12);
-    }
+  ctx.font = `${isNarrowChart ? 10 : 12}px sans-serif`;
+  const plotWidth = Math.max(1, w - pad.left - pad.right);
+  const durationHours = Math.max(1, (maxT - minT) / 3600000);
+  const minLabelSpacing = isNarrowChart ? 62 : 78;
+  const desiredCount = Math.max(2, Math.floor(plotWidth / minLabelSpacing));
+  const rawStep = durationHours / desiredCount;
+  const stepChoices = [1,2,3,4,6,8,12,24];
+  const stepHours = stepChoices.find(v => v >= rawStep) || 24;
+  const tickStep = stepHours * 60 * 60 * 1000;
+  let tickT = Math.ceil(minT / tickStep) * tickStep;
+  const firstDay = new Date(minT).getDate();
+  for (; tickT <= maxT + 1; tickT += tickStep) {
+    const d = new Date(tickT);
+    const px = x(tickT);
+    const hm = `${String(d.getHours()).padStart(2,'0')}:00`;
+    const label = (!isNarrowChart && d.getDate() !== firstDay) ? `${d.getMonth()+1}/${d.getDate()} ${hm}` : hm;
+    if (px < pad.left + 18) ctx.textAlign = 'left';
+    else if (px > w - pad.right - 18) ctx.textAlign = 'right';
+    else ctx.textAlign = 'center';
+    ctx.fillText(label, px, h - 13);
   }
   ctx.textAlign = 'start';
 
@@ -1395,7 +1398,54 @@ function renderMoonInfo(){
   $('moonPhase').textContent=`${icon} ${name}`; $('moonIllumination').textContent=`月面亮度約 ${illum}%`;
   try{$('lunarDate').textContent=new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{month:'long',day:'numeric'}).format(date);}catch{$('lunarDate').textContent='—';}
 }
-function renderExtras(){renderNearbySpots();updateFreeForecast();renderMoonInfo();renderSunInfo();}
+
+async function updateFreeForecast(){
+  const rows=getSelectedRows();
+  const lat=Number(rows[0]?.lat), lon=Number(rows[0]?.lon);
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)){
+    $('seaRiskBadge').textContent='● 等待地點';
+    return;
+  }
+  const roundedLat=lat.toFixed(3), roundedLon=lon.toFixed(3);
+  const key=`${WIND_CACHE_PREFIX}${roundedLat},${roundedLon}`;
+  const cached=readCache(key,WIND_CACHE_MS);
+  if(cached?.fresh){applyForecastData(cached.data.data,true);return;}
+  if(forecastCacheKey===key) return;
+  forecastCacheKey=key;
+  $('seaRiskBadge').className='risk-badge';
+  $('seaRiskBadge').textContent='● 更新中';
+  const weatherUrl=`https://api.open-meteo.com/v1/forecast?latitude=${roundedLat}&longitude=${roundedLon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`;
+  const marineUrl=`https://marine-api.open-meteo.com/v1/marine?latitude=${roundedLat}&longitude=${roundedLon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`;
+  try{
+    const [weatherResult,marineResult]=await Promise.allSettled([
+      fetch(weatherUrl,{cache:'no-store'}).then(async r=>{if(!r.ok)throw new Error(`Weather HTTP ${r.status}`);return r.json();}),
+      fetch(marineUrl,{cache:'no-store'}).then(async r=>{if(!r.ok)throw new Error(`Marine HTTP ${r.status}`);return r.json();})
+    ]);
+    const weather=weatherResult.status==='fulfilled'?(weatherResult.value.current||{}):{};
+    const marine=marineResult.status==='fulfilled'?(marineResult.value.current||{}):{};
+    if(!Object.keys(weather).length&&!Object.keys(marine).length) throw new Error('風浪 API 無可用資料');
+    const payload={ts:Date.now(),weather,marine};
+    applyForecastData(payload,false);
+    writeCache(key,payload);
+  }catch(err){
+    console.warn('風浪資料讀取失敗',err);
+    const fallback=readCache(key,Number.MAX_SAFE_INTEGER);
+    if(fallback){applyForecastData(fallback.data.data,true);}
+    else{
+      $('seaRiskBadge').className='risk-badge caution';
+      $('seaRiskBadge').textContent='◆ 暫無資料';
+      setFreshness('wind',null,false);
+    }
+  }finally{
+    forecastCacheKey='';
+  }
+}
+function renderExtras(){
+  renderNearbySpots();
+  renderMoonInfo();
+  renderSunInfo();
+  updateFreeForecast();
+}
 
 function renderAll() {
   renderSummary();
