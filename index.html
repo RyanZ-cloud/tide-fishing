@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>台灣磯釣助手｜潮汐、風浪與附近釣點</title>
+<title>台灣磯釣助手｜潮汐、風浪、月相與附近釣點</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07101c">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -316,146 +316,80 @@
   .update-toast{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;width:min(92vw,520px);padding:12px 14px;border-radius:16px;background:#16314f;border:1px solid rgba(118,224,255,.28);box-shadow:var(--shadow);align-items:center;gap:10px}.update-toast.show{display:flex}.update-toast span{flex:1;font-size:13px}.update-toast button{width:auto;padding:8px 12px}
   @media(max-width:560px){.info-strip{grid-template-columns:1fr 1fr}.spot-actions{grid-template-columns:1fr}.offline-banner{margin-left:10px;margin-right:10px}}
 
+
+  /* ===== v3.0 App-like redesign ===== */
+  :root{
+    --surface:#0d1a2b;--surface-2:#13243a;--surface-3:#19304d;
+    --accent:#58c7ff;--accent-2:#6ee7d8;--danger:#ff8d8d;
+  }
+  body{padding-bottom:76px;background:radial-gradient(circle at 12% -5%,rgba(88,199,255,.19),transparent 28%),linear-gradient(180deg,#06101c 0%,#091522 55%,#07111d 100%)}
+  .app{max-width:1180px;padding:12px 14px 36px}
+  .app-header{position:sticky;top:0;z-index:800;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0 -2px 12px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(7,16,28,.82);backdrop-filter:blur(18px);box-shadow:0 12px 28px rgba(0,0,0,.22)}
+  .brand-lockup{display:flex;align-items:center;gap:10px;min-width:0}.brand-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#2bb8ff,#1778ff);box-shadow:0 10px 20px rgba(23,120,255,.28);font-size:22px}.brand-title{font-weight:900;font-size:17px;line-height:1.1}.brand-sub{font-size:11px;color:var(--muted);margin-top:4px}.header-actions{display:flex;gap:8px}.header-actions button{width:auto;padding:9px 12px;font-size:13px}
+  .hero{padding:4px 2px 12px}.hero h1{display:none}.hero-info{margin:0!important}.hero-info .toolbar-left{display:grid;grid-template-columns:1.4fr 1fr 1fr;width:100%;gap:9px}.hero-info .pill{justify-content:flex-start;min-height:44px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border-radius:15px;font-weight:700}
+  .shell{display:block}.main{padding:0;background:none;border:none;box-shadow:none;backdrop-filter:none}.side{position:static;margin-top:12px;padding:0;background:none;border:none;box-shadow:none}.settings-details{overflow:hidden;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));box-shadow:var(--shadow)}.settings-details>summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:850;display:flex;align-items:center;justify-content:space-between}.settings-details>summary::-webkit-details-marker{display:none}.settings-details>summary:after{content:'展開';font-size:12px;color:var(--muted);font-weight:600}.settings-details[open]>summary:after{content:'收合'}.settings-body{padding:0 14px 14px}
+  .card{border-radius:22px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));box-shadow:0 14px 32px rgba(0,0,0,.20)}
+  .chart-card{padding:14px}.chart-wrap{height:390px}.chart-card .section-title h2{font-size:20px}.chart-card .section-title:after{content:'滑動查看潮高';font-size:12px;color:var(--muted)}
+  .dashboard-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.wind-card,.next-tide-card{margin:0!important}
+  .condition-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.risk-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:850;background:rgba(112,216,178,.12);border:1px solid rgba(112,216,178,.25);color:#bff7e2}.risk-badge.caution{background:rgba(255,213,106,.12);border-color:rgba(255,213,106,.30);color:#ffe59a}.risk-badge.danger{background:rgba(255,141,141,.12);border-color:rgba(255,141,141,.28);color:#ffc3c3}
+  .sea-grid{grid-template-columns:repeat(4,1fr);gap:8px}.sea-item{min-height:76px;display:flex;flex-direction:column;justify-content:center;background:rgba(255,255,255,.038);border-radius:15px}.sea-item b{font-size:18px}
+  .astro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.astro-tile{padding:11px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid var(--line)}.astro-label{font-size:11px;color:var(--muted)}.astro-value{margin-top:5px;font-size:16px;font-weight:850}.astro-meta{font-size:10px;color:var(--muted);margin-top:4px}
+  .nearby-card{margin-top:12px!important}.spot-list{grid-template-columns:repeat(3,1fr);gap:10px}.spot-item{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px;min-height:176px;background:linear-gradient(160deg,rgba(88,199,255,.09),rgba(255,255,255,.025) 48%);overflow:hidden}.spot-item:before{content:'🎣';position:absolute;right:12px;top:12px;opacity:.14;font-size:38px}.spot-main{padding-right:42px}.spot-name{font-size:17px}.spot-meta{min-height:0}.spot-actions{margin-top:auto}.spot-fav{position:absolute;right:12px;top:12px;z-index:2}.spot-distance{display:inline-flex;width:max-content;padding:5px 8px;border-radius:999px;background:rgba(88,199,255,.10);border:1px solid rgba(88,199,255,.18);color:#cdefff;font-size:11px}
+  .map-card{margin-top:12px!important}#map{height:390px}
+  .quick-bar{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:900;display:flex;gap:4px;width:min(94vw,520px);padding:7px;border-radius:20px;background:rgba(7,16,28,.90);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(18px);box-shadow:0 14px 32px rgba(0,0,0,.34)}.quick-bar button{flex:1;width:auto;padding:9px 6px;background:transparent;color:var(--muted);font-size:11px;border-radius:14px}.quick-bar button span{display:block;color:var(--text);font-size:17px;margin-bottom:3px}.quick-bar button:hover{background:rgba(88,199,255,.10);color:var(--text)}
+  .share-note{font-size:11px;color:var(--muted);margin-top:8px}
+  .product-footer{margin-top:12px;padding-bottom:92px}
+  @media(max-width:980px){.main{display:block!important}}
+  @media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}.sea-grid{grid-template-columns:repeat(2,1fr)}.spot-list{grid-template-columns:repeat(2,1fr)}.chart-wrap{height:330px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill:first-child{grid-column:1/-1}}
+  @media(max-width:560px){.app{padding:8px 10px 26px}.app-header{top:4px;padding:9px}.brand-icon{width:38px;height:38px}.brand-sub{display:none}.header-actions .text-label{display:none}.header-actions button{padding:9px 10px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill{padding:9px 10px;font-size:12px}.chart-card{order:auto}.chart-wrap{height:286px}.chart-card .section-title:after{display:none}.dashboard-grid{display:flex;flex-direction:column}.wind-card{order:1}.next-tide-card{order:2}.sea-grid{grid-template-columns:repeat(2,1fr)}.astro-grid{grid-template-columns:repeat(2,1fr)}.spot-list{grid-template-columns:1fr}.spot-item{min-height:158px}.spot-actions{grid-template-columns:1fr 1fr!important}.map-card #map{height:320px}.quick-bar{bottom:7px}.quick-bar button{font-size:10px}.product-footer{padding-bottom:86px}}
+
 </style>
 </head>
 <body>
 <div id="offlineBanner" class="offline-banner" role="status">⚠️ 離線模式：目前顯示最近一次成功下載的資料，請確認資料更新時間。</div>
 <div class="app">
-  <div class="hero">
-    <h1>台灣潮汐釣點助手</h1>
-    <div class="toolbar hero-info" style="margin-top:10px;">
-      <div class="toolbar-left">
-        <div class="pill" id="selectedInfo">地點：—</div>
-        <div class="pill" id="lunarInfo">農曆：—</div>
-        <div class="pill" id="rangeInfo">潮差：—</div>
-      </div>
-    </div>
-  </div>
+  <header class="app-header">
+    <div class="brand-lockup"><div class="brand-icon">🎣</div><div><div class="brand-title">台灣磯釣助手</div><div class="brand-sub">潮汐・風浪・月相・附近釣點</div></div></div>
+    <div class="header-actions"><button class="btn-secondary" id="headerLocateBtn" type="button">📍 <span class="text-label">重新定位</span></button><button class="btn-secondary" id="shareBtn" type="button">↗ <span class="text-label">分享海況</span></button></div>
+  </header>
+
+  <div class="hero"><h1>台灣磯釣助手</h1><div class="toolbar hero-info"><div class="toolbar-left"><div class="pill" id="selectedInfo">地點：—</div><div class="pill" id="lunarInfo">農曆：—</div><div class="pill" id="rangeInfo">潮差：—</div></div></div></div>
 
   <div class="shell">
-    <aside class="panel side">
-      <div class="section-title">
-        <h2>查詢設定</h2>
-        <div class="mini">CWA F-A0021-001</div>
-      </div>
-
-      <div class="field">
-        <label for="apiKey">API 授權碼</label>
-        <input id="apiKey" value="CWA-21333DF4-B9DB-4810-ABC6-BE0F5BA71485">
-      </div>
-
-      <div class="field">
-        <label for="search">搜尋地點</label>
-        <input id="search" placeholder="例如：基隆、宜蘭、高雄">
-      </div>
-
-      <div class="field">
-        <label for="dateInput">查詢日期</label>
-        <input id="dateInput" type="date">
-      </div>
-
-      <div class="field">
-        <label for="locationSelect">地點選擇</label>
-        <select id="locationSelect">
-          <option value="">請先載入資料</option>
-        </select>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button>
-        <button class="btn-secondary" id="todayBtn" type="button">切到今天</button>
-      </div>
-
-      <button class="btn-secondary" id="locateBtn" type="button" style="margin-top:10px;">
-        📍 自動定位最近潮汐點
-      </button>
-
-      <button class="btn-secondary" id="debugBtn" type="button" style="margin-top:10px;">原始回應</button>
-
-      <div id="status" class="status">準備中…</div>
-    </aside>
-
-    <main class="panel main">
-      <section class="card chart-card">
-        <div class="section-title">
-          <h2>潮位曲線圖</h2>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="tideCanvas" width="900" height="380"></canvas>
-        </div>
-        <div class="legend">
-          <span><i class="line-mark"></i> 潮位曲線</span>
-          <span><i class="dot-mark"></i> 滿／乾潮點</span>
-          <span><i class="golden-zone-mark"></i> 黃金潮汐時段</span>
-          <span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span>
-        </div>
+    <main class="main">
+      <section class="card chart-card" id="chartSection">
+        <div class="section-title"><h2>🌊 潮位曲線</h2></div>
+        <div class="chart-wrap"><canvas id="tideCanvas" width="900" height="380"></canvas></div>
+        <div class="legend"><span><i class="line-mark"></i> 潮位曲線</span><span><i class="dot-mark"></i> 滿／乾潮</span><span><i class="golden-zone-mark"></i> 黃金時段</span><span id="currentLegend"><i class="dot-mark" style="background:#76e0ff;"></i> 目前潮位</span></div>
         <div class="footer-note" id="chartNote">左右滑動曲線，可查看時間與預估潮高。</div>
         <div class="freshness" id="tideFreshness"><span>潮汐資料更新：<b id="tideUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
       </section>
 
-      <div class="top-cards">
+      <div class="dashboard-grid" id="conditionsSection">
         <section class="card wind-card">
-          <div class="section-title"><h2>🌬️ 即時風浪</h2><div class="mini">免費公開預報</div></div>
-          <div class="sea-grid">
-            <div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div>
-            <div class="sea-item"><span>風向</span><b id="windDirection">—</b></div>
-            <div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div>
-            <div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div>
-          </div>
-          <div class="data-source-note">風浪為模式預報，僅供出發前初判；現場仍以安全與海象公告為準。</div>
+          <div class="condition-head"><div><div class="k">即時環境</div><h2 style="margin:0;font-size:20px">🌬️ 風浪與天光</h2></div><div class="risk-badge" id="seaRiskBadge">● 評估中</div></div>
+          <div class="sea-grid"><div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div></div>
+          <div class="astro-grid"><div class="astro-tile"><div class="astro-label">🌅 日出</div><div class="astro-value" id="sunriseTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌇 日落</div><div class="astro-value" id="sunsetTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌙 月相</div><div class="astro-value" id="moonPhase">—</div><div class="astro-meta" id="moonIllumination">—</div></div><div class="astro-tile"><div class="astro-label">📅 農曆</div><div class="astro-value" id="lunarDate">—</div><div class="astro-meta">依查詢日期</div></div></div>
+          <div class="data-source-note">風浪為模式預報，只供出發前初判；現場仍以警特報、長浪與管制公告為準。</div>
           <div class="freshness" id="windFreshness"><span>風浪資料更新：<b id="windUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
-          <div class="info-strip"><div class="info-tile"><div class="info-tile-label">🌙 月相</div><div class="info-tile-value" id="moonPhase">—</div><div class="info-tile-meta" id="moonIllumination">—</div></div><div class="info-tile"><div class="info-tile-label">📅 農曆參考</div><div class="info-tile-value" id="lunarDate">—</div><div class="info-tile-meta">依查詢日期計算</div></div></div>
         </section>
 
         <section class="card next-tide-card">
-          <div class="next-primary">
-            <div class="next-primary-main">
-              <div class="k">下一波潮汐</div>
-              <div class="next-event-line">
-                <span class="next-event-type" id="nextEvent">—</span>
-                <span class="next-event-time" id="nextEventTime">—</span>
-              </div>
-              <div class="next-event-date" id="nextEventMeta">—</div>
-            </div>
-          </div>
-          <div class="next-mini-grid">
-            <div class="next-mini">
-              <div class="next-mini-label">▲ 下一次滿潮</div>
-              <div class="next-mini-value" id="nextHigh">—</div>
-              <div class="next-mini-meta" id="nextHighMeta">—</div>
-            </div>
-            <div class="next-mini">
-              <div class="next-mini-label">▼ 下一次乾潮</div>
-              <div class="next-mini-value" id="nextLow">—</div>
-              <div class="next-mini-meta" id="nextLowMeta">—</div>
-            </div>
-          </div>
+          <div class="next-primary"><div class="next-primary-main"><div class="k">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
+          <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
+          <div class="share-note">黃金潮汐區間已直接標示於上方曲線。</div>
         </section>
       </div>
 
-      <section class="card nearby-card" style="margin-top:12px;">
-        <div class="section-title"><h2>📍 附近釣點</h2><div class="mini">⭐ 收藏只存在本機</div></div>
-        <div class="spot-list" id="nearbySpots"><div class="mini">定位後顯示附近釣點。</div></div>
-      </section>
+      <section class="card nearby-card" id="spotsSection"><div class="section-title"><h2>📍 附近釣點</h2><div class="mini">收藏保留在這台裝置</div></div><div class="spot-list" id="nearbySpots"><div class="mini">定位後顯示附近釣點。</div></div></section>
 
-      <section class="card map-card" style="margin-top:12px;">
-        <div class="section-title">
-          <h2>台灣潮汐地圖選點</h2>
-          <div class="mini">點地圖直接切換地點</div>
-        </div>
-        <div id="map"></div>
-        <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div>
-      </section>
+      <section class="card map-card" id="mapSection"><div class="section-title"><h2>🗺️ 潮汐地圖</h2><div class="mini">點標記切換潮汐站</div></div><div id="map"></div><div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div></section>
 
-      <details id="debugWrap" style="display:none;">
-        <summary>原始回應（除錯用）</summary>
-        <pre id="debugPre"></pre>
-      </details>
+      <aside class="side" id="settingsSection"><details class="settings-details"><summary>⚙️ 查詢設定與資料來源</summary><div class="settings-body"><div class="section-title"><h2>查詢設定</h2><div class="mini">CWA F-A0021-001</div></div><div class="field"><label for="apiKey">API 授權碼</label><input id="apiKey" value="CWA-21333DF4-B9DB-4810-ABC6-BE0F5BA71485"></div><div class="field"><label for="search">搜尋地點</label><input id="search" placeholder="例如：基隆、宜蘭、高雄"></div><div class="field"><label for="dateInput">查詢日期</label><input id="dateInput" type="date"></div><div class="field"><label for="locationSelect">地點選擇</label><select id="locationSelect"><option value="">請先載入資料</option></select></div><div class="btn-row"><button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button><button class="btn-secondary" id="todayBtn" type="button">切到今天</button></div><button class="btn-secondary" id="locateBtn" type="button" style="margin-top:10px">📍 自動定位最近潮汐點</button><button class="btn-secondary" id="debugBtn" type="button" style="margin-top:10px">原始回應</button><div id="status" class="status">準備中…</div><details id="debugWrap" style="display:none"><summary>原始回應（除錯用）</summary><pre id="debugPre"></pre></details></div></details></aside>
     </main>
   </div>
 </div>
-
-
+<nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="conditionsSection"><span>🌬️</span>風浪</button><button type="button" data-scroll="spotsSection"><span>📍</span>釣點</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button><button type="button" data-scroll="settingsSection"><span>⚙️</span>設定</button></nav>
 <footer class="product-footer" aria-label="網站資訊">
   <div class="footer-brand">🎣 台灣磯釣助手</div>
   <div class="footer-stats">
@@ -474,7 +408,7 @@
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
-      <strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
+      <strong>v3.0.0</strong><br>・全新 App 化資訊架構與底部快速導覽<br>・新增海況分級、日出日落與一鍵分享海況<br>・潮汐、風浪、下一波潮汐、附近釣點與地圖重新編排<br>・附近釣點改為資訊卡片與雙操作按鈕<br>・設定區移至可收合面板，首頁更聚焦<br><br><strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>
       ・手機版資訊順序與查詢介面優化<br>
       ・自動定位最近潮汐點<br>
       ・今日前 2 小時至後 12 小時潮位曲線<br>
@@ -491,12 +425,12 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const APP_VERSION = 'v2.2.0';
+const APP_VERSION = 'v3.0.0';
 const LAST_UPDATE = '2026-07-17';
 const API_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001';
-const TIDE_CACHE_KEY = 'tideAssistantCwaCacheV220';
+const TIDE_CACHE_KEY = 'tideAssistantCwaCacheV300';
 const TIDE_CACHE_MS = 4 * 60 * 60 * 1000;
-const WIND_CACHE_PREFIX = 'tideAssistantWindCacheV220:';
+const WIND_CACHE_PREFIX = 'tideAssistantWindCacheV300:';
 const WIND_CACHE_MS = 45 * 60 * 1000;
 const FISHING_SPOTS = [
   {name:'大武崙澳底漁港',lat:25.1584,lon:121.7062,keyword:'基隆'},
@@ -1415,7 +1349,7 @@ function renderNearbySpots(){
   const origin=state.userLocation; const fav=new Set(getFavoriteSpots());
   let spots=FISHING_SPOTS.map(s=>({...s,km:origin?distanceKm(origin.lat,origin.lon,s.lat,s.lon):null}));
   spots.sort((a,b)=>(fav.has(b.name)-fav.has(a.name))||((a.km??9999)-(b.km??9999))); spots=spots.slice(0,6);
-  box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div></div><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}" aria-label="收藏 ${s.name}">${fav.has(s.name)?'★':'☆'}</button><div class="spot-meta">${s.km==null?'常用北海岸釣點':`距離約 ${s.km.toFixed(1)} km`}<br>對應 ${s.keyword} 潮汐</div><div class="spot-actions"><button class="spot-action btn-secondary" data-open="${s.name}">查看潮汐</button><button class="spot-nav btn-secondary" data-nav="${s.name}">Google 導航</button></div></div>`).join('');
+  box.innerHTML=spots.map(s=>`<div class="spot-item"><div class="spot-main"><div class="spot-name">${s.name}</div></div><button class="spot-fav btn-secondary ${fav.has(s.name)?'active':''}" data-fav="${s.name}" aria-label="收藏 ${s.name}">${fav.has(s.name)?'★':'☆'}</button><div class="spot-distance">${s.km==null?'北海岸常用點':`距離 ${s.km.toFixed(1)} km`}</div><div class="spot-meta">對應 ${s.keyword} 潮汐站<br>出發前請確認港區與現場管制</div><div class="spot-actions"><button class="spot-action btn-secondary" data-open="${s.name}">查看潮汐</button><button class="spot-nav btn-secondary" data-nav="${s.name}">開始導航</button></div></div>`).join('');
   box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>selectSpot(FISHING_SPOTS.find(s=>s.name===b.dataset.open)));
   box.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFavoriteSpot(b.dataset.fav));
   box.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{const spot=FISHING_SPOTS.find(s=>s.name===b.dataset.nav); if(spot) window.open(`https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lon}`,'_blank','noopener');});
@@ -1425,16 +1359,34 @@ function formatUpdatedAt(ts){ if(!ts)return '—'; return new Intl.DateTimeForma
 function setFreshness(kind,ts,cached=false){ const id=kind==='tide'?'tideFreshness':'windFreshness'; const timeId=kind==='tide'?'tideUpdatedAt':'windUpdatedAt'; const el=$(id); if(el)el.classList.toggle('cached',cached); const t=$(timeId); if(t)t.textContent=formatUpdatedAt(ts); }
 function readCache(key,maxAge){ try{const v=JSON.parse(localStorage.getItem(key)||'null'); if(!v||!v.ts)return null; return {...v,fresh:Date.now()-v.ts<=maxAge};}catch{return null;} }
 function writeCache(key,data){ try{localStorage.setItem(key,JSON.stringify({ts:Date.now(),data}));}catch(e){console.warn('快取寫入失敗',e);} }
-function applyForecastData(data,cached=false){ const c=data.weather||{},mc=data.marine||{}; $('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—'; $('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—'; $('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—'; $('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—'; setFreshness('wind',data.ts||Date.now(),cached); }
-async function updateFreeForecast(){
-  const rows=getSelectedRows(); if(!rows.length)return; const lat=rows[0].lat,lon=rows[0].lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
-  const key=`${lat.toFixed(3)},${lon.toFixed(3)}`; const storageKey=WIND_CACHE_PREFIX+key; const cached=readCache(storageKey,WIND_CACHE_MS);
-  if(cached?.fresh){ applyForecastData(cached.data,true); forecastCacheKey=key; return; }
-  if(key===forecastCacheKey && cached){applyForecastData(cached.data,true);return;} forecastCacheKey=key;
-  try{
-    const [wr,mr]=await Promise.all([fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=Asia%2FTaipei`,{cache:'no-store'}),fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_period&timezone=Asia%2FTaipei`,{cache:'no-store'})]);
-    if(!wr.ok||!mr.ok)throw new Error(`風浪服務回應 ${wr.status}/${mr.status}`); const w=await wr.json(),m=await mr.json(); const data={weather:w.current||{},marine:m.current||{},ts:Date.now()}; writeCache(storageKey,data); applyForecastData(data,false);
-  }catch(e){ console.warn(e); forecastCacheKey=''; if(cached){applyForecastData(cached.data,true);} else {setFreshness('wind',null,false);} }
+function updateSeaRisk(wind,wave){
+  const badge=$('seaRiskBadge'); if(!badge)return;
+  let level='一般',cls='',icon='●';
+  if((Number.isFinite(wave)&&wave>=2)||(Number.isFinite(wind)&&wind>=35)){level='風浪偏強';cls='danger';icon='▲'}
+  else if((Number.isFinite(wave)&&wave>=1.2)||(Number.isFinite(wind)&&wind>=22)){level='留意海況';cls='caution';icon='◆'}
+  badge.className=`risk-badge ${cls}`.trim(); badge.textContent=`${icon} ${level}`;
+}
+function applyForecastData(data,cached=false){
+  const c=data.weather||{},mc=data.marine||{};
+  $('windSpeed').textContent=Number.isFinite(c.wind_speed_10m)?`${c.wind_speed_10m} km/h`:'—';
+  $('windDirection').textContent=Number.isFinite(c.wind_direction_10m)?`${degreeToCompass(c.wind_direction_10m)} ${Math.round(c.wind_direction_10m)}°`:'—';
+  $('waveHeight').textContent=Number.isFinite(mc.wave_height)?`${mc.wave_height} m`:'—';
+  $('wavePeriod').textContent=Number.isFinite(mc.wave_period)?`${mc.wave_period} 秒`:'—';
+  updateSeaRisk(c.wind_speed_10m,mc.wave_height); setFreshness('wind',data.ts||Date.now(),cached);
+}
+function calcSunTimes(dateStr,lat,lon){
+  if(!Number.isFinite(lat)||!Number.isFinite(lon))return null;
+  const d=new Date(`${dateStr}T12:00:00+08:00`); const rad=Math.PI/180;
+  const start=Date.UTC(d.getUTCFullYear(),0,0); const n=Math.floor((Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-start)/86400000);
+  const gamma=2*Math.PI/365*(n-1); const eq=229.18*(0.000075+0.001868*Math.cos(gamma)-0.032077*Math.sin(gamma)-0.014615*Math.cos(2*gamma)-0.040849*Math.sin(2*gamma));
+  const decl=0.006918-0.399912*Math.cos(gamma)+0.070257*Math.sin(gamma)-0.006758*Math.cos(2*gamma)+0.000907*Math.sin(2*gamma)-0.002697*Math.cos(3*gamma)+0.00148*Math.sin(3*gamma);
+  const ha=Math.acos(Math.min(1,Math.max(-1,(Math.cos(90.833*rad)/(Math.cos(lat*rad)*Math.cos(decl))-Math.tan(lat*rad)*Math.tan(decl)))))/rad;
+  const noon=720-4*lon-eq+480; const fmt=m=>{m=(m+1440)%1440;const h=Math.floor(m/60),mi=Math.round(m%60);return `${String((h+(mi===60?1:0))%24).padStart(2,'0')}:${String(mi===60?0:mi).padStart(2,'0')}`};
+  return {sunrise:fmt(noon-4*ha),sunset:fmt(noon+4*ha)};
+}
+function renderSunInfo(){
+  const rows=getSelectedRows(); const lat=rows[0]?.lat,lon=rows[0]?.lon; const t=calcSunTimes(state.selectedDate||todayLocal(),lat,lon);
+  $('sunriseTime').textContent=t?.sunrise||'—'; $('sunsetTime').textContent=t?.sunset||'—';
 }
 function renderMoonInfo(){
   const date=new Date((state.selectedDate||todayLocal())+'T12:00:00+08:00');
@@ -1443,7 +1395,7 @@ function renderMoonInfo(){
   $('moonPhase').textContent=`${icon} ${name}`; $('moonIllumination').textContent=`月面亮度約 ${illum}%`;
   try{$('lunarDate').textContent=new Intl.DateTimeFormat('zh-TW-u-ca-chinese',{month:'long',day:'numeric'}).format(date);}catch{$('lunarDate').textContent='—';}
 }
-function renderExtras(){renderNearbySpots();updateFreeForecast();renderMoonInfo();}
+function renderExtras(){renderNearbySpots();updateFreeForecast();renderMoonInfo();renderSunInfo();}
 
 function renderAll() {
   renderSummary();
@@ -1538,6 +1490,19 @@ function bindChartInspector() {
 }
 
 
+function buildShareText(){
+  const place=($('selectedInfo')?.textContent||'台灣磯釣助手').replace('地點：','');
+  return `🎣 台灣磯釣助手｜${place}\n風速：${$('windSpeed')?.textContent||'—'}｜風向：${$('windDirection')?.textContent||'—'}\n浪高：${$('waveHeight')?.textContent||'—'}｜下一波：${$('nextEvent')?.textContent||'—'} ${$('nextEventTime')?.textContent||''}\n資料僅供行程參考，出發前請確認官方警特報。`;
+}
+async function shareConditions(){
+  const data={title:'台灣磯釣助手',text:buildShareText(),url:location.href};
+  try{if(navigator.share)await navigator.share(data);else{await navigator.clipboard.writeText(`${data.text}\n${data.url}`);setStatus('已複製目前海況與網址。');}}catch(e){if(e?.name!=='AbortError')setStatus('分享失敗，請直接複製網址。',true);}
+}
+function initV3Controls(){
+  $('headerLocateBtn')?.addEventListener('click',()=>$('locateBtn')?.click());
+  $('shareBtn')?.addEventListener('click',shareConditions);
+  document.querySelectorAll('[data-scroll]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.scroll)?.scrollIntoView({behavior:'smooth',block:'start'})));
+}
 function renderProductMeta() {
   const versionEl = $('footerVersion');
   const updateEl = $('footerUpdate');
@@ -1557,6 +1522,7 @@ function showUpdateToast(reg){let t=$('updateToast');if(!t){t=document.createEle
 (function init() {
   updateOnlineState();
   renderProductMeta();
+  initV3Controls();
 
   // 每次開啟網頁都預設為使用者裝置的今天日期。
   state.selectedDate = todayLocal();
