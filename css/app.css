@@ -1,0 +1,69 @@
+:root {
+    --bg:#07101c;
+    --card:#101d31;
+    --card2:#162640;
+    --line:rgba(255,255,255,.10);
+    --text:#eef6ff;
+    --muted:#9fb3cf;
+    --blue:#46b2ff;
+    --cyan:#76e0ff;
+    --green:#70d8b2;
+    --orange:#ffb35c;
+    --yellow:#ffd56a;
+    --shadow:0 14px 34px rgba(0,0,0,.28);
+  }
+
+* { box-sizing:border-box; }
+
+html,body {
+    margin:0;
+    background:
+      radial-gradient(circle at top, rgba(70,178,255,.16), transparent 30%),
+      linear-gradient(180deg, #07101c, #0a1422 55%, #08111d);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",Arial,sans-serif;
+  }
+
+label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+
+input, select, button {
+    width:100%; border:none; outline:none; border-radius:14px; padding:12px 14px; font-size:15px;
+  }
+
+input, select {
+    color:var(--text); background:var(--card2); border:1px solid var(--line);
+  }
+
+button { font-weight:700; cursor:pointer; }
+
+canvas {
+    width:100%; height:100%; display:block; border-radius:16px;
+    cursor:crosshair; touch-action:pan-y;
+    background:linear-gradient(180deg, rgba(13,29,47,.92), rgba(9,20,35,.92));
+  }
+
+table { width:100%; border-collapse:collapse; font-size:14px; }
+
+th, td {
+    padding:12px 10px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top;
+  }
+
+th { color:#d8e7ff; font-size:13px; }
+
+td { color:#eef6ff; }
+
+tr:hover td { background:rgba(255,255,255,.03); }
+
+details { margin-top:12px; }
+
+pre {
+    margin:0; background:#07101d; border:1px solid var(--line); border-radius:16px; padding:14px;
+    overflow:auto; max-height:340px; color:#d8e7ff; font-size:12px; line-height:1.5;
+  }
+
+:root{
+    --surface:#0d1a2b;--surface-2:#13243a;--surface-3:#19304d;
+    --accent:#58c7ff;--accent-2:#6ee7d8;--danger:#ff8d8d;
+  }
+
+body{padding-bottom:76px;background:radial-gradient(circle at 12% -5%,rgba(88,199,255,.19),transparent 28%),linear-gradient(180deg,#06101c 0%,#091522 55%,#07111d 100%)}

@@ -1,21 +1,25 @@
 {
   "name": "台灣磯釣助手",
   "short_name": "磯釣助手",
-  "start_url": "./index.html",
+  "description": "台灣潮汐、風浪、月相與附近釣點資訊",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#07101c",
   "theme_color": "#07101c",
+  "lang": "zh-Hant",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "images/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "images/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
-  ],
-  "description": "免費潮汐、風浪、月相、附近釣點與導航工具"
+  ]
 }
