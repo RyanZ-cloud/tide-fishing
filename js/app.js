@@ -17,6 +17,8 @@ import { updateWeather } from './modules/weather.js';
 import { renderLunar } from './modules/lunar.js';
 import { renderNearbySpots } from './modules/favorite.js';
 import { shareConditions } from './modules/share.js';
+import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
+import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
 
 const element = id => document.getElementById(id);
 
@@ -53,6 +55,8 @@ function selectSpot(spot) {
 }
 
 function renderAll() {
+  renderDateNavigation();
+  renderLocationPicker();
   renderTideSummary();
   drawChart();
   renderMapPoints(selectLocation);
@@ -209,6 +213,8 @@ function bindEvents() {
     element('dateInput').value = state.selectedDate;
     renderAll();
   });
+  bindDateNavigation(renderAll);
+  bindLocationPicker(name => selectLocation(name));
   element('search').addEventListener('input', () => {
     populateLocationSelect(findBestMatch(element('search').value.trim()));
     renderAll();

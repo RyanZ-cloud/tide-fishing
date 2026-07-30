@@ -245,6 +245,109 @@ input[type="date"]{
 
 .hero-info .pill{justify-content:flex-start;min-height:44px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border-radius:15px;font-weight:700}
 
+.location-trigger{
+  width:100%;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+}
+
+.location-trigger:hover,
+.location-trigger:focus-visible{
+  border-color:rgba(118,224,255,.38);
+  background:linear-gradient(180deg,rgba(70,178,255,.14),rgba(255,255,255,.025));
+}
+
+.location-picker{
+  width:min(92vw,560px);
+  max-height:min(80vh,680px);
+  margin:auto;
+  padding:16px;
+  color:var(--text);
+  background:#101d31;
+  border:1px solid rgba(118,224,255,.24);
+  border-radius:22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+}
+
+.location-picker::backdrop{
+  background:rgba(2,8,16,.72);
+  backdrop-filter:blur(5px);
+}
+
+.location-picker-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.location-picker-head h2{margin:0;font-size:20px}
+
+.location-picker-close{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  padding:0;
+  color:var(--text);
+  background:#21324f;
+  border:1px solid var(--line);
+  font-size:25px;
+}
+
+.location-picker input{
+  width:100%;
+  margin-bottom:10px;
+  font-size:16px;
+}
+
+.location-picker-list{
+  display:grid;
+  gap:7px;
+  max-height:48vh;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+
+.location-option{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  padding:11px 12px;
+  color:var(--text);
+  background:#15243b;
+  border:1px solid var(--line);
+  text-align:left;
+  box-shadow:none;
+}
+
+.location-option strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.location-option small{color:var(--cyan)}
+
+.location-option:hover,
+.location-option:focus-visible{
+  border-color:rgba(118,224,255,.38);
+  background:#1b3150;
+}
+
+.location-option.active{
+  border-color:rgba(255,213,106,.48);
+  background:rgba(255,213,106,.10);
+}
+
+.location-picker-empty{
+  padding:22px 12px;
+  color:var(--muted);
+  text-align:center;
+}
+
 .settings-details{overflow:hidden;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));box-shadow:var(--shadow)}
 
 .settings-details>summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:850;display:flex;align-items:center;justify-content:space-between}
@@ -266,6 +369,101 @@ input[type="date"]{
 .chart-card .section-title h2{font-size:20px}
 
 .chart-card .section-title:after{content:'滑動查看潮高';font-size:12px;color:var(--muted)}
+
+.date-navigator{
+  margin:0 0 12px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(7,16,28,.38);
+}
+
+.date-stepper{
+  display:grid;
+  grid-template-columns:minmax(92px,1fr) minmax(150px,1.4fr) minmax(92px,1fr);
+  gap:8px;
+  align-items:stretch;
+}
+
+.date-step-button,
+.date-current-button,
+.date-chip{
+  border:1px solid var(--line);
+  color:var(--text);
+  background:#15243b;
+  box-shadow:none;
+}
+
+.date-step-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 12px;
+  font-size:14px;
+}
+
+.date-current-button{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:7px 12px;
+  background:linear-gradient(180deg,rgba(70,178,255,.22),rgba(70,178,255,.10));
+  border-color:rgba(118,224,255,.28);
+}
+
+.date-current-button span{
+  color:var(--cyan);
+  font-size:11px;
+}
+
+.date-current-button strong{
+  font-size:16px;
+}
+
+.date-step-button:disabled,
+.date-current-button:disabled{
+  opacity:.48;
+  cursor:default;
+}
+
+.date-quick-list{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(72px,1fr));
+  gap:7px;
+  margin-top:9px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+
+.date-quick-list::-webkit-scrollbar{display:none}
+
+.date-chip{
+  min-width:72px;
+  padding:8px 6px;
+  border-radius:13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.date-chip strong{
+  color:var(--text);
+  font-size:13px;
+}
+
+.date-chip.active{
+  color:#fff4c7;
+  background:linear-gradient(180deg,rgba(255,213,106,.22),rgba(255,179,92,.10));
+  border-color:rgba(255,213,106,.55);
+}
+
+.date-chip.active strong{color:#fff4c7}
 
 .wind-card,.next-tide-card{margin:0!important}
 

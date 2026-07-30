@@ -123,7 +123,7 @@ export function renderTideSummary() {
   const nextHigh = future.find(row => String(row.tideType).includes('滿潮'));
   const nextLow = future.find(row => String(row.tideType).includes('乾潮'));
   const first = dayRows[0] || rows[0];
-  document.getElementById('selectedInfo').textContent = `地點：${state.selectedLocation || '—'}`;
+  document.getElementById('selectedInfo').textContent = `📍 地點：${state.selectedLocation || '—'}　⌄`;
   document.getElementById('lunarInfo').textContent = `農曆：${first?.lunar || '—'}`;
   document.getElementById('rangeInfo').textContent = `潮差：${first?.tideRange || '—'}`;
   document.getElementById('nextEvent').textContent = next?.tideType || '—';

@@ -1,5 +1,5 @@
-export const APP_VERSION = 'v3.0.2';
-export const LAST_UPDATE = '2026-07-17';
+export const APP_VERSION = 'v3.1.1';
+export const LAST_UPDATE = '2026-07-30';
 
 export const API = Object.freeze({
   cwa: 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001',
