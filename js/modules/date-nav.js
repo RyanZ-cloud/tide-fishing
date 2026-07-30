@@ -31,13 +31,14 @@ export function renderDateNavigation() {
   const selectedIndex = dates.indexOf(state.selectedDate);
   const today = todayLocal();
   const list = document.getElementById('dateQuickList');
-  document.getElementById('selectedDateLabel').textContent = state.selectedDate
-    ? formatDate(state.selectedDate)
-    : '—';
-  document.getElementById('currentDateLabel').textContent = state.selectedDate === today ? '今天' : '回到今天';
+  const dateInput = document.getElementById('quickDateInput');
+  dateInput.value = state.selectedDate || '';
+  dateInput.min = dates[0] || '';
+  dateInput.max = dates.at(-1) || '';
+  dateInput.disabled = !dates.length;
   document.getElementById('previousDateBtn').disabled = selectedIndex <= 0;
   document.getElementById('nextDateBtn').disabled = selectedIndex < 0 || selectedIndex >= dates.length - 1;
-  document.getElementById('currentDateBtn').disabled = !dates.includes(today) || state.selectedDate === today;
+  document.getElementById('todayShortcutBtn').hidden = !dates.includes(today) || state.selectedDate === today;
 
   list.innerHTML = visibleDates(dates).map(date => {
     const isToday = date === today;
@@ -72,5 +73,15 @@ export function bindDateNavigation(onChange) {
     changeTo(dates[dates.indexOf(state.selectedDate) + 1]);
   });
 
-  document.getElementById('currentDateBtn').addEventListener('click', () => changeTo(todayLocal()));
+  document.getElementById('quickDateInput').addEventListener('change', event => {
+    const dates = availableDates();
+    if (dates.includes(event.target.value)) changeTo(event.target.value);
+    else {
+      event.target.value = state.selectedDate;
+      event.target.setCustomValidity('此日期沒有可用的潮汐資料');
+      event.target.reportValidity();
+      event.target.setCustomValidity('');
+    }
+  });
+  document.getElementById('todayShortcutBtn').addEventListener('click', () => changeTo(todayLocal()));
 }

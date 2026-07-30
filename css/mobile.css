@@ -107,8 +107,8 @@
   .date-stepper{grid-template-columns:44px minmax(120px,1fr) 44px;gap:6px}
   .date-step-button{padding:9px 6px;font-size:23px}
   .date-step-button span{display:none}
-  .date-current-button{padding:6px 8px}
-  .date-current-button strong{font-size:15px}
+  .date-calendar-control{padding:5px 6px}
+  .date-calendar-control input{font-size:15px}
   .date-quick-list{
     display:flex;
     gap:6px;

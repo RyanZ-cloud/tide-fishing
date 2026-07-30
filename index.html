@@ -44,12 +44,13 @@
         <div class="date-navigator" aria-label="潮汐日期選擇">
           <div class="date-stepper">
             <button class="date-step-button" id="previousDateBtn" type="button" aria-label="前一天">‹ <span>前一天</span></button>
-            <button class="date-current-button" id="currentDateBtn" type="button" aria-label="回到今天">
-              <span id="currentDateLabel">今天</span>
-              <strong id="selectedDateLabel">—</strong>
-            </button>
+            <label class="date-calendar-control" for="quickDateInput">
+              <span>📅 選擇日期</span>
+              <input id="quickDateInput" type="date" aria-label="選擇潮汐日期">
+            </label>
             <button class="date-step-button" id="nextDateBtn" type="button" aria-label="後一天"><span>後一天</span> ›</button>
           </div>
+          <button class="date-today-shortcut" id="todayShortcutBtn" type="button" hidden>回到今天</button>
           <div class="date-quick-list" id="dateQuickList" role="list" aria-label="近期日期"></div>
         </div>
         <div class="chart-wrap"><canvas id="tideCanvas" width="900" height="380"></canvas></div>
@@ -101,6 +102,7 @@
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
+      <strong>v3.3.0</strong><br>・潮位圖上方新增可直接開啟的月曆日期欄<br>・可快速選擇一個月後的潮汐日期<br>・依 CWA 資料自動限制可選日期範圍<br><br>
       <strong>v3.2.0</strong><br>・記住上次手動選擇的潮汐站<br>・選站面板新增收藏與最近使用<br>・新增載入、快取與錯誤狀態提示<br><br>
       <strong>v3.1.1</strong><br>・頂部地點資訊可直接開啟潮汐站選擇面板<br>・支援站點即時搜尋與目前地點標示<br><br>
       <strong>v3.1.0</strong><br>・潮位圖上方新增近期日期快速選擇<br>・新增前一天、後一天與回到今天操作<br>・切換日期時同步更新潮位、月相與日出日落<br><br><strong>v3.0.1</strong><br>・修正即時風浪模組未初始化，風速、風向、浪高與浪週期可獨立載入<br>・修正手機版潮汐曲線時間標籤重疊與邊界裁切<br>・依螢幕寬度自動調整時間刻度密度<br><br><strong>v3.0.2</strong><br>・公開版移除 API 授權碼、資料來源與原始回應介面<br>・保留一般使用者需要的地點、日期、定位與重新載入功能<br>・底部導覽「設定」改為「查詢」<br><br><strong>v3.0.1</strong><br>・修正即時風浪資料讀取與手機潮汐時間刻度重疊<br><br><strong>v3.0.0</strong><br>・全新 App 化資訊架構與底部快速導覽<br>・新增海況分級、日出日落與一鍵分享海況<br>・潮汐、風浪、下一波潮汐、附近釣點與地圖重新編排<br>・附近釣點改為資訊卡片與雙操作按鈕<br>・設定區移至可收合面板，首頁更聚焦<br><br><strong>v2.2.0</strong><br>・移除公開使用人次計數器<br>・潮汐快取 4 小時，風浪快取 45 分鐘<br>・加入資料更新時間、快取標示與離線提示<br>・API 失敗自動回退至最近成功資料<br>・新增月相、農曆參考與 Google Maps 導航<br>・加入安全免責聲明與 PWA 更新提醒<br><br><strong>v2.1.1</strong><br>・桌機與手機版資訊順序優化<br>・移除目前潮勢判斷<br>・附近釣點卡片排版優化<br><br><strong>v2.1.0</strong><br>・附近釣點與本機收藏<br>・免費風浪預報<br>・PWA 安裝與離線外殼<br><br><strong>v2.0.0</strong><br>

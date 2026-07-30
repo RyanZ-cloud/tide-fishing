@@ -469,7 +469,7 @@ input[type="date"]{
 }
 
 .date-step-button,
-.date-current-button,
+.date-calendar-control,
 .date-chip{
   border:1px solid var(--line);
   color:var(--text);
@@ -486,31 +486,58 @@ input[type="date"]{
   font-size:14px;
 }
 
-.date-current-button{
+.date-calendar-control{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:2px;
-  padding:7px 12px;
+  gap:3px;
+  padding:6px 10px;
+  border-radius:14px;
   background:linear-gradient(180deg,rgba(70,178,255,.22),rgba(70,178,255,.10));
   border-color:rgba(118,224,255,.28);
+  cursor:pointer;
 }
 
-.date-current-button span{
+.date-calendar-control span{
   color:var(--cyan);
   font-size:11px;
 }
 
-.date-current-button strong{
+.date-calendar-control input{
+  width:100%;
+  min-width:0;
+  padding:2px 4px;
+  color:var(--text);
+  background:transparent;
+  border:0;
+  border-radius:0;
   font-size:16px;
+  font-weight:800;
+  text-align:center;
+  cursor:pointer;
 }
 
 .date-step-button:disabled,
-.date-current-button:disabled{
+.date-calendar-control:has(input:disabled){
   opacity:.48;
   cursor:default;
 }
+
+.date-today-shortcut{
+  width:auto;
+  margin:8px auto 0;
+  padding:6px 12px;
+  display:block;
+  color:var(--cyan);
+  background:transparent;
+  border:1px solid rgba(118,224,255,.24);
+  border-radius:999px;
+  box-shadow:none;
+  font-size:12px;
+}
+
+.date-today-shortcut[hidden]{display:none}
 
 .date-quick-list{
   display:grid;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taiwan-fishing-assistant-v3.2.0';
+const CACHE_NAME = 'taiwan-fishing-assistant-v3.3.0';
 const APP_SHELL = [
   './',
   './index.html',
