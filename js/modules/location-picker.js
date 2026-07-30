@@ -1,4 +1,9 @@
 import { state } from '../state.js';
+import {
+  getFavoriteLocations,
+  getRecentLocations,
+  toggleFavoriteLocation
+} from './location-preferences.js';
 
 const element = id => document.getElementById(id);
 const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({
@@ -12,19 +17,49 @@ function matchingLocations(keyword = '') {
     .sort((first, second) => first.localeCompare(second, 'zh-Hant'));
 }
 
+function locationRow(name, favorites) {
+  const safeName = escapeHtml(name);
+  const active = name === state.selectedLocation;
+  const favorite = favorites.has(name);
+  return `<div class="location-option-row">
+    <button class="location-option${active ? ' active' : ''}"
+      type="button" data-location="${safeName}" aria-current="${active ? 'true' : 'false'}">
+      <span>📍</span><strong>${safeName}</strong>
+      ${active ? '<small>目前地點</small>' : ''}
+    </button>
+    <button class="location-favorite${favorite ? ' active' : ''}" type="button"
+      data-favorite-location="${safeName}" aria-label="${favorite ? '取消收藏' : '收藏'} ${safeName}"
+      aria-pressed="${favorite}">${favorite ? '★' : '☆'}</button>
+  </div>`;
+}
+
+function locationSection(title, names, favorites, className = '') {
+  if (!names.length) return '';
+  return `<section class="location-group ${className}">
+    <h3>${title}</h3>
+    ${names.map(name => locationRow(name, favorites)).join('')}
+  </section>`;
+}
+
 function renderList() {
-  const names = matchingLocations(element('locationPickerSearch').value);
+  const keyword = element('locationPickerSearch').value.trim();
+  const names = matchingLocations(keyword);
   const list = element('locationPickerList');
   const empty = element('locationPickerEmpty');
-  list.innerHTML = names.map(name => {
-    const safeName = escapeHtml(name);
-    return `<button class="location-option${name === state.selectedLocation ? ' active' : ''}"
-      type="button" data-location="${safeName}" role="option"
-      aria-selected="${name === state.selectedLocation}">
-      <span>📍</span><strong>${safeName}</strong>
-      ${name === state.selectedLocation ? '<small>目前地點</small>' : ''}
-    </button>`;
-  }).join('');
+  const available = new Set(state.rowsByLocation.keys());
+  const favorites = new Set(getFavoriteLocations().filter(name => available.has(name)));
+  if (keyword) {
+    list.innerHTML = locationSection('搜尋結果', names, favorites, 'search-results');
+  } else {
+    const favoriteNames = [...favorites].sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+    const recentNames = getRecentLocations()
+      .filter(name => available.has(name) && !favorites.has(name));
+    list.innerHTML = [
+      locationSection('★ 收藏站點', favoriteNames, favorites, 'favorite-locations'),
+      locationSection('最近使用', recentNames, favorites, 'recent-locations'),
+      locationSection('所有潮汐站', names, favorites, 'all-locations')
+    ].join('');
+  }
   empty.hidden = names.length > 0;
 }
 
@@ -52,6 +87,12 @@ export function bindLocationPicker(onSelect) {
   element('closeLocationPicker').addEventListener('click', closePicker);
   search.addEventListener('input', renderList);
   element('locationPickerList').addEventListener('click', event => {
+    const favoriteButton = event.target.closest('[data-favorite-location]');
+    if (favoriteButton) {
+      toggleFavoriteLocation(favoriteButton.dataset.favoriteLocation);
+      renderList();
+      return;
+    }
     const button = event.target.closest('[data-location]');
     if (!button) return;
     onSelect(button.dataset.location);

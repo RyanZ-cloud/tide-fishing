@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taiwan-fishing-assistant-v3.1.1';
+const CACHE_NAME = 'taiwan-fishing-assistant-v3.2.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const APP_SHELL = [
   './js/modules/share.js',
   './js/modules/date-nav.js',
   './js/modules/location-picker.js',
+  './js/modules/location-preferences.js',
   './js/utils/storage.js',
   './js/utils/geo.js',
   './js/utils/date.js',

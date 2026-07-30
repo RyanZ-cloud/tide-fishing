@@ -303,11 +303,32 @@ input[type="date"]{
 }
 
 .location-picker-list{
-  display:grid;
-  gap:7px;
   max-height:48vh;
   overflow-y:auto;
   overscroll-behavior:contain;
+}
+
+.location-group{
+  display:grid;
+  gap:7px;
+}
+
+.location-group + .location-group{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+
+.location-group h3{
+  margin:0 0 2px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.location-option-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 44px;
+  gap:7px;
 }
 
 .location-option{
@@ -321,6 +342,22 @@ input[type="date"]{
   border:1px solid var(--line);
   text-align:left;
   box-shadow:none;
+}
+
+.location-favorite{
+  width:44px;
+  padding:0;
+  color:var(--muted);
+  background:#15243b;
+  border:1px solid var(--line);
+  box-shadow:none;
+  font-size:20px;
+}
+
+.location-favorite.active{
+  color:var(--yellow);
+  background:rgba(255,213,106,.10);
+  border-color:rgba(255,213,106,.42);
 }
 
 .location-option strong{
@@ -377,6 +414,52 @@ input[type="date"]{
   border-radius:18px;
   background:rgba(7,16,28,.38);
 }
+
+.data-status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:9px 11px;
+  border:1px solid rgba(118,224,255,.22);
+  border-radius:13px;
+  color:#d9efff;
+  background:rgba(70,178,255,.08);
+  font-size:12px;
+}
+
+.data-status[hidden]{display:none}
+
+.data-status.loading::before{
+  content:'';
+  width:12px;
+  height:12px;
+  flex:0 0 12px;
+  border:2px solid rgba(118,224,255,.28);
+  border-top-color:var(--cyan);
+  border-radius:50%;
+  animation:data-status-spin .8s linear infinite;
+}
+
+.data-status.cached{
+  color:#ffe8aa;
+  background:rgba(255,213,106,.09);
+  border-color:rgba(255,213,106,.25);
+}
+
+.data-status.cached::before{content:'↻';font-weight:900}
+
+.data-status.error{
+  color:#ffd6d6;
+  background:rgba(255,141,141,.09);
+  border-color:rgba(255,141,141,.25);
+}
+
+.data-status.error::before{content:'!';font-weight:900}
+
+.data-loading .chart-wrap{opacity:.62}
+
+@keyframes data-status-spin{to{transform:rotate(360deg)}}
 
 .date-stepper{
   display:grid;

@@ -19,12 +19,21 @@ import { renderNearbySpots } from './modules/favorite.js';
 import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
+import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
 const element = id => document.getElementById(id);
 
 function setStatus(message, error = false) {
   element('status').textContent = message;
   element('status').className = `status${error ? ' err' : ''}`;
+}
+
+function setDataStatus(kind = '', message = '') {
+  const status = element('dataStatus');
+  status.hidden = !message;
+  status.className = `data-status${kind ? ` ${kind}` : ''}`;
+  status.textContent = message;
+  document.body.classList.toggle('data-loading', kind === 'loading');
 }
 
 function setTideFreshness(timestamp, cached = false) {
@@ -34,6 +43,7 @@ function setTideFreshness(timestamp, cached = false) {
 
 function selectLocation(name, latitude, longitude) {
   state.selectedLocation = name;
+  rememberLocation(name);
   element('locationSelect').value = name;
   element('search').value = name;
   renderAll();
@@ -47,6 +57,7 @@ function selectSpot(spot) {
   if (match) {
     state.spot = spot;
     state.selectedLocation = match;
+    rememberLocation(match);
     element('locationSelect').value = match;
     element('search').value = spot.name;
     renderAll();
@@ -96,7 +107,12 @@ function applyTidePayload(data, text, timestamp, cached = false, cachedRows = nu
   const rowsByLocation = cachedRows ? deserializeTideRows(cachedRows) : parseTideRows(data);
   if (!rowsByLocation.size) throw new Error('解析後沒有任何潮汐地點。');
   Object.assign(state, { raw: data, rawText: text || '', rowsByLocation, tide: { timestamp, cached } });
-  populateLocationSelect(findBestMatch(element('search').value.trim()));
+  const savedLocation = getLastLocation();
+  const preferredLocation = state.rowsByLocation.has(savedLocation)
+    ? savedLocation
+    : findBestMatch(element('search').value.trim());
+  populateLocationSelect(preferredLocation);
+  if (preferredLocation) element('search').value = preferredLocation;
   state.selectedDate = element('dateInput').value || todayLocal();
   element('dateInput').value = state.selectedDate;
   initMap(selectLocation);
@@ -140,21 +156,32 @@ async function loadData() {
     try {
       applyTidePayload(null, '', cached.ts, true, cached.data.rows);
       setStatus('已載入最近成功的潮汐快取資料。');
-      const nearest = await locateNearestTidePoint({ silentStart: true });
-      if (!nearest) setStatus('潮汐快取資料已載入，可用地圖或下拉選單選擇地點。');
+      setDataStatus('cached', `使用快取資料・更新於 ${formatUpdatedAt(cached.ts)}`);
+      if (!state.rowsByLocation.has(getLastLocation())) {
+        const nearest = await locateNearestTidePoint({ silentStart: true });
+        if (!nearest) setStatus('潮汐快取資料已載入，可用地圖或下拉選單選擇地點。');
+      } else {
+        setStatus(`已恢復上次選擇的潮汐站：${state.selectedLocation}`);
+      }
       return;
     } catch (error) {
       console.warn('快取解析失敗', error);
     }
   }
   setStatus('正在讀取中央氣象署潮汐資料…');
+  setDataStatus('loading', '正在取得最新潮汐資料…');
   try {
     const { data, text } = await fetchTideForecast();
     const timestamp = Date.now();
     applyTidePayload(data, text, timestamp);
     writeCache(CACHE.tideKey, { rows: serializeTideRows(state.rowsByLocation) });
-    const nearest = await locateNearestTidePoint({ silentStart: true });
-    if (!nearest) setStatus(`潮汐資料載入成功：共 ${state.rowsByLocation.size} 個地點。定位未完成，可手動選擇。`);
+    setDataStatus();
+    if (!state.rowsByLocation.has(getLastLocation())) {
+      const nearest = await locateNearestTidePoint({ silentStart: true });
+      if (!nearest) setStatus(`潮汐資料載入成功：共 ${state.rowsByLocation.size} 個地點。定位未完成，可手動選擇。`);
+    } else {
+      setStatus(`潮汐資料載入成功，已恢復上次選擇：${state.selectedLocation}`);
+    }
   } catch (error) {
     console.error(error);
     const fallback = readCache(CACHE.tideKey, Number.MAX_SAFE_INTEGER);
@@ -162,12 +189,14 @@ async function loadData() {
       try {
         applyTidePayload(null, '', fallback.ts, true, fallback.data.rows);
         setStatus(`即時潮汐更新失敗，已改用最近成功資料（${formatUpdatedAt(fallback.ts)}）。`, true);
+        setDataStatus('cached', `無法更新，目前使用 ${formatUpdatedAt(fallback.ts)} 的快取資料`);
         return;
       } catch (fallbackError) {
         console.warn('備援快取解析失敗', fallbackError);
       }
     }
     setStatus(`潮汐資料讀取失敗：\n${error.message}`, true);
+    setDataStatus('error', '潮汐資料載入失敗，請檢查網路後重新載入。');
   }
 }
 
@@ -220,8 +249,7 @@ function bindEvents() {
     renderAll();
   });
   element('locationSelect').addEventListener('change', event => {
-    state.selectedLocation = event.target.value;
-    renderAll();
+    selectLocation(event.target.value);
   });
   element('dateInput').addEventListener('change', event => {
     state.selectedDate = event.target.value;
