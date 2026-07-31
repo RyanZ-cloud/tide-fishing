@@ -1,6 +1,6 @@
 import { GOLDEN_WINDOW } from '../config.js';
 import { state } from '../state.js';
-import { onlyDate, onlyTime, formatClock, formatDateTime } from '../utils/date.js';
+import { onlyDate, onlyTime, formatClock, formatDateTime, todayLocal } from '../utils/date.js';
 
 const arrayify = value => Array.isArray(value) ? value : (value == null ? [] : [value]);
 
@@ -118,14 +118,20 @@ export function renderTideSummary() {
   const rows = getSelectedRows();
   const dayRows = getDayRows();
   const now = new Date();
-  const future = rows.filter(row => new Date(row.dateTime) >= now);
-  const next = future[0];
-  const nextHigh = future.find(row => String(row.tideType).includes('滿潮'));
-  const nextLow = future.find(row => String(row.tideType).includes('乾潮'));
+  const isToday = state.selectedDate === todayLocal();
+  const candidates = isToday
+    ? rows.filter(row => new Date(row.dateTime) >= now)
+    : dayRows;
+  const next = candidates[0];
+  const nextHigh = candidates.find(row => String(row.tideType).includes('滿潮'));
+  const nextLow = candidates.find(row => String(row.tideType).includes('乾潮'));
   const first = dayRows[0] || rows[0];
   document.getElementById('selectedInfo').textContent = `📍 地點：${state.selectedLocation || '—'}　⌄`;
   document.getElementById('lunarInfo').textContent = `農曆：${first?.lunar || '—'}`;
   document.getElementById('rangeInfo').textContent = `潮差：${first?.tideRange || '—'}`;
+  document.getElementById('nextTideLabel').textContent = isToday ? '下一波潮汐' : '所選日期潮汐';
+  document.getElementById('nextHighLabel').textContent = isToday ? '▲ 下一次滿潮' : '▲ 當日滿潮';
+  document.getElementById('nextLowLabel').textContent = isToday ? '▼ 下一次乾潮' : '▼ 當日乾潮';
   document.getElementById('nextEvent').textContent = next?.tideType || '—';
   document.getElementById('nextEventTime').textContent = next?.time || '—';
   document.getElementById('nextEventMeta').textContent = next ? formatDateTime(next.dateTime) : '—';

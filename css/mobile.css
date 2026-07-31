@@ -103,18 +103,23 @@
   }
   .location-picker-list{max-height:58dvh}
   .location-option{min-height:46px}
-  .date-navigator{margin-left:-2px;margin-right:-2px;padding:8px;border-radius:16px}
-  .date-stepper{grid-template-columns:44px minmax(120px,1fr) 44px;gap:6px}
+  .date-navigator{width:100%;max-width:100%;margin-left:0;margin-right:0;padding:8px;border-radius:16px;overflow:hidden}
+  .date-stepper{grid-template-columns:40px minmax(0,1fr) 40px;gap:6px;width:100%;max-width:100%;min-width:0}
   .date-step-button{padding:9px 6px;font-size:23px}
   .date-step-button span{display:none}
-  .date-calendar-control{padding:5px 6px}
-  .date-calendar-control input{font-size:15px}
+  .date-calendar-control{min-width:0;max-width:100%;padding:5px 6px;overflow:hidden}
+  .date-calendar-control input{display:block;width:100%;min-width:0;max-width:100%;font-size:14px}
   .date-quick-list{
     display:flex;
     gap:6px;
-    margin-left:-8px;
-    margin-right:-8px;
-    padding:0 8px 2px;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin-left:0;
+    margin-right:0;
+    padding:0 0 2px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
     scroll-snap-type:x proximity;
   }
   .date-chip{flex:0 0 68px;min-width:68px;scroll-snap-align:start}

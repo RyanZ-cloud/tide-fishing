@@ -69,8 +69,8 @@
         </section>
 
         <section class="card next-tide-card">
-          <div class="next-primary"><div class="next-primary-main"><div class="k">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
-          <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
+          <div class="next-primary"><div class="next-primary-main"><div class="k" id="nextTideLabel">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
+          <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label" id="nextHighLabel">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label" id="nextLowLabel">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
           <div class="share-note">黃金潮汐區間已直接標示於上方曲線。</div>
         </section>
       </div>
@@ -79,7 +79,7 @@
 
       <section class="card map-card" id="mapSection"><div class="section-title"><h2>🗺️ 潮汐地圖</h2><div class="mini">點標記切換潮汐站</div></div><div id="map"></div><div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div></section>
 
-      <aside class="side" id="settingsSection"><details class="settings-details"><summary>🔎 查詢地點與日期</summary><div class="settings-body"><div class="section-title"><h2>查詢工具</h2><div class="mini">選擇地點與日期</div></div><div class="field"><label for="search">搜尋地點</label><input id="search" placeholder="例如：基隆、宜蘭、高雄"></div><div class="field"><label for="dateInput">查詢日期</label><input id="dateInput" type="date"></div><div class="field"><label for="locationSelect">地點選擇</label><select id="locationSelect"><option value="">請先載入資料</option></select></div><div class="btn-row"><button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button><button class="btn-secondary" id="todayBtn" type="button">切到今天</button></div><button class="btn-secondary" id="locateBtn" type="button" class="locate-button">📍 自動定位最近潮汐點</button><div id="status" class="status">準備中…</div></div></details></aside>
+      <aside class="side" id="settingsSection"><details class="settings-details"><summary>🔎 查詢地點與日期</summary><div class="settings-body"><div class="section-title"><h2>查詢工具</h2><div class="mini">選擇地點與日期</div></div><div class="field"><label for="search">搜尋地點</label><input id="search" placeholder="例如：基隆、宜蘭、高雄"></div><div class="field"><label for="dateInput">查詢日期</label><input id="dateInput" type="date"></div><div class="field"><label for="locationSelect">地點選擇</label><select id="locationSelect"><option value="">請先載入資料</option></select></div><div class="btn-row"><button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button><button class="btn-secondary" id="todayBtn" type="button">切到今天</button></div><button class="btn-secondary locate-button" id="locateBtn" type="button">📍 自動定位最近潮汐點</button><div id="status" class="status">準備中…</div></div></details></aside>
     </main>
   </div>
 </div>
@@ -98,10 +98,11 @@
   </div>
   <div class="safety-box"><strong>安全聲明：</strong>本工具之潮汐、風浪、月相及釣點資訊僅供行程規劃參考，不作為航海、救生或海域安全決策依據。出發前請再次確認中央氣象署警特報、海象、港區公告及現場管制；遇長浪、強風、雷雨或封閉區域請勿下竿。</div>
   <div class="footer-contact">📧 <a href="mailto:Service@nexsoar.com">Service@nexsoar.com</a></div>
-  <div class="footer-copy">© 2026 NEXSOAR</div><div class="install-row"><button class="btn-secondary" id="installBtn" type="button" class="install-button">安裝到手機</button></div>
+  <div class="footer-copy">© 2026 NEXSOAR</div><div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
+      <strong>v3.3.1</strong><br>・修正手機版日期快選在窄螢幕溢出跑版<br>・潮汐摘要會跟隨所選日期，不再顯示其他日期資料<br><br>
       <strong>v3.3.0</strong><br>・潮位圖上方新增可直接開啟的月曆日期欄<br>・可快速選擇一個月後的潮汐日期<br>・依 CWA 資料自動限制可選日期範圍<br><br>
       <strong>v3.2.0</strong><br>・記住上次手動選擇的潮汐站<br>・選站面板新增收藏與最近使用<br>・新增載入、快取與錯誤狀態提示<br><br>
       <strong>v3.1.1</strong><br>・頂部地點資訊可直接開啟潮汐站選擇面板<br>・支援站點即時搜尋與目前地點標示<br><br>

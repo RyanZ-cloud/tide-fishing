@@ -408,6 +408,7 @@ input[type="date"]{
 .chart-card .section-title:after{content:'滑動查看潮高';font-size:12px;color:var(--muted)}
 
 .date-navigator{
+  min-width:0;
   margin:0 0 12px;
   padding:10px;
   border:1px solid var(--line);
@@ -463,9 +464,10 @@ input[type="date"]{
 
 .date-stepper{
   display:grid;
-  grid-template-columns:minmax(92px,1fr) minmax(150px,1.4fr) minmax(92px,1fr);
+  grid-template-columns:minmax(92px,1fr) minmax(0,1.4fr) minmax(92px,1fr);
   gap:8px;
   align-items:stretch;
+  min-width:0;
 }
 
 .date-step-button,
@@ -497,6 +499,8 @@ input[type="date"]{
   background:linear-gradient(180deg,rgba(70,178,255,.22),rgba(70,178,255,.10));
   border-color:rgba(118,224,255,.28);
   cursor:pointer;
+  min-width:0;
+  overflow:hidden;
 }
 
 .date-calendar-control span{
