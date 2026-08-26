@@ -619,6 +619,118 @@ input[type="date"]{
 
 #map{height:390px}
 
+/* NEXSOAR Marine visual system */
+body{
+  color:var(--ink);
+  background:radial-gradient(circle at 8% -5%,rgba(164,222,229,.55),transparent 27%),linear-gradient(180deg,#fbfefe 0%,#eef7f7 54%,#f8fbfb 100%);
+}
+
+button{transition:transform .18s ease,background-color .18s ease,border-color .18s ease,box-shadow .18s ease}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid rgba(164,222,229,.65);outline-offset:2px}
+
+.app-header{
+  border-color:rgba(24,50,58,.12);
+  background:rgba(255,255,255,.90);
+  box-shadow:0 10px 28px rgba(24,50,58,.10);
+}
+
+.brand-icon{
+  color:var(--ink);
+  background:var(--brand);
+  box-shadow:0 9px 20px rgba(47,115,124,.18);
+}
+
+.brand-title,.section-title h2,.condition-title,.location-picker-head h2{font-family:"Noto Serif TC","Songti TC",serif;color:var(--ink)}
+.brand-sub{color:var(--muted)}
+
+.btn-primary{
+  color:var(--ink);
+  background:var(--brand);
+  border:1px solid #8dcfd8;
+  box-shadow:0 9px 20px rgba(47,115,124,.14);
+}
+.btn-primary:hover,.btn-primary:focus-visible{background:#8fcfd8;border-color:var(--brand-deep)}
+.btn-secondary{color:var(--ink);background:#fff;border:1px solid var(--line)}
+.btn-secondary:hover,.btn-secondary:focus-visible{background:var(--brand-soft);border-color:rgba(47,115,124,.38)}
+
+.hero-info .pill{
+  color:var(--ink);
+  background:rgba(255,255,255,.82);
+  border-color:rgba(24,50,58,.12);
+  box-shadow:0 7px 20px rgba(24,50,58,.06);
+}
+.hero-info .pill:not(.location-trigger){background:var(--brand-soft)}
+.location-trigger{font-size:15px;font-weight:850}
+.location-trigger:hover,.location-trigger:focus-visible{background:var(--brand);border-color:#8dcfd8}
+
+.card{
+  border:1px solid rgba(24,50,58,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 12px 32px rgba(24,50,58,.075);
+}
+
+.chart-card{border-top:5px solid var(--brand)}
+.chart-card .section-title:after{color:var(--brand-deep)}
+.date-navigator{border-color:rgba(47,115,124,.16);background:var(--brand-soft)}
+.date-step-button,.date-calendar-control,.date-chip{color:var(--ink);background:#fff;border-color:rgba(24,50,58,.14)}
+.date-step-button:hover:not(:disabled){background:var(--brand);border-color:#8dcfd8}
+.date-calendar-control{background:#fff;border-color:rgba(47,115,124,.28)}
+.date-calendar-control span{color:var(--brand-deep);font-weight:750}
+.date-calendar-control input{color:var(--ink)}
+.date-today-shortcut{color:var(--brand-deep);border-color:rgba(47,115,124,.30)}
+.date-today-shortcut:hover{background:var(--brand);color:var(--ink)}
+.date-chip{color:var(--muted)}
+.date-chip strong{color:var(--ink)}
+.date-chip:hover{background:#f7fbfb;border-color:rgba(47,115,124,.32)}
+.date-chip.active,.date-chip.active:hover{color:var(--ink);background:var(--brand);border-color:#76c6d0;box-shadow:0 7px 15px rgba(47,115,124,.14)}
+.date-chip.active strong{color:var(--ink)}
+
+.data-status{color:var(--ink);background:var(--brand-soft);border-color:rgba(47,115,124,.22)}
+.data-status.loading::before{border-color:rgba(47,115,124,.20);border-top-color:var(--brand-deep)}
+.data-status.error{color:#842d2d;background:#fff0f0;border-color:#e7b4b4}
+
+.next-tide-card{background:linear-gradient(145deg,var(--brand-soft),#fff 56%);border-color:rgba(47,115,124,.20)}
+.next-event-time{color:var(--brand-deep);font-size:clamp(24px,3.2vw,32px)}
+.next-event-type{color:var(--ink)}
+.next-mini{background:#fff;border-color:rgba(24,50,58,.12)}
+.next-mini:first-child{border-top:3px solid var(--brand)}
+.next-mini:last-child{border-top:3px solid var(--brand-deep)}
+
+.sea-item{background:var(--brand-soft);border-color:rgba(47,115,124,.12)}
+.sea-item b{color:var(--ink);font-variant-numeric:tabular-nums}
+.astro-tile{background:#fbfefe;border-color:rgba(24,50,58,.10)}
+.risk-badge{color:#23604f;background:#e6f7ef;border-color:#adddcc}
+.risk-badge.caution{color:#76560d;background:#fff8df;border-color:#ead58a}
+.risk-badge.danger{color:#8c3030;background:#fff0f0;border-color:#e8b5b5}
+
+.spot-item{background:linear-gradient(155deg,var(--brand-soft),#fff 55%);border-color:rgba(47,115,124,.14)}
+.spot-distance{color:var(--brand-deep);background:#fff;border-color:rgba(47,115,124,.20)}
+.spot-fav{color:var(--muted);background:#fff;border-color:var(--line)}
+.spot-fav.active{color:#9b7f50;background:var(--sand);border-color:#d8c39f}
+.spot-nav{color:#fff!important;background:var(--brand-deep)!important}
+
+.location-picker{color:var(--ink);background:#fff;border-color:rgba(47,115,124,.24);box-shadow:0 24px 70px rgba(24,50,58,.25)}
+.location-picker::backdrop{background:rgba(24,50,58,.42)}
+.location-picker-close,.location-option,.location-favorite{color:var(--ink);background:#fff;border-color:var(--line)}
+.location-option:hover,.location-option:focus-visible{background:var(--brand-soft);border-color:rgba(47,115,124,.38)}
+.location-option.active{color:var(--ink);background:var(--brand);border-color:#76c6d0}
+.location-option small{color:var(--brand-deep)}
+.location-favorite.active{color:#9b7f50;background:var(--sand);border-color:#d8c39f}
+
+.settings-details{background:#fff;border-color:rgba(24,50,58,.12);box-shadow:0 10px 28px rgba(24,50,58,.07)}
+.status{color:var(--ink);background:var(--brand-soft);border-color:rgba(47,115,124,.18)}
+.safety-box{color:#604c28;background:var(--sand);border-color:#ddc9a8}
+.footer-contact a,.version-details summary{color:var(--brand-deep)}
+.version-log{color:var(--muted);background:#fff;border-color:var(--line)}
+.version-log strong,.footer-brand{color:var(--ink)}
+.footer-stat{background:rgba(255,255,255,.72);border-color:var(--line)}
+.freshness .cache-badge{color:#76560d;background:#fff8df;border-color:#ead58a}
+.update-toast{color:var(--ink);background:#fff;border-color:rgba(47,115,124,.25);box-shadow:var(--shadow)}
+
+#map{border:1px solid rgba(24,50,58,.12)}
+
 .share-note{font-size:11px;color:var(--muted);margin-top:8px}
 .current-dot{background:#76e0ff}
 .condition-title{margin:0;font-size:20px}

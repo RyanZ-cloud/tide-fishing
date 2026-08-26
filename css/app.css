@@ -1,16 +1,21 @@
 :root {
-    --bg:#07101c;
-    --card:#101d31;
-    --card2:#162640;
-    --line:rgba(255,255,255,.10);
-    --text:#eef6ff;
-    --muted:#9fb3cf;
-    --blue:#46b2ff;
-    --cyan:#76e0ff;
+    --bg:#f7fbfb;
+    --card:#ffffff;
+    --card2:#eef7f7;
+    --line:rgba(24,50,58,.14);
+    --text:#18323a;
+    --muted:#526a70;
+    --blue:#2f737c;
+    --cyan:#a4dee5;
     --green:#70d8b2;
     --orange:#ffb35c;
     --yellow:#ffd56a;
-    --shadow:0 14px 34px rgba(0,0,0,.28);
+    --brand:#a4dee5;
+    --brand-soft:#e8f7f8;
+    --brand-deep:#2f737c;
+    --ink:#18323a;
+    --sand:#f4eee3;
+    --shadow:0 14px 36px rgba(24,50,58,.10);
   }
 
 * { box-sizing:border-box; }
@@ -18,8 +23,8 @@
 html,body {
     margin:0;
     background:
-      radial-gradient(circle at top, rgba(70,178,255,.16), transparent 30%),
-      linear-gradient(180deg, #07101c, #0a1422 55%, #08111d);
+      radial-gradient(circle at top, rgba(164,222,229,.46), transparent 30%),
+      linear-gradient(180deg, #f7fbfb, #edf7f7 55%, #f8fcfc);
     color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",Arial,sans-serif;
   }
@@ -31,7 +36,7 @@ input, select, button {
   }
 
 input, select {
-    color:var(--text); background:var(--card2); border:1px solid var(--line);
+    color:var(--text); background:#fff; border:1px solid var(--line);
   }
 
 button { font-weight:700; cursor:pointer; }
@@ -39,7 +44,7 @@ button { font-weight:700; cursor:pointer; }
 canvas {
     width:100%; height:100%; display:block; border-radius:16px;
     cursor:crosshair; touch-action:pan-y;
-    background:linear-gradient(180deg, rgba(13,29,47,.92), rgba(9,20,35,.92));
+    background:linear-gradient(180deg, #18323a, #10272e);
   }
 
 table { width:100%; border-collapse:collapse; font-size:14px; }
@@ -48,9 +53,9 @@ th, td {
     padding:12px 10px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top;
   }
 
-th { color:#d8e7ff; font-size:13px; }
+th { color:var(--text); font-size:13px; }
 
-td { color:#eef6ff; }
+td { color:var(--text); }
 
 tr:hover td { background:rgba(255,255,255,.03); }
 

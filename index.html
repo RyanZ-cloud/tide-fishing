@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>台灣磯釣助手｜潮汐、風浪、月相與附近釣點</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#07101c">
+<meta name="theme-color" content="#A4DEE5">
 <link rel="apple-touch-icon" href="images/icon-192.svg">
 <link rel="icon" href="images/icon-192.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -60,19 +60,20 @@
       </section>
 
       <div class="dashboard-grid" id="conditionsSection">
+        <section class="card next-tide-card">
+          <div class="next-primary"><div class="next-primary-main"><div class="k" id="nextTideLabel">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
+          <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label" id="nextHighLabel">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label" id="nextLowLabel">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
+          <div class="share-note">黃金潮汐區間已標示在上方曲線。</div>
+        </section>
+
         <section class="card wind-card">
-          <div class="condition-head"><div><div class="k">即時環境</div><h2 class="condition-title">🌬️ 風浪與天光</h2></div><div class="risk-badge" id="seaRiskBadge">● 評估中</div></div>
+          <div class="condition-head"><div><div class="k">即時環境</div><h2 class="condition-title">🌬️ 今日海況</h2></div><div class="risk-badge" id="seaRiskBadge">● 評估中</div></div>
           <div class="sea-grid"><div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div></div>
           <div class="astro-grid"><div class="astro-tile"><div class="astro-label">🌅 日出</div><div class="astro-value" id="sunriseTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌇 日落</div><div class="astro-value" id="sunsetTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌙 月相</div><div class="astro-value" id="moonPhase">—</div><div class="astro-meta" id="moonIllumination">—</div></div><div class="astro-tile"><div class="astro-label">📅 農曆</div><div class="astro-value" id="lunarDate">—</div><div class="astro-meta">依查詢日期</div></div></div>
           <div class="data-source-note">風浪為模式預報，只供出發前初判；現場仍以警特報、長浪與管制公告為準。</div>
           <div class="freshness" id="windFreshness"><span>風浪資料更新：<b id="windUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
         </section>
 
-        <section class="card next-tide-card">
-          <div class="next-primary"><div class="next-primary-main"><div class="k" id="nextTideLabel">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
-          <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label" id="nextHighLabel">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label" id="nextLowLabel">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
-          <div class="share-note">黃金潮汐區間已直接標示於上方曲線。</div>
-        </section>
       </div>
 
       <section class="card nearby-card" id="spotsSection"><div class="section-title"><h2>📍 附近釣點</h2><div class="mini">收藏保留在這台裝置</div></div><div class="spot-list" id="nearbySpots"><div class="mini">定位後顯示附近釣點。</div></div></section>
@@ -83,7 +84,7 @@
     </main>
   </div>
 </div>
-<nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="conditionsSection"><span>🌬️</span>風浪</button><button type="button" data-scroll="spotsSection"><span>📍</span>釣點</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button><button type="button" data-scroll="settingsSection"><span>🔎</span>查詢</button></nav>
+<nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="conditionsSection"><span>🌬️</span>海況</button><button type="button" data-scroll="spotsSection"><span>📍</span>釣點</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button><button type="button" data-scroll="settingsSection"><span>☰</span>更多</button></nav>
 <footer class="product-footer" aria-label="網站資訊">
   <div class="footer-brand">🎣 台灣磯釣助手</div>
   <div class="footer-stats">
@@ -102,6 +103,7 @@
   <details class="version-details">
     <summary>查看版本更新紀錄</summary>
     <div class="version-log">
+      <strong>v3.4.0</strong><br>・導入 NEXSOAR 品牌主色 #A4DEE5<br>・首頁改為清爽海洋生活風格並強化資訊層級<br>・下一波潮汐提前於海況顯示，日期與底部導覽更明確<br><br>
       <strong>v3.3.1</strong><br>・修正手機版日期快選在窄螢幕溢出跑版<br>・潮汐摘要會跟隨所選日期，不再顯示其他日期資料<br><br>
       <strong>v3.3.0</strong><br>・潮位圖上方新增可直接開啟的月曆日期欄<br>・可快速選擇一個月後的潮汐日期<br>・依 CWA 資料自動限制可選日期範圍<br><br>
       <strong>v3.2.0</strong><br>・記住上次手動選擇的潮汐站<br>・選站面板新增收藏與最近使用<br>・新增載入、快取與錯誤狀態提示<br><br>

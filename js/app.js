@@ -1,4 +1,4 @@
-import { APP_VERSION, LAST_UPDATE, CACHE } from './config.js';
+import { CACHE } from './config.js';
 import { state } from './state.js';
 import { fetchTideForecast } from './api/cwa.js';
 import { readCache, writeCache } from './utils/storage.js';
@@ -19,6 +19,9 @@ import { renderNearbySpots } from './modules/favorite.js';
 import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
+
+const APP_VERSION = 'v3.4.0';
+const LAST_UPDATE = '2026-08-26';
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
 const element = id => document.getElementById(id);

@@ -61,8 +61,8 @@ export function drawGolden(ctx, model) {
 export function drawWave(ctx, model) {
   const { points, x, y, pad, height } = model;
   const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
-  gradient.addColorStop(0, 'rgba(70,178,255,.30)');
-  gradient.addColorStop(1, 'rgba(70,178,255,.02)');
+  gradient.addColorStop(0, 'rgba(164,222,229,.38)');
+  gradient.addColorStop(1, 'rgba(164,222,229,.03)');
   const trace = () => points.forEach((point, index) => {
     const px = x(point.ts);
     const py = y(point.h);
@@ -78,7 +78,7 @@ export function drawWave(ctx, model) {
   ctx.fill();
   ctx.beginPath();
   trace();
-  ctx.strokeStyle = '#4bb8ff';
+  ctx.strokeStyle = '#a4dee5';
   ctx.lineWidth = 3;
   ctx.stroke();
 }
@@ -104,7 +104,7 @@ export function drawCurrent(ctx, model) {
   const y = model.y(heightValue);
   ctx.beginPath();
   ctx.arc(x, y, 7, 0, Math.PI * 2);
-  ctx.fillStyle = '#76e0ff';
+  ctx.fillStyle = '#a4dee5';
   ctx.fill();
   ctx.fillStyle = '#d8f6ff';
   ctx.font = '12px sans-serif';
