@@ -11,17 +11,16 @@ import {
 import { drawChart, bindChartInspector } from './modules/chart.js';
 import {
   initMap, renderMapPoints, showUserPosition,
-  fitUserAndStation, focusMap, invalidateMap
+  fitUserAndStation, invalidateMap
 } from './modules/map.js';
 import { updateWeather } from './modules/weather.js';
 import { renderLunar } from './modules/lunar.js';
-import { renderNearbySpots } from './modules/favorite.js';
 import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
 
-const APP_VERSION = 'v3.4.0';
-const LAST_UPDATE = '2026-08-26';
+const APP_VERSION = 'v3.4.2';
+const LAST_UPDATE = '2026-08-29';
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
 const element = id => document.getElementById(id);
@@ -55,26 +54,12 @@ function selectLocation(name, latitude, longitude) {
   }
 }
 
-function selectSpot(spot) {
-  const match = findBestMatch(spot.keyword) || findBestMatch(spot.name);
-  if (match) {
-    state.spot = spot;
-    state.selectedLocation = match;
-    rememberLocation(match);
-    element('locationSelect').value = match;
-    element('search').value = spot.name;
-    renderAll();
-  }
-  focusMap(spot.lat, spot.lon);
-}
-
 function renderAll() {
   renderDateNavigation();
   renderLocationPicker();
   renderTideSummary();
   drawChart();
   renderMapPoints(selectLocation);
-  renderNearbySpots({ onSelect: selectSpot, onFavorite: renderAll });
   renderLunar();
   void updateWeather();
 }

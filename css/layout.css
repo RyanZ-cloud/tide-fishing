@@ -48,10 +48,6 @@
 
 .sea-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-.spot-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-
-.spot-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;grid-column:1/-1}
-
 .app{max-width:1180px;padding:12px 14px 36px}
 
 .brand-lockup{display:flex;align-items:center;gap:10px;min-width:0}
@@ -68,17 +64,24 @@
 
 .side{position:static;margin-top:12px;padding:0;background:none;border:none;box-shadow:none}
 
-.dashboard-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}
+.dashboard-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+
+.main,
+.main > .card,
+.main > .dashboard-grid,
+.dashboard-grid > .card,
+.main > .side,
+.side > .settings-details{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
 
 .condition-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 
 .sea-grid{grid-template-columns:repeat(4,1fr);gap:8px}
 
 .astro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-
-.spot-list{grid-template-columns:repeat(3,1fr);gap:10px}
-
-.spot-actions{margin-top:auto}
 
 .quick-bar{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:900;display:flex;gap:4px;width:min(94vw,520px);padding:7px;border-radius:20px;background:rgba(255,255,255,.94);border:1px solid var(--line);backdrop-filter:blur(18px);box-shadow:0 14px 34px rgba(24,50,58,.18)}
 

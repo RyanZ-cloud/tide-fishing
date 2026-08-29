@@ -177,20 +177,6 @@ input[type="date"]{
 
 .sea-item span{font-size:11px;color:var(--muted)}
 
-.spot-item{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'main fav' 'meta meta' 'action action';gap:8px 10px;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:16px;padding:12px;min-width:0}
-
-.spot-main{grid-area:main;min-width:0}
-
-.spot-name{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.spot-meta{grid-area:meta;font-size:12px;color:var(--muted);line-height:1.45;min-height:34px}
-
-.spot-action{grid-area:action;width:100%;padding:9px 12px;border-radius:11px;font-size:13px}
-
-.spot-fav{grid-area:fav;width:38px;height:38px;padding:0;border-radius:12px;font-size:19px;display:grid;place-items:center}
-
-.spot-fav.active{color:#ffd56a;background:rgba(255,213,106,.12)}
-
 .install-row{display:flex;gap:8px;justify-content:center;margin-top:12px}
 
 .install-row button{width:auto}
@@ -218,8 +204,6 @@ input[type="date"]{
 .info-tile-meta{font-size:11px;color:var(--muted);margin-top:4px}
 
 .safety-box{max-width:900px;margin:14px auto 0;padding:12px 14px;border-radius:14px;background:rgba(255,179,92,.08);border:1px solid rgba(255,179,92,.22);color:#f7d9ad;font-size:12px;line-height:1.7;text-align:left}
-
-.spot-nav{background:#183853!important}
 
 .update-toast{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;width:min(92vw,520px);padding:12px 14px;border-radius:16px;background:#16314f;border:1px solid rgba(118,224,255,.28);box-shadow:var(--shadow);align-items:center;gap:10px}
 
@@ -599,22 +583,6 @@ input[type="date"]{
 
 .astro-meta{font-size:10px;color:var(--muted);margin-top:4px}
 
-.nearby-card{margin-top:12px!important}
-
-.spot-item{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px;min-height:176px;background:linear-gradient(160deg,rgba(88,199,255,.09),rgba(255,255,255,.025) 48%);overflow:hidden}
-
-.spot-item:before{content:'🎣';position:absolute;right:12px;top:12px;opacity:.14;font-size:38px}
-
-.spot-main{padding-right:42px}
-
-.spot-name{font-size:17px}
-
-.spot-meta{min-height:0}
-
-.spot-fav{position:absolute;right:12px;top:12px;z-index:2}
-
-.spot-distance{display:inline-flex;width:max-content;padding:5px 8px;border-radius:999px;background:rgba(88,199,255,.10);border:1px solid rgba(88,199,255,.18);color:#cdefff;font-size:11px}
-
 .map-card{margin-top:12px!important}
 
 #map{height:390px}
@@ -705,12 +673,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .risk-badge.caution{color:#76560d;background:#fff8df;border-color:#ead58a}
 .risk-badge.danger{color:#8c3030;background:#fff0f0;border-color:#e8b5b5}
 
-.spot-item{background:linear-gradient(155deg,var(--brand-soft),#fff 55%);border-color:rgba(47,115,124,.14)}
-.spot-distance{color:var(--brand-deep);background:#fff;border-color:rgba(47,115,124,.20)}
-.spot-fav{color:var(--muted);background:#fff;border-color:var(--line)}
-.spot-fav.active{color:#9b7f50;background:var(--sand);border-color:#d8c39f}
-.spot-nav{color:#fff!important;background:var(--brand-deep)!important}
-
 .location-picker{color:var(--ink);background:#fff;border-color:rgba(47,115,124,.24);box-shadow:0 24px 70px rgba(24,50,58,.25)}
 .location-picker::backdrop{background:rgba(24,50,58,.42)}
 .location-picker-close,.location-option,.location-favorite{color:var(--ink);background:#fff;border-color:var(--line)}
@@ -728,6 +690,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .footer-stat{background:rgba(255,255,255,.72);border-color:var(--line)}
 .freshness .cache-badge{color:#76560d;background:#fff8df;border-color:#ead58a}
 .update-toast{color:var(--ink);background:#fff;border-color:rgba(47,115,124,.25);box-shadow:var(--shadow)}
+
+/* Keep every primary section aligned with the full-width hero banner. */
+.main{padding:0}
 
 #map{border:1px solid rgba(24,50,58,.12)}
 

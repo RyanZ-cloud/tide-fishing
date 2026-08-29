@@ -1,7 +1,7 @@
 {
   "name": "台灣磯釣助手",
   "short_name": "磯釣助手",
-  "description": "台灣潮汐、風浪、月相與附近釣點資訊",
+  "description": "台灣潮汐、風浪與月相資訊",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

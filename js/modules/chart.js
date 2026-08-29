@@ -3,7 +3,7 @@ import { todayLocal } from '../utils/date.js';
 import { getSelectedRows, interpolateSeries, goldenWindow } from './tide.js';
 
 export function drawGrid(ctx, model) {
-  const { pad, width, height } = model;
+  const { pad, width, height, minT, maxT, x } = model;
   ctx.strokeStyle = 'rgba(255,255,255,.08)';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -11,6 +11,12 @@ export function drawGrid(ctx, model) {
     const y = pad.top + index * ((height - pad.top - pad.bottom) / 3);
     ctx.moveTo(pad.left, y);
     ctx.lineTo(width - pad.right, y);
+  }
+  const threeHours = 3 * 3600000;
+  for (let tick = minT; tick <= maxT; tick += threeHours) {
+    const pointX = x(tick);
+    ctx.moveTo(pointX, pad.top);
+    ctx.lineTo(pointX, height - pad.bottom);
   }
   ctx.stroke();
 }
@@ -24,18 +30,14 @@ export function drawAxis(ctx, model) {
     const y = pad.top + index * ((height - pad.top - pad.bottom) / 3);
     ctx.fillText(`${Math.round(value)}`, 6, y + 4);
   }
-  const plotWidth = Math.max(1, width - pad.left - pad.right);
-  const durationHours = Math.max(1, (maxT - minT) / 3600000);
-  const desired = Math.max(2, Math.floor(plotWidth / (narrow ? 62 : 78)));
-  const stepHours = [1, 2, 3, 4, 6, 8, 12, 24].find(value => value >= durationHours / desired) || 24;
-  const step = stepHours * 3600000;
+  const step = 3 * 3600000;
   ctx.fillStyle = 'rgba(220,238,255,.75)';
   ctx.font = `${narrow ? 10 : 12}px sans-serif`;
-  for (let tick = Math.ceil(minT / step) * step; tick <= maxT + 1; tick += step) {
+  for (let tick = minT; tick <= maxT; tick += step) {
     const date = new Date(tick);
     const pointX = x(tick);
     ctx.textAlign = pointX < pad.left + 18 ? 'left' : (pointX > width - pad.right - 18 ? 'right' : 'center');
-    ctx.fillText(`${String(date.getHours()).padStart(2, '0')}:00`, pointX, height - 13);
+    ctx.fillText(String(date.getHours()).padStart(2, '0'), pointX, height - 13);
   }
   ctx.textAlign = 'start';
 }
@@ -165,8 +167,8 @@ export function drawChart() {
     return;
   }
   const dayStart = new Date(`${selectedDate}T00:00:00`).getTime();
-  const minT = today ? Date.now() - 2 * 3600000 : dayStart;
-  const maxT = today ? Date.now() + 12 * 3600000 : dayStart + 24 * 3600000;
+  const minT = dayStart;
+  const maxT = dayStart + 24 * 3600000;
   const firstIndex = rows.findIndex(row => row.date === selectedDate);
   const lastIndex = rows.findLastIndex(row => row.date === selectedDate);
   const visible = [...dayRows];
