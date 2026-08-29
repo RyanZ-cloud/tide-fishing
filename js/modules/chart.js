@@ -106,7 +106,7 @@ export function drawCurrent(ctx, model) {
   const y = model.y(heightValue);
   ctx.beginPath();
   ctx.arc(x, y, 7, 0, Math.PI * 2);
-  ctx.fillStyle = '#a4dee5';
+  ctx.fillStyle = '#e5484d';
   ctx.fill();
   ctx.fillStyle = '#d8f6ff';
   ctx.font = '12px sans-serif';
