@@ -1,11 +1,11 @@
 export function buildShareText() {
   const text = id => document.getElementById(id)?.textContent || '—';
   const place = text('selectedInfo').replace('地點：', '');
-  return `🎣 台灣磯釣助手｜${place}\n風速：${text('windSpeed')}｜風向：${text('windDirection')}\n浪高：${text('waveHeight')}｜下一波：${text('nextEvent')} ${text('nextEventTime')}\n資料僅供行程參考，出發前請確認官方警特報。`;
+  return `🎣 潮汐小幫手｜${place}\n風速：${text('windSpeed')}｜風向：${text('windDirection')}\n浪高：${text('waveHeight')}｜下一波：${text('nextEvent')} ${text('nextEventTime')}\n資料僅供行程參考，出發前請確認官方警特報。`;
 }
 
 export async function shareConditions(onStatus) {
-  const data = { title: '台灣磯釣助手', text: buildShareText(), url: location.href };
+  const data = { title: '潮汐小幫手', text: buildShareText(), url: location.href };
   try {
     if (navigator.share) await navigator.share(data);
     else {

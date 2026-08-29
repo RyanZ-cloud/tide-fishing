@@ -151,6 +151,25 @@ input[type="date"]{
 
 .footer-contact a:hover { text-decoration:underline; }
 
+.shareyouniq-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin:4px auto 8px;
+  padding:10px 16px;
+  border:1px solid rgba(47,115,124,.25);
+  border-radius:999px;
+  color:var(--ink);
+  background:var(--brand);
+  font-size:13px;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.shareyouniq-link:hover,.shareyouniq-link:focus-visible{background:#8fcfd8;border-color:var(--brand-deep)}
+
+.visitor-privacy{max-width:620px;margin:2px auto 10px;color:var(--muted);font-size:10px;line-height:1.55}
+
 .footer-copy { font-size:12px; }
 
 .version-details { max-width:620px; margin:10px auto 0; text-align:left; }
