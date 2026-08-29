@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taiwan-fishing-assistant-v3.4.2';
+const CACHE_NAME = 'taiwan-fishing-assistant-v3.5.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -49,6 +49,19 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('/data/tide.json')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./data/tide.json', copy));
+          return response;
+        })
+        .catch(() => caches.match('./data/tide.json'))
+    );
+    return;
+  }
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)

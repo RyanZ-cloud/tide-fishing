@@ -19,7 +19,7 @@ import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
 
-const APP_VERSION = 'v3.4.2';
+const APP_VERSION = 'v3.5.0';
 const LAST_UPDATE = '2026-08-29';
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 

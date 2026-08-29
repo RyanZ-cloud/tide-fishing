@@ -1,4 +1,4 @@
-import { API, CWA_API_KEY } from '../config.js';
+import { API } from '../config.js';
 
 function parsePayload(text, contentType = '') {
   const value = String(text || '').trim();
@@ -24,9 +24,8 @@ function parsePayload(text, contentType = '') {
 }
 
 export async function fetchTideForecast() {
-  const url = new URL(API.cwa);
-  url.searchParams.set('Authorization', CWA_API_KEY);
-  url.searchParams.set('format', 'JSON');
+  const url = new URL(API.cwa, window.location.href);
+  url.searchParams.set('v', String(Date.now()));
   const response = await fetch(url, { cache: 'no-store' });
   const text = await response.text();
   if (!response.ok) throw new Error(`HTTP ${response.status}：${text.slice(0, 300)}`);

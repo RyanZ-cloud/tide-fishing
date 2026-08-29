@@ -1,14 +1,12 @@
-export const APP_VERSION = 'v3.3.1';
-export const LAST_UPDATE = '2026-07-31';
+export const APP_VERSION = 'v3.5.0';
+export const LAST_UPDATE = '2026-08-29';
 
 export const API = Object.freeze({
-  cwa: 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001',
+  cwa: './data/tide.json',
   openMeteo: 'https://api.open-meteo.com/v1/forecast',
   openMeteoMarine: 'https://marine-api.open-meteo.com/v1/marine',
   mapTiles: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 });
-
-export const CWA_API_KEY = 'CWA-21333DF4-B9DB-4810-ABC6-BE0F5BA71485';
 
 export const CACHE = Object.freeze({
   tideKey: 'tideAssistantCwaCacheV303',
