@@ -155,7 +155,7 @@ async function loadData() {
     try {
       applyTidePayload(null, '', cached.ts, true, cached.data.rows);
       setStatus('已載入最近成功的潮汐快取資料。');
-      setDataStatus('cached', `使用快取資料・更新於 ${formatUpdatedAt(cached.ts)}`);
+      setDataStatus();
       if (!state.rowsByLocation.has(getLastLocation())) {
         const nearest = await locateNearestTidePoint({ silentStart: true });
         if (!nearest) setStatus('潮汐快取資料已載入，可用地圖或下拉選單選擇地點。');

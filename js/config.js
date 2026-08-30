@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v3.7.1';
+export const APP_VERSION = 'v3.7.2';
 export const LAST_UPDATE = '2026-08-30';
 
 export const API = Object.freeze({
