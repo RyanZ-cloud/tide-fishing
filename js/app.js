@@ -20,8 +20,8 @@ import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js'
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
 import { updateVisitorCount } from './modules/visitor.js';
 
-const APP_VERSION = 'v3.6.0';
-const LAST_UPDATE = '2026-08-29';
+const APP_VERSION = 'v3.6.1';
+const LAST_UPDATE = '2026-08-30';
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
 const element = id => document.getElementById(id);
