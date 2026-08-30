@@ -23,6 +23,7 @@ import { readSharedSelection } from './modules/link-state.js';
 import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
 import { loadWarnings, renderWarnings } from './modules/warnings.js';
 import { initOnboarding } from './modules/onboarding.js';
+import { trackEvent } from './analytics.js';
 
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
@@ -54,6 +55,7 @@ function selectLocation(name, latitude, longitude) {
   element('locationSelect').value = name;
   element('search').value = name;
   renderAll();
+  trackEvent('select_station', { station_name: name });
   if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
     state.map?.setView([latitude, longitude], Math.max(state.map.getZoom(), 9));
   }
@@ -233,16 +235,29 @@ function registerServiceWorker() {
 
 function bindEvents() {
   element('loadBtn').addEventListener('click', loadData);
-  element('locateBtn').addEventListener('click', () => locateNearestTidePoint());
+  element('locateBtn').addEventListener('click', () => {
+    trackEvent('use_geolocation');
+    locateNearestTidePoint();
+  });
   element('headerLocateBtn').addEventListener('click', () => element('locateBtn').click());
-  element('shareBtn').addEventListener('click', () => shareConditions(setStatus));
+  element('shareBtn').addEventListener('click', () => {
+    trackEvent('share_conditions');
+    shareConditions(setStatus);
+  });
   element('todayBtn').addEventListener('click', () => {
     state.selectedDate = todayLocal();
     element('dateInput').value = state.selectedDate;
+    trackEvent('select_date', { date_source: 'today' });
     renderAll();
   });
-  bindDateNavigation(renderAll);
-  bindWeeklyOverview(renderAll);
+  bindDateNavigation(() => {
+    trackEvent('select_date', { date_source: 'navigator' });
+    renderAll();
+  });
+  bindWeeklyOverview(() => {
+    trackEvent('select_date', { date_source: 'weekly' });
+    renderAll();
+  });
   bindLocationPicker(name => selectLocation(name));
   element('search').addEventListener('input', () => {
     populateLocationSelect(findBestMatch(element('search').value.trim()));
@@ -253,6 +268,7 @@ function bindEvents() {
   });
   element('dateInput').addEventListener('change', event => {
     state.selectedDate = event.target.value;
+    trackEvent('select_date', { date_source: 'settings' });
     renderAll();
   });
   document.querySelectorAll('[data-scroll]').forEach(button => {
@@ -274,7 +290,8 @@ function bindEvents() {
   element('installBtn').addEventListener('click', async () => {
     if (!state.deferredInstallPrompt) return;
     state.deferredInstallPrompt.prompt();
-    await state.deferredInstallPrompt.userChoice;
+    const choice = await state.deferredInstallPrompt.userChoice;
+    trackEvent('pwa_install_prompt', { outcome: choice.outcome });
     state.deferredInstallPrompt = null;
     element('installBtn').style.display = 'none';
   });

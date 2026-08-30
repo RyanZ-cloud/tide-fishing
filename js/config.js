@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v3.7.2';
+export const APP_VERSION = 'v3.8.0';
 export const LAST_UPDATE = '2026-08-30';
 
 export const API = Object.freeze({
@@ -13,8 +13,11 @@ export const CACHE = Object.freeze({
   tideKey: 'tideAssistantCwaCacheV303',
   tideMaxAge: 4 * 60 * 60 * 1000,
   windPrefix: 'tideAssistantWindCacheV300:',
-  windMaxAge: 45 * 60 * 1000
+  windMaxAge: 45 * 60 * 1000,
+  analyticsConsentKey: 'tideHelperAnalyticsConsentV1'
 });
+
+export const ANALYTICS = Object.freeze({ measurementId: 'G-B95D3SPDT2' });
 
 export const GOLDEN_WINDOW = Object.freeze({ beforeMinutes: 120, afterMinutes: 60 });
 export const GEO_OPTIONS = Object.freeze({

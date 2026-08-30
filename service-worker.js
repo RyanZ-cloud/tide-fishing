@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tide-helper-v3.7.2';
+const CACHE_NAME = 'tide-helper-v3.8.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const APP_SHELL = [
   './css/components.css',
   './css/mobile.css',
   './js/app.js',
+  './js/analytics.js',
   './js/config.js',
   './js/state.js',
   './js/api/cwa.js',
