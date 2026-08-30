@@ -6,6 +6,8 @@ const initialState = {
   selectedDate: '',
   weather: null,
   tide: null,
+  warnings: [],
+  warningStatus: 'idle',
   map: null,
   mapMarkers: [],
   userMarker: null,

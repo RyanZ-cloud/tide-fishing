@@ -5,7 +5,7 @@ export function buildShareText() {
 }
 
 export async function shareConditions(onStatus) {
-  const data = { title: '潮汐小幫手', text: buildShareText(), url: location.href };
+  const data = { title: '潮汐小幫手', text: buildShareText(), url: buildShareUrl() };
   try {
     if (navigator.share) await navigator.share(data);
     else {
@@ -16,3 +16,4 @@ export async function shareConditions(onStatus) {
     if (error?.name !== 'AbortError') onStatus('分享失敗，請直接複製網址。', true);
   }
 }
+import { buildShareUrl } from './link-state.js';

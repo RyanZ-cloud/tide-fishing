@@ -1,8 +1,9 @@
-export const APP_VERSION = 'v3.6.1';
+export const APP_VERSION = 'v3.7.0';
 export const LAST_UPDATE = '2026-08-30';
 
 export const API = Object.freeze({
   cwa: './data/tide.json',
+  cwaWarnings: './data/warnings.json',
   openMeteo: 'https://api.open-meteo.com/v1/forecast',
   openMeteoMarine: 'https://marine-api.open-meteo.com/v1/marine',
   mapTiles: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'

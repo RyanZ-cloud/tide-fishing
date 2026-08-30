@@ -31,3 +31,12 @@ export async function fetchTideForecast() {
   if (!response.ok) throw new Error(`HTTP ${response.status}：${text.slice(0, 300)}`);
   return { data: parsePayload(text, response.headers.get('content-type') || ''), text };
 }
+
+export async function fetchWarningBulletins() {
+  const url = new URL(API.cwaWarnings, window.location.href);
+  url.searchParams.set('v', String(Date.now()));
+  const response = await fetch(url, { cache: 'no-store' });
+  const text = await response.text();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return parsePayload(text, response.headers.get('content-type') || '');
+}

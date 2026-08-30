@@ -40,6 +40,19 @@ jobs:
             --output _site/data/tide.json
           jq -e '(.success == true or .success == "true") and (.records != null)' _site/data/tide.json >/dev/null
 
+      - name: Download CWA weather warnings
+        env:
+          CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
+        run: |
+          if curl --fail --silent --show-error --retry 3 \
+            -H "Authorization: $CWA_API_KEY" \
+            "https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0033-002?format=JSON" \
+            --output _site/data/warnings.json; then
+            jq -e '(.success == true or .success == "true") and (.records != null)' _site/data/warnings.json >/dev/null
+          else
+            printf '%s\n' '{"success":false,"records":{}}' > _site/data/warnings.json
+          fi
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

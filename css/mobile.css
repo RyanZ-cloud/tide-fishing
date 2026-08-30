@@ -120,4 +120,9 @@
     scroll-snap-type:x proximity;
   }
   .date-chip{flex:0 0 68px;min-width:68px;scroll-snap-align:start}
+  .weekly-card,.warning-card{padding:14px 10px}
+  .weekly-tides{display:flex;overflow-x:auto;gap:7px;padding-bottom:3px;scroll-snap-type:x proximity}
+  .weekly-day{flex:0 0 78px;scroll-snap-align:start}
+  .onboarding-dialog{padding:20px 16px}
+  .onboarding-dialog li{grid-template-columns:30px 76px 1fr;gap:6px}
 }

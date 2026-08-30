@@ -1,4 +1,4 @@
-import { CACHE } from './config.js';
+import { APP_VERSION, LAST_UPDATE, CACHE } from './config.js';
 import { state } from './state.js';
 import { fetchTideForecast } from './api/cwa.js';
 import { readCache, writeCache } from './utils/storage.js';
@@ -19,10 +19,14 @@ import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
 import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
 import { updateVisitorCount } from './modules/visitor.js';
+import { readSharedSelection } from './modules/link-state.js';
+import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
+import { loadWarnings, renderWarnings } from './modules/warnings.js';
+import { initOnboarding } from './modules/onboarding.js';
 
-const APP_VERSION = 'v3.6.1';
-const LAST_UPDATE = '2026-08-30';
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
+
+const sharedSelection = readSharedSelection();
 
 const element = id => document.getElementById(id);
 
@@ -59,6 +63,8 @@ function renderAll() {
   renderDateNavigation();
   renderLocationPicker();
   renderTideSummary();
+  renderWeeklyOverview();
+  renderWarnings();
   drawChart();
   renderMapPoints(selectLocation);
   renderLunar();
@@ -97,12 +103,16 @@ function applyTidePayload(data, text, timestamp, cached = false, cachedRows = nu
   if (!rowsByLocation.size) throw new Error('解析後沒有任何潮汐地點。');
   Object.assign(state, { raw: data, rawText: text || '', rowsByLocation, tide: { timestamp, cached } });
   const savedLocation = getLastLocation();
-  const preferredLocation = state.rowsByLocation.has(savedLocation)
-    ? savedLocation
+  const preferredLocation = state.rowsByLocation.has(sharedSelection.station)
+    ? sharedSelection.station
+    : state.rowsByLocation.has(savedLocation) ? savedLocation
     : findBestMatch(element('search').value.trim());
   populateLocationSelect(preferredLocation);
   if (preferredLocation) element('search').value = preferredLocation;
-  state.selectedDate = element('dateInput').value || todayLocal();
+  const availableDates = new Set((state.rowsByLocation.get(preferredLocation) || []).map(row => row.date));
+  state.selectedDate = availableDates.has(sharedSelection.date)
+    ? sharedSelection.date
+    : (element('dateInput').value || todayLocal());
   element('dateInput').value = state.selectedDate;
   initMap(selectLocation);
   renderAll();
@@ -232,6 +242,7 @@ function bindEvents() {
     renderAll();
   });
   bindDateNavigation(renderAll);
+  bindWeeklyOverview(renderAll);
   bindLocationPicker(name => selectLocation(name));
   element('search').addEventListener('input', () => {
     populateLocationSelect(findBestMatch(element('search').value.trim()));
@@ -278,8 +289,10 @@ function init() {
   drawChart();
   bindChartInspector();
   bindEvents();
+  initOnboarding();
   registerServiceWorker();
   void updateVisitorCount();
+  void loadWarnings();
   void loadData();
 }
 

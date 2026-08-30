@@ -1,7 +1,8 @@
-const CACHE_NAME = 'tide-helper-v3.6.1';
+const CACHE_NAME = 'tide-helper-v3.7.0';
 const APP_SHELL = [
   './',
   './index.html',
+  './privacy.html',
   './manifest.webmanifest',
   './css/app.css',
   './css/layout.css',
@@ -22,6 +23,10 @@ const APP_SHELL = [
   './js/modules/location-picker.js',
   './js/modules/location-preferences.js',
   './js/modules/visitor.js',
+  './js/modules/link-state.js',
+  './js/modules/weekly.js',
+  './js/modules/warnings.js',
+  './js/modules/onboarding.js',
   './js/utils/storage.js',
   './js/utils/geo.js',
   './js/utils/date.js',
@@ -50,16 +55,16 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith('/data/tide.json')) {
+  if (url.pathname.endsWith('/data/tide.json') || url.pathname.endsWith('/data/warnings.json')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./data/tide.json', copy));
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match('./data/tide.json'))
+        .catch(() => caches.match(event.request))
     );
     return;
   }
