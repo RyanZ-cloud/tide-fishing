@@ -17,7 +17,8 @@ function collectByKey(node, key, output = []) {
 }
 
 function parseWarnings(data) {
-  return collectByKey(data, 'dataset').map(dataset => {
+  const records = [...collectByKey(data, 'record'), ...collectByKey(data, 'dataset')];
+  return records.map(dataset => {
     const title = dataset?.datasetInfo?.datasetDescription
       || collectByKey(dataset, 'phenomena')[0]
       || collectByKey(dataset, 'headline')[0]
