@@ -85,6 +85,34 @@ export function drawWave(ctx, model) {
   ctx.stroke();
 }
 
+export function drawTideEvents(ctx, model) {
+  const { rows, minT, maxT, x, y, pad, width } = model;
+  rows
+    .filter(row => String(row.tideType).includes('潮') && Number.isFinite(row.aboveLocalMSL))
+    .map(row => ({ ...row, timestamp: new Date(row.dateTime).getTime() }))
+    .filter(row => row.timestamp >= minT && row.timestamp <= maxT)
+    .forEach(row => {
+      const pointX = x(row.timestamp);
+      const pointY = y(row.aboveLocalMSL);
+      ctx.beginPath();
+      ctx.arc(pointX, pointY, 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = '#2f737c';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const nearLeft = pointX < pad.left + 54;
+      const nearRight = pointX > width - pad.right - 54;
+      ctx.textAlign = nearLeft ? 'left' : (nearRight ? 'right' : 'center');
+      const labelX = nearLeft ? pointX + 8 : (nearRight ? pointX - 8 : pointX);
+      const labelY = pointY < pad.top + 30 ? pointY + 22 : pointY - 11;
+      ctx.fillStyle = '#18323a';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(`${row.time} ${row.tideType}`, labelX, labelY);
+    });
+  ctx.textAlign = 'start';
+}
+
 function interpolateAt(points, timestamp) {
   for (let index = 0; index < points.length - 1; index += 1) {
     const first = points[index];
@@ -199,6 +227,7 @@ export function drawChart() {
   drawGolden(ctx, model);
   drawWave(ctx, model);
   ctx.restore();
+  drawTideEvents(ctx, model);
   drawCurrent(ctx, model);
   drawTooltip(ctx, model);
 }
