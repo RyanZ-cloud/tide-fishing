@@ -1,6 +1,6 @@
 import { APP_VERSION, LAST_UPDATE, CACHE } from './config.js';
 import { state } from './state.js';
-import { fetchTideForecast } from './api/cwa.js';
+import { fetchTideForecast } from './api/cwa.js?v=3.9.2';
 import { readCache, writeCache } from './utils/storage.js';
 import { todayLocal, formatUpdatedAt } from './utils/date.js';
 import { getCurrentPosition, findNearestLocation } from './utils/geo.js';
