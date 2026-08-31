@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tide-helper-v3.9.1';
+const CACHE_NAME = 'tide-helper-v3.9.2';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './css/layout.css',
   './css/components.css',
   './css/mobile.css',
-  './js/app.js?v=3.9.1',
+  './js/app.js?v=3.9.2',
   './js/analytics.js',
   './js/config.js',
   './js/state.js',
@@ -86,6 +86,19 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+  if (event.request.destination === 'script' || event.request.destination === 'style') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
