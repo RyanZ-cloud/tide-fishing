@@ -125,4 +125,10 @@
   .weekly-day{flex:0 0 78px;scroll-snap-align:start}
   .onboarding-dialog{padding:20px 16px}
   .onboarding-dialog li{grid-template-columns:30px 76px 1fr;gap:6px}
+  .marine-trend-card,.journal-card{padding:14px 10px}
+  .marine-trend-wrap{height:275px}
+  .marine-trend-axes{font-size:10px}
+  .journal-add-button{width:100%}
+  .journal-form-grid{grid-template-columns:1fr}
+  .journal-dialog{width:calc(100vw - 20px);padding:16px 12px}
 }

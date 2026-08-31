@@ -31,13 +31,15 @@ html,body {
 
 label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
 
-input, select, button {
+input, select, textarea, button {
     width:100%; border:none; outline:none; border-radius:14px; padding:12px 14px; font-size:15px;
   }
 
-input, select {
+input, select, textarea {
     color:var(--text); background:#fff; border:1px solid var(--line);
   }
+
+textarea { width:100%; resize:vertical; font:inherit; }
 
 button { font-weight:700; cursor:pointer; }
 
