@@ -125,7 +125,4 @@
   .weekly-day{flex:0 0 78px;scroll-snap-align:start}
   .onboarding-dialog{padding:20px 16px}
   .onboarding-dialog li{grid-template-columns:30px 76px 1fr;gap:6px}
-  .analytics-consent{bottom:8px;display:none;align-items:stretch;flex-direction:column;gap:12px;padding:14px}
-  .analytics-consent.show{display:flex}
-  .analytics-consent-actions{display:grid;grid-template-columns:1fr 1fr}
 }
