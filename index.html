@@ -76,6 +76,20 @@
 
       </div>
 
+      <section class="card marine-trend-card" id="marineTrendSection" aria-labelledby="marineTrendTitle">
+        <div class="section-title"><div><div class="k">逐時預報</div><h2 id="marineTrendTitle">📈 每小時海況趨勢</h2></div><div class="mini" id="marineTrendDate">依所選日期顯示</div></div>
+        <div class="marine-trend-axes"><span>左軸：風速 km/h</span><span>右軸：浪高 m</span></div>
+        <div class="marine-trend-wrap"><canvas id="marineTrendCanvas" width="900" height="320" aria-label="每小時風速、陣風與浪高趨勢圖"></canvas><div class="marine-trend-empty" id="marineTrendEmpty">逐時海況載入中…</div></div>
+        <div class="legend marine-trend-legend"><span><i class="trend-mark wind"></i>風速</span><span><i class="trend-mark gust"></i>陣風</span><span><i class="trend-mark wave"></i>浪高</span></div>
+        <div class="footer-note">時間軸每 3 小時顯示；預報為模式估算，請搭配官方警特報與現場狀況判斷。</div>
+      </section>
+
+      <section class="card journal-card" id="journalSection" aria-labelledby="journalTitle">
+        <div class="section-title"><div><div class="k">僅儲存在此裝置</div><h2 id="journalTitle">📔 個人釣魚日誌</h2></div><div class="mini" id="journalCount">0 筆紀錄</div></div>
+        <button class="btn-primary journal-add-button" id="openJournalBtn" type="button">＋ 新增釣魚紀錄</button>
+        <div class="journal-list" id="journalList" aria-live="polite"></div>
+      </section>
+
       <section class="card weekly-card" aria-labelledby="weeklyTitle">
         <div class="section-title"><div><div class="k">快速比較</div><h2 id="weeklyTitle">📆 未來 7 天潮汐</h2></div><div class="mini">點選日期查看完整曲線</div></div>
         <div class="weekly-tides" id="weeklyTides" aria-live="polite"></div>
@@ -102,7 +116,16 @@
   </ol>
   <button class="btn-primary onboarding-close" id="closeOnboarding" type="button">開始使用</button>
 </dialog>
-<nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="conditionsSection"><span>🌬️</span>海況</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button><button type="button" data-scroll="settingsSection"><span>☰</span>更多</button></nav>
+<dialog class="journal-dialog" id="journalDialog" aria-labelledby="journalDialogTitle">
+  <div class="journal-dialog-head"><div><div class="k">留下這次紀錄</div><h2 id="journalDialogTitle">新增釣魚日誌</h2></div><button class="location-picker-close" id="closeJournalBtn" type="button" aria-label="關閉新增日誌">×</button></div>
+  <form id="journalForm">
+    <div class="journal-form-grid"><div class="field"><label for="journalDate">日期</label><input id="journalDate" type="date" required></div><div class="field"><label for="journalLocation">地點</label><input id="journalLocation" required maxlength="40"></div></div>
+    <div class="journal-form-grid"><div class="field"><label for="journalFish">目標／釣獲魚種</label><input id="journalFish" maxlength="40" placeholder="例如：黑鯛"></div><div class="field"><label for="journalResult">結果</label><select id="journalResult"><option value="有收穫">有收穫</option><option value="咬況普通">咬況普通</option><option value="沒有魚訊">沒有魚訊</option><option value="未下竿">未下竿</option></select></div></div>
+    <div class="field"><label for="journalNotes">備註</label><textarea id="journalNotes" maxlength="500" rows="4" placeholder="餌料、釣法、潮況或現場心得…"></textarea></div>
+    <button class="btn-primary" type="submit">儲存紀錄</button>
+  </form>
+</dialog>
+<nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="marineTrendSection"><span>📈</span>趨勢</button><button type="button" data-scroll="journalSection"><span>📔</span>日誌</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button></nav>
 <footer class="product-footer" aria-label="網站資訊">
   <div class="footer-brand">🎣 潮汐小幫手</div>
   <div class="footer-stats">
@@ -127,6 +150,6 @@
   <div class="footer-copy">© 2026 NEXSOAR Technology CO., LTD</div><div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.8.4"></script>
+<script type="module" src="js/app.js?v=3.9.0"></script>
 </body>
 </html>

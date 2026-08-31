@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tide-helper-v3.8.4';
+const CACHE_NAME = 'tide-helper-v3.9.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './css/layout.css',
   './css/components.css',
   './css/mobile.css',
-  './js/app.js?v=3.8.4',
+  './js/app.js?v=3.9.0',
   './js/analytics.js',
   './js/config.js',
   './js/state.js',
@@ -16,6 +16,8 @@ const APP_SHELL = [
   './js/api/openmeteo.js',
   './js/modules/tide.js',
   './js/modules/weather.js',
+  './js/modules/marine-trend.js',
+  './js/modules/fishing-journal.js',
   './js/modules/chart.js',
   './js/modules/map.js',
   './js/modules/lunar.js',
