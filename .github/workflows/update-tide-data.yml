@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare static site
         run: |
@@ -34,11 +34,22 @@ jobs:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
         run: |
           test -n "$CWA_API_KEY"
-          curl --fail --silent --show-error --retry 3 \
+          tide_tmp="$(mktemp)"
+          if curl --fail --silent --show-error --retry 5 --retry-all-errors \
+            --connect-timeout 20 --max-time 180 \
             -H "Authorization: $CWA_API_KEY" \
             "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001?format=JSON" \
-            --output _site/data/tide.json
-          jq -e '(.success == true or .success == "true") and (.records != null)' _site/data/tide.json >/dev/null
+            --output "$tide_tmp" \
+            && jq -e '(.success == true or .success == "true") and (.records != null)' "$tide_tmp" >/dev/null; then
+            mv "$tide_tmp" _site/data/tide.json
+          else
+            echo "CWA tide download failed; reusing the last deployed valid tide data."
+            curl --fail --silent --show-error --retry 3 --retry-all-errors \
+              "https://fishing.nexsoar.com/data/tide.json" \
+              --output "$tide_tmp"
+            jq -e '(.success == true or .success == "true") and (.records != null)' "$tide_tmp" >/dev/null
+            mv "$tide_tmp" _site/data/tide.json
+          fi
 
       - name: Download CWA weather warnings
         env:
