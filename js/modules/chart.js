@@ -174,7 +174,7 @@ export function drawChart() {
   const visible = [...dayRows];
   if (firstIndex > 0) visible.unshift(rows[firstIndex - 1]);
   if (lastIndex < rows.length - 1) visible.push(rows[lastIndex + 1]);
-  const points = interpolateSeries(visible);
+  const points = interpolateSeries(visible, { minT, maxT });
   if (points.length < 2) return;
   const narrow = width <= 560;
   const pad = { left: narrow ? 34 : 40, right: narrow ? 10 : 18, top: 20, bottom: narrow ? 42 : 34 };

@@ -64,20 +64,33 @@ export function findBestMatch(keyword = '') {
 export const getSelectedRows = () => state.rowsByLocation.get(state.selectedLocation) || [];
 export const getDayRows = () => getSelectedRows().filter(row => row.date === state.selectedDate);
 
-export function interpolateSeries(rows) {
+function projectHeight(start, end, timestamp) {
+  const ratio = (timestamp - start.ts) / (end.ts - start.ts || 1);
+  const eased = 0.5 - 0.5 * Math.cos(Math.PI * ratio);
+  return start.h + (end.h - start.h) * eased;
+}
+
+export function interpolateSeries(rows, range = {}) {
   const points = rows
     .filter(row => Number.isFinite(row.aboveLocalMSL))
-    .map(row => ({ ts: new Date(row.dateTime).getTime(), h: row.aboveLocalMSL }));
+    .map(row => ({ ts: new Date(row.dateTime).getTime(), h: row.aboveLocalMSL }))
+    .filter(point => Number.isFinite(point.ts))
+    .sort((a, b) => a.ts - b.ts);
+  if (points.length >= 2 && Number.isFinite(range.minT) && points[0].ts > range.minT) {
+    points.unshift({ ts: range.minT, h: projectHeight(points[0], points[1], range.minT) });
+  }
+  if (points.length >= 2 && Number.isFinite(range.maxT) && points.at(-1).ts < range.maxT) {
+    points.push({ ts: range.maxT, h: projectHeight(points.at(-2), points.at(-1), range.maxT) });
+  }
   const output = [];
   for (let index = 0; index < points.length - 1; index += 1) {
     const start = points[index];
     const end = points[index + 1];
     for (let step = 0; step < 18; step += 1) {
       const ratio = step / 18;
-      const eased = 0.5 - 0.5 * Math.cos(Math.PI * ratio);
       output.push({
         ts: start.ts + (end.ts - start.ts) * ratio,
-        h: start.h + (end.h - start.h) * eased
+        h: projectHeight(start, end, start.ts + (end.ts - start.ts) * ratio)
       });
     }
   }
