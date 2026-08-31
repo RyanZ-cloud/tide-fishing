@@ -40,6 +40,9 @@ export function initAnalytics() {
   document.querySelector('.shareyouniq-link')?.addEventListener('click', () => {
     trackEvent('select_promotion', { promotion_name: 'shareyouniq_store' });
   });
+  document.querySelector('.nexsoar-link')?.addEventListener('click', () => {
+    trackEvent('select_promotion', { promotion_name: 'nexsoar_official' });
+  });
 }
 
 initAnalytics();
