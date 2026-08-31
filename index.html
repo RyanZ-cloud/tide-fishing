@@ -127,7 +127,16 @@
 </dialog>
 <nav class="quick-bar" aria-label="快速導覽"><button type="button" data-scroll="chartSection"><span>🌊</span>潮汐</button><button type="button" data-scroll="marineTrendSection"><span>📈</span>趨勢</button><button type="button" data-scroll="journalSection"><span>📔</span>日誌</button><button type="button" data-scroll="mapSection"><span>🗺️</span>地圖</button></nav>
 <footer class="product-footer" aria-label="網站資訊">
-  <div class="footer-brand">🎣 潮汐小幫手</div>
+  <div class="footer-main">
+    <div class="footer-identity">
+      <div class="footer-logo" aria-hidden="true">🎣</div>
+      <div><div class="footer-brand">潮汐小幫手</div><div class="footer-tagline">陪你快速掌握潮汐、風浪與月相</div></div>
+    </div>
+    <div class="footer-destinations" aria-label="NEXSOAR 相關網站">
+      <a class="footer-destination nexsoar-link" href="https://www.nexsoar.com/" target="_blank" rel="noopener noreferrer"><span class="footer-destination-icon">🏢</span><span><strong>NEXSOAR 官方網站</strong><small>認識軒翔科技</small></span><b aria-hidden="true">↗</b></a>
+      <a class="footer-destination shareyouniq-link" href="https://shareyouniq.com/" target="_blank" rel="noopener noreferrer"><span class="footer-destination-icon">🛍️</span><span><strong>選享家購物平台</strong><small>探索更多精選商品</small></span><b aria-hidden="true">↗</b></a>
+    </div>
+  </div>
   <div class="footer-stats">
     <div class="footer-stat">
       <span class="footer-stat-label">📦 版本</span>
@@ -143,13 +152,13 @@
     </div>
   </div>
   <div class="safety-box"><strong>安全聲明：</strong>本工具之潮汐、風浪及月相資訊僅供行程規劃參考，不作為航海、救生或海域安全決策依據。出發前請再次確認中央氣象署警特報、海象、港區公告及現場管制；遇長浪、強風、雷雨或封閉區域請勿下竿。</div>
-  <div class="footer-contact">聯絡我們：<a href="mailto:Service@nexsoar.com">Service@nexsoar.com</a></div>
-  <a class="shareyouniq-link" href="https://shareyouniq.com/" target="_blank" rel="noopener noreferrer">探索選享家購物平台 ↗</a>
-  <div class="footer-links"><a href="privacy.html">隱私政策</a></div>
-  <div class="footer-company">軒翔科技有限公司 NEXSOAR Technology CO., LTD</div>
-  <div class="footer-copy">© 2026 NEXSOAR Technology CO., LTD</div><div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
+  <div class="footer-bottom">
+    <div><div class="footer-company">軒翔科技有限公司</div><div class="footer-copy">© 2026 NEXSOAR Technology CO., LTD</div></div>
+    <nav class="footer-links" aria-label="網站相關連結"><a href="mailto:Service@nexsoar.com">聯絡我們</a><a href="privacy.html">隱私政策</a></nav>
+  </div>
+  <div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.9.0"></script>
+<script type="module" src="js/app.js?v=3.9.1"></script>
 </body>
 </html>
