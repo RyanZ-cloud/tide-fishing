@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tide-helper-v3.8.3';
+const CACHE_NAME = 'tide-helper-v3.8.4';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './css/layout.css',
   './css/components.css',
   './css/mobile.css',
-  './js/app.js',
+  './js/app.js?v=3.8.4',
   './js/analytics.js',
   './js/config.js',
   './js/state.js',
@@ -38,9 +38,15 @@ const APP_SHELL = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(async cache => {
+      await Promise.all(APP_SHELL.map(async path => {
+        const request = new Request(path, { cache: 'reload' });
+        const response = await fetch(request);
+        if (!response.ok) throw new Error(`APP_SHELL_HTTP_${response.status}`);
+        await cache.put(request, response);
+      }));
+      await self.skipWaiting();
+    })
   );
 });
 
