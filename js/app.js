@@ -23,6 +23,8 @@ import { readSharedSelection } from './modules/link-state.js';
 import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
 import { loadWarnings, renderWarnings } from './modules/warnings.js';
 import { initOnboarding } from './modules/onboarding.js';
+import { renderMarineTrend } from './modules/marine-trend.js';
+import { bindFishingJournal } from './modules/fishing-journal.js';
 import { trackEvent } from './analytics.js';
 
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
@@ -70,6 +72,7 @@ function renderAll() {
   drawChart();
   renderMapPoints(selectLocation);
   renderLunar();
+  renderMarineTrend();
   void updateWeather();
 }
 
@@ -278,6 +281,7 @@ function bindEvents() {
   window.addEventListener('resize', () => {
     invalidateMap();
     drawChart();
+    renderMarineTrend();
   });
   const updateOnline = () => element('offlineBanner')?.classList.toggle('show', !navigator.onLine);
   window.addEventListener('online', updateOnline);
@@ -308,6 +312,7 @@ function init() {
   bindChartInspector();
   bindEvents();
   initOnboarding();
+  bindFishingJournal();
   registerServiceWorker();
   void updateVisitorCount();
   void loadWarnings();
