@@ -132,3 +132,22 @@
   .journal-form-grid{grid-template-columns:1fr}
   .journal-dialog{width:calc(100vw - 20px);padding:16px 12px}
 }
+
+@media(max-width:760px){
+  .product-footer{width:calc(100% - 20px);padding:18px 14px 88px;border-radius:20px 20px 0 0}
+  .footer-main{grid-template-columns:1fr;gap:16px}
+  .footer-destinations{grid-template-columns:1fr 1fr}
+  .footer-bottom{align-items:center}
+}
+
+@media(max-width:520px){
+  .footer-identity{justify-content:flex-start}
+  .footer-destinations{grid-template-columns:1fr}
+  .footer-stats{grid-template-columns:repeat(3,1fr)}
+  .footer-stat{padding:10px 6px;text-align:center}
+  .footer-stat:last-child{grid-column:auto}
+  .footer-stat-label{white-space:nowrap}
+  .footer-stat-value{font-size:12px;white-space:nowrap}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+  .footer-links{justify-content:flex-start}
+}
