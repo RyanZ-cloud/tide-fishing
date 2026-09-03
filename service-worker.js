@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tide-helper-v3.9.3';
+const CACHE_NAME = 'tide-helper-v3.10.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const APP_SHELL = [
   './css/layout.css',
   './css/components.css',
   './css/mobile.css',
-  './js/app.js?v=3.9.3',
+  './js/app.js?v=3.10.0',
   './js/analytics.js',
   './js/config.js',
   './js/state.js',
@@ -17,7 +17,6 @@ const APP_SHELL = [
   './js/modules/tide.js',
   './js/modules/weather.js',
   './js/modules/marine-trend.js',
-  './js/modules/fishing-journal.js',
   './js/modules/chart.js',
   './js/modules/map.js',
   './js/modules/lunar.js',
@@ -25,6 +24,8 @@ const APP_SHELL = [
   './js/modules/date-nav.js',
   './js/modules/location-picker.js',
   './js/modules/location-preferences.js',
+  './js/modules/suitability.js',
+  './js/modules/data-freshness.js',
   './js/modules/visitor.js',
   './js/modules/link-state.js',
   './js/modules/weekly.js',
