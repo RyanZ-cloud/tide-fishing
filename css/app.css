@@ -73,4 +73,4 @@ pre {
     --accent:#58c7ff;--accent-2:#6ee7d8;--danger:#ff8d8d;
   }
 
-body{padding-bottom:76px;background:radial-gradient(circle at 12% -5%,rgba(88,199,255,.19),transparent 28%),linear-gradient(180deg,#06101c 0%,#091522 55%,#07111d 100%)}
+body{padding-bottom:0;background:radial-gradient(circle at 12% -5%,rgba(88,199,255,.19),transparent 28%),linear-gradient(180deg,#06101c 0%,#091522 55%,#07111d 100%)}
