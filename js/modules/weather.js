@@ -2,16 +2,12 @@ import { CACHE } from '../config.js';
 import { state } from '../state.js';
 import { fetchSeaForecast } from '../api/openmeteo.js';
 import { readCache, writeCache } from '../utils/storage.js';
-import { formatUpdatedAt } from '../utils/date.js';
 import { getSelectedRows } from './tide.js';
 import { renderMarineTrend } from './marine-trend.js';
+import { renderSuitability } from './suitability.js';
+import { renderFreshness, updateOfflineStatus } from './data-freshness.js';
 
 const compass = degree => ['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'][Math.round((((degree % 360) + 360) % 360) / 22.5) % 16];
-
-function freshness(timestamp, cached) {
-  document.getElementById('windFreshness')?.classList.toggle('cached', cached);
-  document.getElementById('windUpdatedAt').textContent = formatUpdatedAt(timestamp);
-}
 
 function renderRisk(wind, wave) {
   const badge = document.getElementById('seaRiskBadge');
@@ -33,11 +29,14 @@ function render(data, cached = false) {
   document.getElementById('windSpeed').textContent = Number.isFinite(weather.wind_speed_10m) ? `${weather.wind_speed_10m} km/h` : '—';
   document.getElementById('windDirection').textContent = Number.isFinite(weather.wind_direction_10m) ? `${compass(weather.wind_direction_10m)} ${Math.round(weather.wind_direction_10m)}°` : '—';
   document.getElementById('waveHeight').textContent = Number.isFinite(marine.wave_height) ? `${marine.wave_height} m` : '—';
-  document.getElementById('wavePeriod').textContent = Number.isFinite(marine.wave_period) ? `${marine.wave_period} 秒` : '—';
   state.weather = data;
+  const probabilities = data.hourly?.time?.map((time, index) => time.startsWith(state.selectedDate) ? Number(data.hourly.precipitationProbability?.[index]) : NaN).filter(Number.isFinite) || [];
+  document.getElementById('rainChance').textContent = probabilities.length ? `${Math.max(...probabilities)}%` : '—';
   renderRisk(weather.wind_speed_10m, marine.wave_height);
-  freshness(data.ts || Date.now(), cached);
+  renderFreshness('windFreshness', 'windUpdatedAt', data.ts || Date.now(), cached, CACHE.windMaxAge);
   renderMarineTrend();
+  renderSuitability();
+  updateOfflineStatus();
 }
 
 export async function updateWeather() {
@@ -65,6 +64,8 @@ export async function updateWeather() {
     else {
       document.getElementById('seaRiskBadge').className = 'risk-badge caution';
       document.getElementById('seaRiskBadge').textContent = '◆ 暫無資料';
+      renderFreshness('windFreshness', 'windUpdatedAt', null, false, CACHE.windMaxAge);
+      renderSuitability();
     }
   } finally {
     state.forecastCacheKey = '';
