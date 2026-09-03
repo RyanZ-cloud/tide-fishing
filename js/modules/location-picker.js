@@ -68,7 +68,24 @@ function closePicker() {
   if (dialog.open) dialog.close();
 }
 
+export function renderFavoriteQuickSwitch() {
+  const select = element('favoriteLocationSelect');
+  const track = element('favoriteLocationTrack');
+  if (!select || !track) return;
+  const available = new Set(state.rowsByLocation.keys());
+  const favorites = getFavoriteLocations().filter(name => available.has(name));
+  select.innerHTML = favorites.length
+    ? favorites.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('')
+    : '<option value="">尚未收藏潮汐站</option>';
+  select.disabled = !favorites.length;
+  if (favorites.includes(state.selectedLocation)) select.value = state.selectedLocation;
+  track.innerHTML = favorites.length
+    ? favorites.map(name => `<button type="button" role="listitem" data-quick-location="${escapeHtml(name)}" class="favorite-chip${name === state.selectedLocation ? ' active' : ''}">📍 ${escapeHtml(name)}</button>`).join('')
+    : '<span class="favorite-switch-empty">點上方地點，再按 ☆ 收藏常用潮汐站。</span>';
+}
+
 export function renderLocationPicker() {
+  renderFavoriteQuickSwitch();
   if (element('locationPicker')?.open) renderList();
 }
 
@@ -91,6 +108,7 @@ export function bindLocationPicker(onSelect) {
     if (favoriteButton) {
       toggleFavoriteLocation(favoriteButton.dataset.favoriteLocation);
       renderList();
+      renderFavoriteQuickSwitch();
       return;
     }
     const button = event.target.closest('[data-location]');
@@ -100,5 +118,13 @@ export function bindLocationPicker(onSelect) {
   });
   dialog.addEventListener('click', event => {
     if (event.target === dialog) closePicker();
+  });
+  element('manageFavoritesBtn')?.addEventListener('click', () => element('selectedInfo').click());
+  element('favoriteLocationSelect')?.addEventListener('change', event => {
+    if (event.target.value) onSelect(event.target.value);
+  });
+  element('favoriteLocationTrack')?.addEventListener('click', event => {
+    const button = event.target.closest('[data-quick-location]');
+    if (button) onSelect(button.dataset.quickLocation);
   });
 }
