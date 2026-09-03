@@ -1,8 +1,8 @@
 import { APP_VERSION, LAST_UPDATE, CACHE } from './config.js';
 import { state } from './state.js';
-import { fetchTideForecast } from './api/cwa.js?v=3.9.2';
+import { fetchTideForecast } from './api/cwa.js?v=3.10.0';
 import { readCache, writeCache } from './utils/storage.js';
-import { todayLocal, formatUpdatedAt } from './utils/date.js';
+import { todayLocal } from './utils/date.js';
 import { getCurrentPosition, findNearestLocation } from './utils/geo.js';
 import {
   parseTideRows, findBestMatch, populateLocationSelect,
@@ -24,8 +24,9 @@ import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
 import { loadWarnings, renderWarnings } from './modules/warnings.js';
 import { initOnboarding } from './modules/onboarding.js';
 import { renderMarineTrend } from './modules/marine-trend.js';
-import { bindFishingJournal } from './modules/fishing-journal.js';
 import { trackEvent } from './analytics.js';
+import { renderSuitability } from './modules/suitability.js';
+import { renderFreshness, updateOfflineStatus } from './modules/data-freshness.js';
 
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
@@ -47,8 +48,8 @@ function setDataStatus(kind = '', message = '') {
 }
 
 function setTideFreshness(timestamp, cached = false) {
-  element('tideFreshness')?.classList.toggle('cached', cached);
-  element('tideUpdatedAt').textContent = formatUpdatedAt(timestamp);
+  renderFreshness('tideFreshness', 'tideUpdatedAt', timestamp, cached, CACHE.tideMaxAge);
+  updateOfflineStatus();
 }
 
 function selectLocation(name, latitude, longitude) {
@@ -73,6 +74,7 @@ function renderAll() {
   renderMapPoints(selectLocation);
   renderLunar();
   renderMarineTrend();
+  renderSuitability();
   void updateWeather();
 }
 
@@ -192,8 +194,8 @@ async function loadData() {
     if (fallback) {
       try {
         applyTidePayload(null, '', fallback.ts, true, fallback.data.rows);
-        setStatus(`即時潮汐更新失敗，已改用最近成功資料（${formatUpdatedAt(fallback.ts)}）。`, true);
-        setDataStatus('cached', `無法更新，目前使用 ${formatUpdatedAt(fallback.ts)} 的快取資料`);
+        setStatus('即時潮汐更新失敗，已改用最近成功的裝置快取資料。', true);
+        setDataStatus('cached', '無法更新，目前使用已快取的潮汐資料；請留意資料更新時間。');
         return;
       } catch (fallbackError) {
         console.warn('備援快取解析失敗', fallbackError);
@@ -201,6 +203,8 @@ async function loadData() {
     }
     setStatus(`潮汐資料讀取失敗：\n${error.message}`, true);
     setDataStatus('error', '潮汐資料載入失敗，請檢查網路後重新載入。');
+    renderFreshness('tideFreshness', 'tideUpdatedAt', null, false, CACHE.tideMaxAge);
+    updateOfflineStatus();
   }
 }
 
@@ -283,10 +287,9 @@ function bindEvents() {
     drawChart();
     renderMarineTrend();
   });
-  const updateOnline = () => element('offlineBanner')?.classList.toggle('show', !navigator.onLine);
-  window.addEventListener('online', updateOnline);
-  window.addEventListener('offline', updateOnline);
-  updateOnline();
+  window.addEventListener('online', updateOfflineStatus);
+  window.addEventListener('offline', updateOfflineStatus);
+  updateOfflineStatus();
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     state.deferredInstallPrompt = event;
@@ -312,7 +315,6 @@ function init() {
   bindChartInspector();
   bindEvents();
   initOnboarding();
-  bindFishingJournal();
   registerServiceWorker();
   void updateVisitorCount();
   void loadWarnings();
