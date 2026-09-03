@@ -14,6 +14,10 @@ const initialState = {
   userLocation: null,
   chartGeometry: null,
   chartInspectTs: null,
+  chartPinnedEventTs: null,
+  chartViewHours: 24,
+  chartViewCenterTs: null,
+  chartViewDate: '',
   forecastCacheKey: '',
   deferredInstallPrompt: null
 };
