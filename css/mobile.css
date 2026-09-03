@@ -92,6 +92,15 @@
 @media(max-width:560px){.app{padding:8px 10px 26px}.app-header{top:4px;padding:9px}.brand-icon{width:38px;height:38px}.brand-sub{display:none}.header-actions .text-label{display:none}.header-actions button{padding:9px 10px}.hero-info .toolbar-left{grid-template-columns:1fr 1fr}.hero-info .pill{padding:9px 10px;font-size:12px}.chart-card{order:auto;padding:12px 10px}.chart-wrap{height:300px;min-width:0;overflow:hidden}.chart-wrap canvas{max-width:100%;touch-action:pan-y}.chart-card .section-title:after{display:none}.chart-card .legend{gap:8px;font-size:11px}.chart-card .footer-note{font-size:11px}.dashboard-grid{display:flex;flex-direction:column}.next-tide-card{order:1}.wind-card{order:2}.sea-grid{grid-template-columns:repeat(2,1fr)}.astro-grid{grid-template-columns:repeat(2,1fr)}.map-card #map{height:320px}.product-footer{padding-bottom:22px}}
 
 @media(max-width:560px){
+  .favorite-switch{padding:10px;margin-bottom:10px}
+  .favorite-switch-head{align-items:flex-start;flex-direction:column;gap:2px}
+  .favorite-switch-controls{grid-template-columns:minmax(0,1fr) auto}
+  .favorite-switch-controls button{padding-left:10px;padding-right:10px}
+  .suitability-main{align-items:flex-start}
+  .suitability-badge{font-size:14px;padding:8px 12px}
+  .suitability-reasons{display:grid;grid-template-columns:1fr 1fr}
+  .suitability-reasons .reason{padding:7px 8px;font-size:11px}
+  .chart-controls button{min-width:31px;padding:6px 7px}
   .location-picker{
     width:calc(100vw - 20px);
     max-height:calc(100dvh - 24px);
@@ -125,12 +134,9 @@
   .weekly-day{flex:0 0 78px;scroll-snap-align:start}
   .onboarding-dialog{padding:20px 16px}
   .onboarding-dialog li{grid-template-columns:30px 76px 1fr;gap:6px}
-  .marine-trend-card,.journal-card{padding:14px 10px}
+  .marine-trend-card{padding:14px 10px}
   .marine-trend-wrap{height:275px}
   .marine-trend-axes{font-size:10px}
-  .journal-add-button{width:100%}
-  .journal-form-grid{grid-template-columns:1fr}
-  .journal-dialog{width:calc(100vw - 20px);padding:16px 12px}
 }
 
 @media(max-width:760px){
