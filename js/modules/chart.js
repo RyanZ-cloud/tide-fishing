@@ -30,7 +30,7 @@ export function drawAxis(ctx, model) {
     const y = pad.top + index * ((height - pad.top - pad.bottom) / 3);
     ctx.fillText(`${Math.round(value)}`, 6, y + 4);
   }
-  const step = 3 * 3600000;
+  const step = (model.viewHours <= 6 ? 1 : model.viewHours <= 12 ? 2 : 3) * 3600000;
   ctx.fillStyle = 'rgba(220,238,255,.75)';
   ctx.font = `${narrow ? 10 : 12}px sans-serif`;
   for (let tick = minT; tick <= maxT; tick += step) {
@@ -87,6 +87,8 @@ export function drawWave(ctx, model) {
 
 export function drawTideEvents(ctx, model) {
   const { rows, minT, maxT, x, y, pad, width } = model;
+  const occupied = [];
+  model.eventPoints = [];
   rows
     .filter(row => String(row.tideType).includes('潮') && Number.isFinite(row.aboveLocalMSL))
     .map(row => ({ ...row, timestamp: new Date(row.dateTime).getTime() }))
@@ -94,6 +96,7 @@ export function drawTideEvents(ctx, model) {
     .forEach(row => {
       const pointX = x(row.timestamp);
       const pointY = y(row.aboveLocalMSL);
+      model.eventPoints.push({ x: pointX, y: pointY, timestamp: row.timestamp, row });
       ctx.beginPath();
       ctx.arc(pointX, pointY, 5.5, 0, Math.PI * 2);
       ctx.fillStyle = '#fff';
@@ -105,7 +108,7 @@ export function drawTideEvents(ctx, model) {
       const nearRight = pointX > width - pad.right - 54;
       ctx.textAlign = nearLeft ? 'left' : (nearRight ? 'right' : 'center');
       const labelX = nearLeft ? pointX + 8 : (nearRight ? pointX - 8 : pointX);
-      const labelY = pointY < pad.top + 30 ? pointY + 22 : pointY - 11;
+      let labelY = pointY < pad.top + 34 ? pointY + 25 : pointY - 12;
       ctx.font = 'bold 11px sans-serif';
       const label = `${row.time} ${row.tideType}`;
       const textWidth = ctx.measureText(label).width;
@@ -114,7 +117,15 @@ export function drawTideEvents(ctx, model) {
       const boxX = nearLeft
         ? labelX - boxPaddingX
         : (nearRight ? labelX - textWidth - boxPaddingX : labelX - textWidth / 2 - boxPaddingX);
-      const boxY = labelY - 14;
+      let boxY = labelY - 14;
+      const boxWidth = textWidth + boxPaddingX * 2;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const overlaps = occupied.some(box => boxX < box.right && boxX + boxWidth > box.left && boxY < box.bottom && boxY + boxHeight > box.top);
+        if (!overlaps) break;
+        boxY += pointY < pad.top + 80 ? 22 : -22;
+        labelY = boxY + 14;
+      }
+      occupied.push({ left: boxX, right: boxX + boxWidth, top: boxY, bottom: boxY + boxHeight });
       ctx.fillStyle = 'rgba(7,16,29,.90)';
       ctx.beginPath();
       ctx.roundRect(boxX, boxY, textWidth + boxPaddingX * 2, boxHeight, 6);
@@ -153,20 +164,23 @@ export function drawCurrent(ctx, model) {
   ctx.fill();
   ctx.fillStyle = '#d8f6ff';
   ctx.font = '12px sans-serif';
-  ctx.fillText('現在潮位', x - 20, Math.max(model.pad.top + 14, y - 16));
+  const nearEventLabel = model.eventPoints?.some(point => Math.abs(point.x - x) < 64 && Math.abs(point.y - y) < 40);
+  const labelY = nearEventLabel ? Math.min(model.height - model.pad.bottom - 8, y + 25) : Math.max(model.pad.top + 14, y - 16);
+  ctx.fillText('現在潮位', x - 20, labelY);
 }
 
 export function drawTooltip(ctx, model) {
-  const timestamp = state.chartInspectTs;
+  const timestamp = state.chartPinnedEventTs ?? state.chartInspectTs;
   if (timestamp == null || timestamp < model.minT || timestamp > model.maxT) return;
   const heightValue = interpolateAt(model.points, timestamp);
   if (heightValue == null) return;
   const x = model.x(timestamp);
   const y = model.y(heightValue);
   const date = new Date(timestamp);
+  const pinnedRow = state.chartPinnedEventTs == null ? null : model.rows.find(row => new Date(row.dateTime).getTime() === state.chartPinnedEventTs);
   const lines = [
     `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
-    `預估潮高 ${Math.round(heightValue)} cm`
+    pinnedRow ? `${pinnedRow.tideType}・${Math.round(pinnedRow.aboveLocalMSL)} cm` : `預估潮高 ${Math.round(heightValue)} cm`
   ];
   ctx.setLineDash([4, 4]);
   ctx.beginPath();
@@ -210,8 +224,18 @@ export function drawChart() {
     return;
   }
   const dayStart = new Date(`${selectedDate}T00:00:00`).getTime();
-  const minT = dayStart;
-  const maxT = dayStart + 24 * 3600000;
+  const dayEnd = dayStart + 24 * 3600000;
+  if (state.chartViewDate !== selectedDate) {
+    Object.assign(state, { chartViewDate: selectedDate, chartViewHours: 24, chartViewCenterTs: dayStart + 12 * 3600000, chartPinnedEventTs: null });
+    const resetButton = document.getElementById('chartReset');
+    if (resetButton) resetButton.textContent = '24 小時';
+  }
+  const viewHours = Math.max(6, Math.min(24, state.chartViewHours || 24));
+  const halfWindow = viewHours * 1800000;
+  const center = Math.max(dayStart + halfWindow, Math.min(dayEnd - halfWindow, state.chartViewCenterTs || dayStart + 12 * 3600000));
+  state.chartViewCenterTs = center;
+  const minT = center - halfWindow;
+  const maxT = center + halfWindow;
   const firstIndex = rows.findIndex(row => row.date === selectedDate);
   const lastIndex = rows.findLastIndex(row => row.date === selectedDate);
   const visible = [...dayRows];
@@ -228,8 +252,7 @@ export function drawChart() {
   const hi = highRaw + extra;
   const x = value => pad.left + (value - minT) / (maxT - minT || 1) * (width - pad.left - pad.right);
   const y = value => height - pad.bottom - (value - lo) / (hi - lo || 1) * (height - pad.top - pad.bottom);
-  const model = { ctx, width, height, pad, minT, maxT, lo, hi, x, y, points, rows, today, narrow };
-  state.chartGeometry = { pad, minT, maxT, width, height };
+  const model = { ctx, width, height, pad, minT, maxT, lo, hi, x, y, points, rows, today, narrow, viewHours, dayStart, dayEnd, eventPoints: [] };
   if (state.chartInspectTs == null || state.chartInspectTs < minT || state.chartInspectTs > maxT) {
     state.chartInspectTs = today ? Date.now() : minT + 12 * 3600000;
   }
@@ -243,6 +266,7 @@ export function drawChart() {
   drawWave(ctx, model);
   ctx.restore();
   drawTideEvents(ctx, model);
+  state.chartGeometry = { pad, minT, maxT, width, height, dayStart, dayEnd, eventPoints: model.eventPoints };
   drawCurrent(ctx, model);
   drawTooltip(ctx, model);
 }
@@ -258,5 +282,55 @@ export function bindChartInspector() {
     state.chartInspectTs = geometry.minT + ratio * (geometry.maxT - geometry.minT);
     drawChart();
   };
-  canvas.addEventListener('pointermove', event => update(event.clientX));
+  let drag = null;
+  canvas.addEventListener('pointerdown', event => {
+    drag = { pointerId: event.pointerId, startX: event.clientX, lastX: event.clientX, moved: false };
+    canvas.setPointerCapture?.(event.pointerId);
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (!drag || drag.pointerId !== event.pointerId) {
+      if (event.pointerType === 'mouse') update(event.clientX);
+      return;
+    }
+    const delta = event.clientX - drag.lastX;
+    if (Math.abs(event.clientX - drag.startX) > 5) drag.moved = true;
+    if (drag.moved && state.chartViewHours < 24) {
+      const geometry = state.chartGeometry;
+      const plotWidth = geometry.width - geometry.pad.left - geometry.pad.right;
+      const shift = -delta / plotWidth * (geometry.maxT - geometry.minT);
+      const half = (geometry.maxT - geometry.minT) / 2;
+      state.chartViewCenterTs = Math.max(geometry.dayStart + half, Math.min(geometry.dayEnd - half, state.chartViewCenterTs + shift));
+      drawChart();
+    }
+    drag.lastX = event.clientX;
+  });
+  canvas.addEventListener('pointerup', event => {
+    if (!drag) return;
+    if (!drag.moved) {
+      const rect = canvas.getBoundingClientRect();
+      const px = event.clientX - rect.left;
+      const py = event.clientY - rect.top;
+      const nearest = state.chartGeometry?.eventPoints?.map(point => ({ point, distance: Math.hypot(point.x - px, point.y - py) })).sort((a, b) => a.distance - b.distance)[0];
+      if (nearest?.distance <= 30) {
+        state.chartPinnedEventTs = state.chartPinnedEventTs === nearest.point.timestamp ? null : nearest.point.timestamp;
+        state.chartInspectTs = nearest.point.timestamp;
+      } else {
+        state.chartPinnedEventTs = null;
+        update(event.clientX);
+      }
+      drawChart();
+    }
+    canvas.releasePointerCapture?.(event.pointerId);
+    drag = null;
+  });
+  canvas.addEventListener('pointercancel', () => { drag = null; });
+  const zoom = hours => {
+    state.chartViewHours = hours;
+    state.chartPinnedEventTs = null;
+    document.getElementById('chartReset').textContent = `${hours} 小時`;
+    drawChart();
+  };
+  document.getElementById('chartZoomIn')?.addEventListener('click', () => zoom(state.chartViewHours > 12 ? 12 : 6));
+  document.getElementById('chartZoomOut')?.addEventListener('click', () => zoom(state.chartViewHours < 12 ? 12 : 24));
+  document.getElementById('chartReset')?.addEventListener('click', () => zoom(24));
 }
