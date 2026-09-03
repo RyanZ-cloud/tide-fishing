@@ -24,6 +24,11 @@
   </header>
 
   <div class="hero"><h1>潮汐小幫手</h1><div class="toolbar hero-info"><div class="toolbar-left"><button class="pill location-trigger" id="selectedInfo" type="button" aria-haspopup="dialog" aria-controls="locationPicker">📍 地點：— <span aria-hidden="true">⌄</span></button><div class="pill" id="lunarInfo">農曆：—</div><div class="pill" id="rangeInfo">潮差：—</div></div></div></div>
+  <section class="favorite-switch" aria-labelledby="favoriteSwitchTitle">
+    <div class="favorite-switch-head"><strong id="favoriteSwitchTitle">⭐ 常用地點</strong><span>可左右滑動或使用選單切換</span></div>
+    <div class="favorite-switch-controls"><select id="favoriteLocationSelect" aria-label="常用地點快速切換"><option value="">尚未收藏潮汐站</option></select><button id="manageFavoritesBtn" type="button">管理收藏</button></div>
+    <div class="favorite-switch-track" id="favoriteLocationTrack" role="list" aria-label="收藏的潮汐站"></div>
+  </section>
 
   <dialog class="location-picker" id="locationPicker" aria-labelledby="locationPickerTitle">
     <div class="location-picker-head">
@@ -39,7 +44,7 @@
   <div class="shell">
     <main class="main">
       <section class="card chart-card" id="chartSection">
-        <div class="section-title"><h2>🌊 潮位曲線</h2></div>
+        <div class="section-title"><h2>🌊 潮位曲線</h2><div class="chart-controls" aria-label="潮汐圖表縮放"><button id="chartZoomOut" type="button" aria-label="縮小潮汐圖">−</button><button id="chartReset" type="button">24 小時</button><button id="chartZoomIn" type="button" aria-label="放大潮汐圖">＋</button></div></div>
         <div class="data-status" id="dataStatus" role="status" hidden></div>
         <div class="date-navigator" aria-label="潮汐日期選擇">
           <div class="date-stepper">
@@ -55,11 +60,16 @@
         </div>
         <div class="chart-wrap"><canvas id="tideCanvas" width="900" height="380"></canvas></div>
         <div class="legend"><span><i class="line-mark"></i> 潮位曲線</span><span><i class="dot-mark"></i> 滿／乾潮</span><span><i class="golden-zone-mark"></i> 黃金時段</span><span id="currentLegend"><i class="dot-mark current-dot"></i> 目前潮位</span></div>
-        <div class="footer-note" id="chartNote">時間軸每 3 小時顯示；左右滑動曲線，可查看時間與預估潮高。</div>
-        <div class="freshness" id="tideFreshness"><span>潮汐資料更新：<b id="tideUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
+        <div class="footer-note" id="chartNote">點選滿／乾潮節點可固定時間與潮高；放大後可左右拖曳查看。</div>
+        <div class="freshness" id="tideFreshness"><span>潮汐資料更新：<b id="tideUpdatedAt">—</b></span><span class="freshness-badge">等待資料</span></div>
       </section>
 
       <div class="dashboard-grid" id="conditionsSection">
+        <section class="card suitability-card" aria-labelledby="suitabilityTitle">
+          <div class="suitability-main"><div><div class="k">風、浪、降雨與潮汐綜合判斷</div><h2 id="suitabilityTitle">🎣 海況適合度</h2></div><div class="suitability-badge pending" id="suitabilityBadge">評估中</div></div>
+          <div class="suitability-reasons" id="suitabilityReasons" aria-live="polite">正在整理海況資料…</div>
+          <div class="suitability-warning">僅供行程規劃參考，非航海、救生或安全決策用途；請以中央氣象署警特報、現場管制與實際海況為準。</div>
+        </section>
         <section class="card next-tide-card">
           <div class="next-primary"><div class="next-primary-main"><div class="k" id="nextTideLabel">下一波潮汐</div><div class="next-event-line"><span class="next-event-type" id="nextEvent">—</span><span class="next-event-time" id="nextEventTime">—</span></div><div class="next-event-date" id="nextEventMeta">—</div></div></div>
           <div class="next-mini-grid"><div class="next-mini"><div class="next-mini-label" id="nextHighLabel">▲ 下一次滿潮</div><div class="next-mini-value" id="nextHigh">—</div><div class="next-mini-meta" id="nextHighMeta">—</div></div><div class="next-mini"><div class="next-mini-label" id="nextLowLabel">▼ 下一次乾潮</div><div class="next-mini-value" id="nextLow">—</div><div class="next-mini-meta" id="nextLowMeta">—</div></div></div>
@@ -68,10 +78,10 @@
 
         <section class="card wind-card">
           <div class="condition-head"><div><div class="k">即時環境</div><h2 class="condition-title">🌬️ 今日海況</h2></div><div class="risk-badge" id="seaRiskBadge">● 評估中</div></div>
-          <div class="sea-grid"><div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>浪週期</span><b id="wavePeriod">—</b></div></div>
+          <div class="sea-grid"><div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>降雨機率</span><b id="rainChance">—</b></div></div>
           <div class="astro-grid"><div class="astro-tile"><div class="astro-label">🌅 日出</div><div class="astro-value" id="sunriseTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌇 日落</div><div class="astro-value" id="sunsetTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌙 月相</div><div class="astro-value" id="moonPhase">—</div><div class="astro-meta" id="moonIllumination">—</div></div><div class="astro-tile"><div class="astro-label">📅 農曆</div><div class="astro-value" id="lunarDate">—</div><div class="astro-meta">依查詢日期</div></div></div>
           <div class="data-source-note">風浪為模式預報，只供出發前初判；現場仍以警特報、長浪與管制公告為準。</div>
-          <div class="freshness" id="windFreshness"><span>風浪資料更新：<b id="windUpdatedAt">—</b></span><span class="cache-badge">使用快取</span></div>
+          <div class="freshness" id="windFreshness"><span>氣象資料更新：<b id="windUpdatedAt">—</b></span><span class="freshness-badge">等待資料</span></div>
         </section>
 
       </div>
@@ -82,12 +92,6 @@
         <div class="marine-trend-wrap"><canvas id="marineTrendCanvas" width="900" height="320" aria-label="每小時風速、陣風與浪高趨勢圖"></canvas><div class="marine-trend-empty" id="marineTrendEmpty">逐時海況載入中…</div></div>
         <div class="legend marine-trend-legend"><span><i class="trend-mark wind"></i>風速</span><span><i class="trend-mark gust"></i>陣風</span><span><i class="trend-mark wave"></i>浪高</span></div>
         <div class="footer-note">時間軸每 3 小時顯示；預報為模式估算，請搭配官方警特報與現場狀況判斷。</div>
-      </section>
-
-      <section class="card journal-card" id="journalSection" aria-labelledby="journalTitle">
-        <div class="section-title"><div><div class="k">僅儲存在此裝置</div><h2 id="journalTitle">📔 個人釣魚日誌</h2></div><div class="mini" id="journalCount">0 筆紀錄</div></div>
-        <button class="btn-primary journal-add-button" id="openJournalBtn" type="button">＋ 新增釣魚紀錄</button>
-        <div class="journal-list" id="journalList" aria-live="polite"></div>
       </section>
 
       <section class="card weekly-card" aria-labelledby="weeklyTitle">
@@ -115,15 +119,6 @@
     <li><strong>看海況</strong><span>搭配潮位、風浪與官方警特報規劃行程。</span></li>
   </ol>
   <button class="btn-primary onboarding-close" id="closeOnboarding" type="button">開始使用</button>
-</dialog>
-<dialog class="journal-dialog" id="journalDialog" aria-labelledby="journalDialogTitle">
-  <div class="journal-dialog-head"><div><div class="k">留下這次紀錄</div><h2 id="journalDialogTitle">新增釣魚日誌</h2></div><button class="location-picker-close" id="closeJournalBtn" type="button" aria-label="關閉新增日誌">×</button></div>
-  <form id="journalForm">
-    <div class="journal-form-grid"><div class="field"><label for="journalDate">日期</label><input id="journalDate" type="date" required></div><div class="field"><label for="journalLocation">地點</label><input id="journalLocation" required maxlength="40"></div></div>
-    <div class="journal-form-grid"><div class="field"><label for="journalFish">目標／釣獲魚種</label><input id="journalFish" maxlength="40" placeholder="例如：黑鯛"></div><div class="field"><label for="journalResult">結果</label><select id="journalResult"><option value="有收穫">有收穫</option><option value="咬況普通">咬況普通</option><option value="沒有魚訊">沒有魚訊</option><option value="未下竿">未下竿</option></select></div></div>
-    <div class="field"><label for="journalNotes">備註</label><textarea id="journalNotes" maxlength="500" rows="4" placeholder="餌料、釣法、潮況或現場心得…"></textarea></div>
-    <button class="btn-primary" type="submit">儲存紀錄</button>
-  </form>
 </dialog>
 <footer class="product-footer" aria-label="網站資訊">
   <div class="footer-main">
@@ -158,6 +153,6 @@
   <div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.9.3"></script>
+<script type="module" src="js/app.js?v=3.10.0"></script>
 </body>
 </html>
