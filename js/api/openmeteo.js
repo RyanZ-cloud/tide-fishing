@@ -12,8 +12,8 @@ export async function fetchSeaForecast(latitude, longitude) {
   const weather = new URL(API.openMeteo);
   weather.search = new URLSearchParams({
     latitude: lat, longitude: lon,
-    current: 'wind_speed_10m,wind_direction_10m',
-    hourly: 'wind_speed_10m,wind_gusts_10m,wind_direction_10m',
+    current: 'wind_speed_10m,wind_direction_10m,precipitation',
+    hourly: 'wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation_probability,precipitation',
     forecast_days: '8', wind_speed_unit: 'kmh', timezone: 'Asia/Taipei'
   });
   const marine = new URL(API.openMeteoMarine);
@@ -41,6 +41,8 @@ export async function fetchSeaForecast(latitude, longitude) {
       windSpeed: weatherPayload.hourly?.wind_speed_10m || [],
       windGusts: weatherPayload.hourly?.wind_gusts_10m || [],
       windDirection: weatherPayload.hourly?.wind_direction_10m || [],
+      precipitationProbability: weatherPayload.hourly?.precipitation_probability || [],
+      precipitation: weatherPayload.hourly?.precipitation || [],
       waveHeight: marinePayload.hourly?.wave_height || [],
       wavePeriod: marinePayload.hourly?.wave_period || []
     }
