@@ -1,5 +1,5 @@
-export const APP_VERSION = 'v3.9.2';
-export const LAST_UPDATE = '2026-08-31';
+export const APP_VERSION = 'v3.9.3';
+export const LAST_UPDATE = '2026-09-03';
 
 export const API = Object.freeze({
   cwa: './data/tide.json',
