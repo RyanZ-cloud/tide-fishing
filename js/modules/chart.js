@@ -106,9 +106,24 @@ export function drawTideEvents(ctx, model) {
       ctx.textAlign = nearLeft ? 'left' : (nearRight ? 'right' : 'center');
       const labelX = nearLeft ? pointX + 8 : (nearRight ? pointX - 8 : pointX);
       const labelY = pointY < pad.top + 30 ? pointY + 22 : pointY - 11;
-      ctx.fillStyle = '#18323a';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText(`${row.time} ${row.tideType}`, labelX, labelY);
+      const label = `${row.time} ${row.tideType}`;
+      const textWidth = ctx.measureText(label).width;
+      const boxPaddingX = 5;
+      const boxHeight = 20;
+      const boxX = nearLeft
+        ? labelX - boxPaddingX
+        : (nearRight ? labelX - textWidth - boxPaddingX : labelX - textWidth / 2 - boxPaddingX);
+      const boxY = labelY - 14;
+      ctx.fillStyle = 'rgba(7,16,29,.90)';
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, textWidth + boxPaddingX * 2, boxHeight, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(164,222,229,.72)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(label, labelX, labelY);
     });
   ctx.textAlign = 'start';
 }
