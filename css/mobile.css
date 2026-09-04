@@ -11,6 +11,7 @@
 @media (max-width:560px) { .chart-wrap { height:270px; } }
 
 @media (max-width:560px) { #map { height:280px; } }
+@media (max-width:560px) { .radar-meta{align-items:flex-start;flex-direction:column;gap:6px}.radar-toggle{padding:7px 10px} }
 
 @media (max-width:980px) {
     .shell {
