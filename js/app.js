@@ -12,7 +12,7 @@ import { drawChart, bindChartInspector } from './modules/chart.js';
 import {
   initMap, renderMapPoints, showUserPosition,
   fitUserAndStation, invalidateMap
-} from './modules/map.js';
+} from './modules/map.js?v=3.11.0';
 import { updateWeather } from './modules/weather.js';
 import { renderLunar } from './modules/lunar.js';
 import { shareConditions } from './modules/share.js';
