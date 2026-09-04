@@ -104,7 +104,12 @@
         <div class="warning-content" id="warningContent" aria-live="polite">正在確認中央氣象署警特報…</div>
       </section>
 
-      <section class="card map-card" id="mapSection"><div class="section-title"><h2>🗺️ 潮汐地圖</h2><div class="mini">點標記切換潮汐站</div></div><div id="map"></div><div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div></section>
+      <section class="card map-card" id="mapSection">
+        <div class="section-title"><h2>🗺️ 潮汐與雨勢地圖</h2><button class="radar-toggle" id="radarToggle" type="button" aria-pressed="false">🌧️ 雷達回波</button></div>
+        <div id="map"></div>
+        <div class="radar-meta"><span id="radarStatus">雷達回波每 10 分鐘更新，可視需要開啟。</span><span class="radar-scale" aria-label="雨勢色階：弱到強"><i></i><span>弱</span><b></b><span>強</span></span></div>
+        <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div>
+      </section>
 
       <aside class="side" id="settingsSection"><details class="settings-details"><summary>🔎 查詢地點與日期</summary><div class="settings-body"><div class="section-title"><h2>查詢工具</h2><div class="mini">選擇地點與日期</div></div><div class="field"><label for="search">搜尋地點</label><input id="search" placeholder="例如：基隆、宜蘭、高雄"></div><div class="field"><label for="dateInput">查詢日期</label><input id="dateInput" type="date"></div><div class="field"><label for="locationSelect">地點選擇</label><select id="locationSelect"><option value="">請先載入資料</option></select></div><div class="btn-row"><button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button><button class="btn-secondary" id="todayBtn" type="button">切到今天</button></div><button class="btn-secondary locate-button" id="locateBtn" type="button">📍 自動定位最近潮汐點</button><div id="status" class="status">準備中…</div></div></details></aside>
     </main>
@@ -153,6 +158,6 @@
   <div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.10.1"></script>
+<script type="module" src="js/app.js?v=3.11.0"></script>
 </body>
 </html>
