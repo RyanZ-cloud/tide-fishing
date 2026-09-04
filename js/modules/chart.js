@@ -284,7 +284,15 @@ export function bindChartInspector() {
   };
   let drag = null;
   canvas.addEventListener('pointerdown', event => {
-    drag = { pointerId: event.pointerId, startX: event.clientX, lastX: event.clientX, moved: false };
+    drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      lastX: event.clientX,
+      moved: false,
+      horizontal: false
+    };
+    canvas.classList.add('is-dragging');
     canvas.setPointerCapture?.(event.pointerId);
   });
   canvas.addEventListener('pointermove', event => {
@@ -293,14 +301,21 @@ export function bindChartInspector() {
       return;
     }
     const delta = event.clientX - drag.lastX;
-    if (Math.abs(event.clientX - drag.startX) > 5) drag.moved = true;
-    if (drag.moved && state.chartViewHours < 24) {
+    const distanceX = Math.abs(event.clientX - drag.startX);
+    const distanceY = Math.abs(event.clientY - drag.startY);
+    if (distanceX > 5 || distanceY > 5) drag.moved = true;
+    if (!drag.horizontal && distanceX > 7 && distanceX > distanceY) drag.horizontal = true;
+    if (!drag.horizontal) return;
+    if (event.cancelable) event.preventDefault();
+    if (state.chartViewHours < 24) {
       const geometry = state.chartGeometry;
       const plotWidth = geometry.width - geometry.pad.left - geometry.pad.right;
       const shift = -delta / plotWidth * (geometry.maxT - geometry.minT);
       const half = (geometry.maxT - geometry.minT) / 2;
       state.chartViewCenterTs = Math.max(geometry.dayStart + half, Math.min(geometry.dayEnd - half, state.chartViewCenterTs + shift));
       drawChart();
+    } else {
+      update(event.clientX);
     }
     drag.lastX = event.clientX;
   });
@@ -321,9 +336,15 @@ export function bindChartInspector() {
       drawChart();
     }
     canvas.releasePointerCapture?.(event.pointerId);
+    canvas.classList.remove('is-dragging');
     drag = null;
   });
-  canvas.addEventListener('pointercancel', () => { drag = null; });
+  const cancelDrag = () => {
+    canvas.classList.remove('is-dragging');
+    drag = null;
+  };
+  canvas.addEventListener('pointercancel', cancelDrag);
+  canvas.addEventListener('lostpointercapture', cancelDrag);
   const zoom = hours => {
     state.chartViewHours = hours;
     state.chartPinnedEventTs = null;
