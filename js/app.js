@@ -1,6 +1,6 @@
 import { APP_VERSION, LAST_UPDATE, CACHE } from './config.js';
 import { state } from './state.js';
-import { fetchTideForecast } from './api/cwa.js?v=3.10.0';
+import { fetchTideForecast } from './api/cwa.js';
 import { readCache, writeCache } from './utils/storage.js';
 import { todayLocal } from './utils/date.js';
 import { getCurrentPosition, findNearestLocation } from './utils/geo.js';
@@ -12,7 +12,7 @@ import { drawChart, bindChartInspector } from './modules/chart.js';
 import {
   initMap, renderMapPoints, showUserPosition,
   fitUserAndStation, invalidateMap
-} from './modules/map.js?v=3.11.0';
+} from './modules/map.js';
 import { updateWeather } from './modules/weather.js';
 import { renderLunar } from './modules/lunar.js';
 import { shareConditions } from './modules/share.js';
@@ -26,7 +26,7 @@ import { initOnboarding } from './modules/onboarding.js';
 import { renderMarineTrend } from './modules/marine-trend.js';
 import { trackEvent } from './analytics.js';
 import { renderSuitability } from './modules/suitability.js';
-import { renderFreshness, updateOfflineStatus } from './modules/data-freshness.js';
+import { renderDataHealth, renderFreshness, updateOfflineStatus } from './modules/data-freshness.js';
 
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
@@ -49,6 +49,7 @@ function setDataStatus(kind = '', message = '') {
 
 function setTideFreshness(timestamp, cached = false) {
   renderFreshness('tideFreshness', 'tideUpdatedAt', timestamp, cached, CACHE.tideMaxAge);
+  renderDataHealth();
   updateOfflineStatus();
 }
 
@@ -281,6 +282,13 @@ function bindEvents() {
   });
   document.querySelectorAll('[data-scroll]').forEach(button => {
     button.addEventListener('click', () => element(button.dataset.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
+  document.querySelectorAll('.collapsible-card').forEach(details => {
+    details.addEventListener('toggle', () => {
+      if (!details.open) return;
+      if (details.id === 'mapSection') requestAnimationFrame(invalidateMap);
+      if (details.id === 'marineTrendSection') requestAnimationFrame(renderMarineTrend);
+    });
   });
   window.addEventListener('resize', () => {
     invalidateMap();
