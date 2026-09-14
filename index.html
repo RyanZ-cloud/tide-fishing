@@ -24,7 +24,7 @@
   </header>
 
   <div class="hero"><h1>潮汐小幫手</h1><div class="toolbar hero-info"><div class="toolbar-left"><button class="pill location-trigger" id="selectedInfo" type="button" aria-haspopup="dialog" aria-controls="locationPicker">📍 地點：— <span aria-hidden="true">⌄</span></button><div class="pill" id="lunarInfo">農曆：—</div><div class="pill" id="rangeInfo">潮差：—</div></div></div></div>
-  <section class="favorite-switch" aria-labelledby="favoriteSwitchTitle">
+  <section class="favorite-switch is-compact" id="favoriteSwitch" aria-labelledby="favoriteSwitchTitle">
     <div class="favorite-switch-head"><strong id="favoriteSwitchTitle">⭐ 常用地點</strong><span>可左右滑動或使用選單切換</span></div>
     <div class="favorite-switch-controls"><select id="favoriteLocationSelect" aria-label="常用地點快速切換"><option value="">尚未收藏潮汐站</option></select><button id="manageFavoritesBtn" type="button">管理收藏</button></div>
     <div class="favorite-switch-track" id="favoriteLocationTrack" role="list" aria-label="收藏的潮汐站"></div>
@@ -66,7 +66,7 @@
 
       <div class="dashboard-grid" id="conditionsSection">
         <section class="card suitability-card" aria-labelledby="suitabilityTitle">
-          <div class="suitability-main"><div><div class="k">風、浪、降雨與潮汐綜合判斷</div><h2 id="suitabilityTitle">🎣 海況適合度</h2></div><div class="suitability-badge pending" id="suitabilityBadge">評估中</div></div>
+          <div class="suitability-main"><div><div class="k">採所選日期逐時預報最高值</div><h2 id="suitabilityTitle">🎣 海況適合度</h2></div><div class="suitability-badge pending" id="suitabilityBadge">評估中</div></div>
           <div class="suitability-reasons" id="suitabilityReasons" aria-live="polite">正在整理海況資料…</div>
           <div class="suitability-warning">僅供行程規劃參考，非航海、救生或安全決策用途；請以中央氣象署警特報、現場管制與實際海況為準。</div>
         </section>
@@ -78,7 +78,7 @@
 
         <section class="card wind-card">
           <div class="condition-head"><div><div class="k">即時環境</div><h2 class="condition-title">🌬️ 今日海況</h2></div><div class="risk-badge" id="seaRiskBadge">● 評估中</div></div>
-          <div class="sea-grid"><div class="sea-item"><span>風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>降雨機率</span><b id="rainChance">—</b></div></div>
+          <div class="sea-grid"><div class="sea-item"><span>目前風速</span><b id="windSpeed">—</b></div><div class="sea-item"><span>目前風向</span><b id="windDirection">—</b></div><div class="sea-item"><span>目前浪高</span><b id="waveHeight">—</b></div><div class="sea-item"><span>今日最高降雨機率</span><b id="rainChance">—</b></div></div>
           <div class="astro-grid"><div class="astro-tile"><div class="astro-label">🌅 日出</div><div class="astro-value" id="sunriseTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌇 日落</div><div class="astro-value" id="sunsetTime">—</div><div class="astro-meta">查詢地點</div></div><div class="astro-tile"><div class="astro-label">🌙 月相</div><div class="astro-value" id="moonPhase">—</div><div class="astro-meta" id="moonIllumination">—</div></div><div class="astro-tile"><div class="astro-label">📅 農曆</div><div class="astro-value" id="lunarDate">—</div><div class="astro-meta">依查詢日期</div></div></div>
           <div class="data-source-note">風浪為模式預報，只供出發前初判；現場仍以警特報、長浪與管制公告為準。</div>
           <div class="freshness" id="windFreshness"><span>氣象資料更新：<b id="windUpdatedAt">—</b></span><span class="freshness-badge">等待資料</span></div>
@@ -86,30 +86,44 @@
 
       </div>
 
-      <section class="card marine-trend-card" id="marineTrendSection" aria-labelledby="marineTrendTitle">
+      <div class="data-health-notice" id="dataHealthNotice" role="alert" hidden></div>
+
+      <details class="card collapsible-card marine-trend-card" id="marineTrendSection">
+        <summary><span>📈 每小時海況趨勢</span><small>展開查看</small></summary>
+        <div class="collapsible-body" aria-labelledby="marineTrendTitle">
         <div class="section-title"><div><div class="k">逐時預報</div><h2 id="marineTrendTitle">📈 每小時海況趨勢</h2></div><div class="mini" id="marineTrendDate">依所選日期顯示</div></div>
         <div class="marine-trend-axes"><span>左軸：風速 km/h</span><span>右軸：浪高 m</span></div>
         <div class="marine-trend-wrap"><canvas id="marineTrendCanvas" width="900" height="320" aria-label="每小時風速、陣風與浪高趨勢圖"></canvas><div class="marine-trend-empty" id="marineTrendEmpty">逐時海況載入中…</div></div>
         <div class="legend marine-trend-legend"><span><i class="trend-mark wind"></i>風速</span><span><i class="trend-mark gust"></i>陣風</span><span><i class="trend-mark wave"></i>浪高</span></div>
         <div class="footer-note">時間軸每 3 小時顯示；預報為模式估算，請搭配官方警特報與現場狀況判斷。</div>
-      </section>
+        </div>
+      </details>
 
-      <section class="card weekly-card" aria-labelledby="weeklyTitle">
+      <details class="card collapsible-card weekly-card">
+        <summary><span>📊 七日潮差比較</span><small>展開查看</small></summary>
+        <div class="collapsible-body" aria-labelledby="weeklyTitle">
         <div class="section-title"><div><div class="k">快速比較</div><h2 id="weeklyTitle">📆 未來 7 天潮汐</h2></div><div class="mini">點選日期查看完整曲線</div></div>
         <div class="weekly-tides" id="weeklyTides" aria-live="polite"></div>
-      </section>
+        </div>
+      </details>
 
-      <section class="card warning-card" aria-labelledby="warningTitle">
+      <details class="card collapsible-card warning-card">
+        <summary><span>⚠️ 海域行程警特報</span><small>展開查看</small></summary>
+        <div class="collapsible-body" aria-labelledby="warningTitle">
         <div class="section-title"><div><div class="k">中央氣象署</div><h2 id="warningTitle">⚠️ 海域行程警特報</h2></div><div class="mini">依所選地點顯示</div></div>
         <div class="warning-content" id="warningContent" aria-live="polite">正在確認中央氣象署警特報…</div>
-      </section>
+        </div>
+      </details>
 
-      <section class="card map-card" id="mapSection">
+      <details class="card collapsible-card map-card" id="mapSection">
+        <summary><span>🗺️ 潮汐與雨勢地圖</span><small>展開查看</small></summary>
+        <div class="collapsible-body">
         <div class="section-title"><h2>🗺️ 潮汐與雨勢地圖</h2><button class="radar-toggle" id="radarToggle" type="button" aria-pressed="false">🌧️ 雷達回波</button></div>
         <div id="map"></div>
         <div class="radar-meta"><span id="radarStatus">雷達回波每 10 分鐘更新，可視需要開啟。</span><span class="radar-scale" aria-label="雨勢色階：弱到強"><i></i><span>弱</span><b></b><span>強</span></span></div>
         <div class="m" id="adviceBox">載入資料後，可在台灣地圖上直接點潮汐點切換地點。</div>
-      </section>
+        </div>
+      </details>
 
       <aside class="side" id="settingsSection"><details class="settings-details"><summary>🔎 查詢地點與日期</summary><div class="settings-body"><div class="section-title"><h2>查詢工具</h2><div class="mini">選擇地點與日期</div></div><div class="field"><label for="search">搜尋地點</label><input id="search" placeholder="例如：基隆、宜蘭、高雄"></div><div class="field"><label for="dateInput">查詢日期</label><input id="dateInput" type="date"></div><div class="field"><label for="locationSelect">地點選擇</label><select id="locationSelect"><option value="">請先載入資料</option></select></div><div class="btn-row"><button class="btn-primary" id="loadBtn" type="button">重新載入潮汐</button><button class="btn-secondary" id="todayBtn" type="button">切到今天</button></div><button class="btn-secondary locate-button" id="locateBtn" type="button">📍 自動定位最近潮汐點</button><div id="status" class="status">準備中…</div></div></details></aside>
     </main>
@@ -120,7 +134,7 @@
   <h2 id="onboardingTitle">第一次使用潮汐小幫手？</h2>
   <ol>
     <li><strong>選地點</strong><span>點上方地點即可搜尋或切換潮汐站。</span></li>
-    <li><strong>選日期</strong><span>使用月曆或未來 7 天卡片快速查看。</span></li>
+    <li><strong>選日期</strong><span>使用月曆或七日潮差比較快速查看。</span></li>
     <li><strong>看海況</strong><span>搭配潮位、風浪與官方警特報規劃行程。</span></li>
   </ol>
   <button class="btn-primary onboarding-close" id="closeOnboarding" type="button">開始使用</button>
@@ -158,6 +172,6 @@
   <div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.11.0"></script>
+<script type="module" src="js/app.js?v=3.12.0"></script>
 </body>
 </html>
