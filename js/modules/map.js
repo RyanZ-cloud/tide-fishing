@@ -1,4 +1,4 @@
-import { API, RADAR } from '../config.js?v=3.12.1';
+import { API, RADAR } from '../config.js';
 import { state } from '../state.js';
 
 const radarButton = () => document.getElementById('radarToggle');
@@ -15,8 +15,9 @@ function radarKey(date = new Date()) {
   return `${observed.getFullYear()}${String(observed.getMonth() + 1).padStart(2, '0')}${String(observed.getDate()).padStart(2, '0')}${String(observed.getHours()).padStart(2, '0')}${String(observed.getMinutes()).padStart(2, '0')}`;
 }
 
-function timeLabel(timestamp = Date.now()) {
-  return new Intl.DateTimeFormat('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }).format(timestamp);
+function radarTimeLabel(date = new Date()) {
+  const observed = radarObservationTime(date);
+  return `${String(observed.getHours()).padStart(2, '0')}:${String(observed.getMinutes()).padStart(2, '0')}`;
 }
 
 function setRadarStatus(message, error = false) {
@@ -41,11 +42,7 @@ function refreshRadarLayer(force = false) {
       interactive: false,
       attribution: '雷達回波 &copy; 中央氣象署'
     });
-    state.radarLayer.on('load', () => {
-      state.radarLoadedAt = Date.now();
-      setRadarStatus(`中央氣象署雷達回波・載入於 ${timeLabel(state.radarLoadedAt)}`);
-      radarButton()?.classList.remove('has-error');
-    });
+    state.radarLayer.on('load', () => setRadarStatus(`中央氣象署雷達回波・約 ${radarTimeLabel()} 更新`));
     state.radarLayer.on('error', () => {
       setRadarStatus('雷達回波暫時無法載入，請稍後再試。', true);
       radarButton()?.classList.add('has-error');
@@ -55,13 +52,6 @@ function refreshRadarLayer(force = false) {
     state.radarLayer.setUrl(radarUrl(key));
     if (!state.map.hasLayer(state.radarLayer)) state.radarLayer.addTo(state.map);
   }
-}
-
-function updateRadarFreshness() {
-  if (!state.radarVisible || !state.radarLoadedAt) return;
-  if (Date.now() - state.radarLoadedAt <= 20 * 60 * 1000) return;
-  setRadarStatus('雷達回波已超過 20 分鐘未成功更新，請重新開啟或稍後再試。', true);
-  radarButton()?.classList.add('has-error');
 }
 
 export function setRadarVisible(visible) {
@@ -85,10 +75,7 @@ export function bindRadarControl() {
   if (!button || button.dataset.bound === 'true') return;
   button.dataset.bound = 'true';
   button.addEventListener('click', () => setRadarVisible(!state.radarVisible));
-  state.radarTimer ||= window.setInterval(() => {
-    refreshRadarLayer();
-    updateRadarFreshness();
-  }, 60 * 1000);
+  state.radarTimer ||= window.setInterval(() => refreshRadarLayer(), 60 * 1000);
 }
 
 export function initMap(onSelect) {

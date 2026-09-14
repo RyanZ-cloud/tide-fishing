@@ -4,32 +4,23 @@ import { fetchSeaForecast } from '../api/openmeteo.js';
 import { readCache, writeCache } from '../utils/storage.js';
 import { getSelectedRows } from './tide.js';
 import { renderMarineTrend } from './marine-trend.js';
-import { renderSuitability } from './suitability.js?v=3.12.1';
-import { renderDataHealth, renderFreshness, updateOfflineStatus } from './data-freshness.js?v=3.12.1';
+import { renderSuitability } from './suitability.js';
+import { renderFreshness, updateOfflineStatus } from './data-freshness.js';
 
 const compass = degree => ['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'][Math.round((((degree % 360) + 360) % 360) / 22.5) % 16];
 
-function renderRisk(wind, wave, rain) {
+function renderRisk(wind, wave) {
   const badge = document.getElementById('seaRiskBadge');
-  let level = '良好';
+  let level = '一般';
   let className = '';
   let icon = '●';
-  if ((Number.isFinite(wave) && wave >= 2) || (Number.isFinite(wind) && wind >= 35) || (Number.isFinite(rain) && rain >= 70)) {
-    [level, className, icon] = ['不建議', 'danger', '▲'];
-  } else if ((Number.isFinite(wave) && wave >= 1.2) || (Number.isFinite(wind) && wind >= 22) || (Number.isFinite(rain) && rain >= 40)) {
-    [level, className, icon] = ['普通', 'caution', '◆'];
+  if ((Number.isFinite(wave) && wave >= 2) || (Number.isFinite(wind) && wind >= 35)) {
+    [level, className, icon] = ['風浪偏強', 'danger', '▲'];
+  } else if ((Number.isFinite(wave) && wave >= 1.2) || (Number.isFinite(wind) && wind >= 22)) {
+    [level, className, icon] = ['留意海況', 'caution', '◆'];
   }
   badge.className = `risk-badge ${className}`.trim();
   badge.textContent = `${icon} ${level}`;
-}
-
-function selectedDayMaximum(data, key) {
-  const hourly = data.hourly;
-  if (!hourly?.time?.length) return null;
-  const values = hourly.time
-    .map((time, index) => time.startsWith(state.selectedDate) ? Number(hourly[key]?.[index]) : NaN)
-    .filter(Number.isFinite);
-  return values.length ? Math.max(...values) : null;
 }
 
 function render(data, cached = false) {
@@ -39,22 +30,12 @@ function render(data, cached = false) {
   document.getElementById('windDirection').textContent = Number.isFinite(weather.wind_direction_10m) ? `${compass(weather.wind_direction_10m)} ${Math.round(weather.wind_direction_10m)}°` : '—';
   document.getElementById('waveHeight').textContent = Number.isFinite(marine.wave_height) ? `${marine.wave_height} m` : '—';
   state.weather = data;
-  const dayMax = {
-    wind: selectedDayMaximum(data, 'windSpeed') ?? (Number.isFinite(weather.wind_speed_10m) ? weather.wind_speed_10m : null),
-    wave: selectedDayMaximum(data, 'waveHeight') ?? (Number.isFinite(marine.wave_height) ? marine.wave_height : null),
-    rain: selectedDayMaximum(data, 'precipitationProbability')
-  };
-  state.weatherSummary = {
-    current: { wind: weather.wind_speed_10m, wave: marine.wave_height, direction: weather.wind_direction_10m },
-    dayMax
-  };
-  state.weatherStatus = { timestamp: data.ts || Date.now(), cached };
-  document.getElementById('rainChance').textContent = dayMax.rain !== null ? `${Math.round(dayMax.rain)}%` : '—';
-  renderRisk(dayMax.wind, dayMax.wave, dayMax.rain);
+  const probabilities = data.hourly?.time?.map((time, index) => time.startsWith(state.selectedDate) ? Number(data.hourly.precipitationProbability?.[index]) : NaN).filter(Number.isFinite) || [];
+  document.getElementById('rainChance').textContent = probabilities.length ? `${Math.max(...probabilities)}%` : '—';
+  renderRisk(weather.wind_speed_10m, marine.wave_height);
   renderFreshness('windFreshness', 'windUpdatedAt', data.ts || Date.now(), cached, CACHE.windMaxAge);
   renderMarineTrend();
   renderSuitability();
-  renderDataHealth();
   updateOfflineStatus();
 }
 
@@ -84,9 +65,7 @@ export async function updateWeather() {
       document.getElementById('seaRiskBadge').className = 'risk-badge caution';
       document.getElementById('seaRiskBadge').textContent = '◆ 暫無資料';
       renderFreshness('windFreshness', 'windUpdatedAt', null, false, CACHE.windMaxAge);
-      state.weatherStatus = null;
       renderSuitability();
-      renderDataHealth();
     }
   } finally {
     state.forecastCacheKey = '';
