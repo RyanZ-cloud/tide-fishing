@@ -12,21 +12,21 @@ import { drawChart, bindChartInspector } from './modules/chart.js';
 import {
   initMap, renderMapPoints, showUserPosition,
   fitUserAndStation, invalidateMap
-} from './modules/map.js';
-import { updateWeather } from './modules/weather.js';
+} from './modules/map.js?v=3.12.1';
+import { updateWeather } from './modules/weather.js?v=3.12.1';
 import { renderLunar } from './modules/lunar.js';
 import { shareConditions } from './modules/share.js';
 import { bindDateNavigation, renderDateNavigation } from './modules/date-nav.js';
-import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js';
+import { bindLocationPicker, renderLocationPicker } from './modules/location-picker.js?v=3.12.1';
 import { updateVisitorCount } from './modules/visitor.js';
 import { readSharedSelection } from './modules/link-state.js';
-import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
+import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js?v=3.12.1';
 import { loadWarnings, renderWarnings } from './modules/warnings.js';
 import { initOnboarding } from './modules/onboarding.js';
 import { renderMarineTrend } from './modules/marine-trend.js';
 import { trackEvent } from './analytics.js';
-import { renderSuitability } from './modules/suitability.js';
-import { renderDataHealth, renderFreshness, updateOfflineStatus } from './modules/data-freshness.js';
+import { renderSuitability } from './modules/suitability.js?v=3.12.1';
+import { renderDataHealth, renderFreshness, updateOfflineStatus } from './modules/data-freshness.js?v=3.12.1';
 
 import { getLastLocation, rememberLocation } from './modules/location-preferences.js';
 
