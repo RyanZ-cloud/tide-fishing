@@ -69,11 +69,15 @@ function closePicker() {
 }
 
 export function renderFavoriteQuickSwitch() {
+  const section = element('favoriteSwitch');
   const select = element('favoriteLocationSelect');
   const track = element('favoriteLocationTrack');
+  const manage = element('manageFavoritesBtn');
   if (!select || !track) return;
   const available = new Set(state.rowsByLocation.keys());
   const favorites = getFavoriteLocations().filter(name => available.has(name));
+  section?.classList.toggle('is-compact', favorites.length < 2);
+  if (manage) manage.textContent = favorites.length ? '管理收藏' : '☆ 收藏目前地點';
   select.innerHTML = favorites.length
     ? favorites.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('')
     : '<option value="">尚未收藏潮汐站</option>';
@@ -81,7 +85,7 @@ export function renderFavoriteQuickSwitch() {
   if (favorites.includes(state.selectedLocation)) select.value = state.selectedLocation;
   track.innerHTML = favorites.length
     ? favorites.map(name => `<button type="button" role="listitem" data-quick-location="${escapeHtml(name)}" class="favorite-chip${name === state.selectedLocation ? ' active' : ''}">📍 ${escapeHtml(name)}</button>`).join('')
-    : '<span class="favorite-switch-empty">點上方地點，再按 ☆ 收藏常用潮汐站。</span>';
+    : '';
 }
 
 export function renderLocationPicker() {
@@ -119,7 +123,14 @@ export function bindLocationPicker(onSelect) {
   dialog.addEventListener('click', event => {
     if (event.target === dialog) closePicker();
   });
-  element('manageFavoritesBtn')?.addEventListener('click', () => element('selectedInfo').click());
+  element('manageFavoritesBtn')?.addEventListener('click', () => {
+    if (!getFavoriteLocations().length && state.selectedLocation) {
+      toggleFavoriteLocation(state.selectedLocation);
+      renderFavoriteQuickSwitch();
+      return;
+    }
+    element('selectedInfo').click();
+  });
   element('favoriteLocationSelect')?.addEventListener('change', event => {
     if (event.target.value) onSelect(event.target.value);
   });

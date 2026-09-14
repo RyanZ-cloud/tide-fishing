@@ -15,8 +15,11 @@ function availableDays() {
   return [...grouped.entries()].slice(0, 7);
 }
 
-function tideTime(rows, type) {
-  return rows.find(row => String(row.tideType).includes(type))?.time || '—';
+function rangeSummary(rows) {
+  const heights = rows.map(row => Number(row.aboveLocalMSL)).filter(Number.isFinite);
+  if (heights.length < 2) return { value: null, label: '資料不足' };
+  const value = Math.round(Math.max(...heights) - Math.min(...heights));
+  return { value, label: value >= 100 ? '大潮差' : value >= 60 ? '中潮差' : '小潮差' };
 }
 
 export function renderWeeklyOverview() {
@@ -30,12 +33,12 @@ export function renderWeeklyOverview() {
   container.innerHTML = days.map(([date, rows]) => {
     const parsed = new Date(`${date}T12:00:00`);
     const active = date === state.selectedDate;
+    const range = rangeSummary(rows);
     return `<button class="weekly-day${active ? ' active' : ''}" type="button" data-weekly-date="${date}" aria-pressed="${active}">
       <span>${date === todayLocal() ? '今天' : weekday.format(parsed).replace('週', '')}</span>
       <strong>${shortDate.format(parsed)}</strong>
-      <em>${rows[0]?.tideRange || '—'}</em>
-      <small>滿 ${tideTime(rows, '滿潮')}</small>
-      <small>乾 ${tideTime(rows, '乾潮')}</small>
+      <em>${range.value === null ? '—' : `${range.value} cm`}</em>
+      <small>${range.label}</small>
     </button>`;
   }).join('');
 }

@@ -28,3 +28,17 @@ export function updateOfflineStatus() {
     ? '⚠️ 離線模式：目前顯示裝置內已快取資料，請留意下方資料更新時間。'
     : '⚠️ 離線模式：目前無可用資料，恢復網路後請重新載入。';
 }
+
+export function renderDataHealth() {
+  const notice = document.getElementById('dataHealthNotice');
+  if (!notice) return;
+  const tide = state.tide;
+  const weather = state.weatherStatus;
+  const messages = [];
+  if (tide?.cached || weather?.cached) messages.push('目前部分資料來自裝置快取，請確認更新時間。');
+  if (tide?.timestamp && weather?.timestamp && Math.abs(tide.timestamp - weather.timestamp) > 2 * 60 * 60 * 1000) {
+    messages.push('潮汐與氣象資料的更新時間差距較大，建議重新載入。');
+  }
+  notice.hidden = messages.length === 0;
+  notice.textContent = messages.length ? `⚠️ ${messages.join(' ')}` : '';
+}
