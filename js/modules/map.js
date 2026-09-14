@@ -1,4 +1,4 @@
-import { API, RADAR } from '../config.js';
+import { API, RADAR } from '../config.js?v=3.12.1';
 import { state } from '../state.js';
 
 const radarButton = () => document.getElementById('radarToggle');

@@ -4,8 +4,8 @@ import { fetchSeaForecast } from '../api/openmeteo.js';
 import { readCache, writeCache } from '../utils/storage.js';
 import { getSelectedRows } from './tide.js';
 import { renderMarineTrend } from './marine-trend.js';
-import { renderSuitability } from './suitability.js';
-import { renderDataHealth, renderFreshness, updateOfflineStatus } from './data-freshness.js';
+import { renderSuitability } from './suitability.js?v=3.12.1';
+import { renderDataHealth, renderFreshness, updateOfflineStatus } from './data-freshness.js?v=3.12.1';
 
 const compass = degree => ['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'][Math.round((((degree % 360) + 360) % 360) / 22.5) % 16];
 
