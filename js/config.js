@@ -1,5 +1,5 @@
-export const APP_VERSION = 'v3.11.0';
-export const LAST_UPDATE = '2026-09-04';
+export const APP_VERSION = 'v3.11.1';
+export const LAST_UPDATE = '2026-09-21';
 
 export const API = Object.freeze({
   cwa: './data/tide.json',
@@ -19,7 +19,7 @@ export const RADAR = Object.freeze({
 export const CACHE = Object.freeze({
   tideKey: 'tideAssistantCwaCacheV303',
   tideMaxAge: 4 * 60 * 60 * 1000,
-  windPrefix: 'tideAssistantWindCacheV390:',
+  windPrefix: 'tideAssistantWindCacheV3111:',
   windMaxAge: 45 * 60 * 1000
 });
 

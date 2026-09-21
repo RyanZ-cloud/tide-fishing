@@ -138,6 +138,11 @@
   .marine-trend-card{padding:14px 10px}
   .marine-trend-wrap{height:275px}
   .marine-trend-axes{font-size:10px}
+  .pro-marine-card summary{padding:15px 12px}
+  .pro-marine-card summary strong{font-size:17px}
+  .pro-marine-body{padding:0 10px 14px}
+  .pro-marine-table th,.pro-marine-table td{min-width:70px;padding:9px 6px}
+  .pro-marine-table th:first-child{min-width:104px}
 }
 
 @media(max-width:760px){

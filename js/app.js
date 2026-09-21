@@ -24,6 +24,7 @@ import { bindWeeklyOverview, renderWeeklyOverview } from './modules/weekly.js';
 import { loadWarnings, renderWarnings } from './modules/warnings.js';
 import { initOnboarding } from './modules/onboarding.js';
 import { renderMarineTrend } from './modules/marine-trend.js';
+import { renderProfessionalMarine } from './modules/pro-marine.js';
 import { trackEvent } from './analytics.js';
 import { renderSuitability } from './modules/suitability.js';
 import { renderFreshness, updateOfflineStatus } from './modules/data-freshness.js';
@@ -74,6 +75,7 @@ function renderAll() {
   renderMapPoints(selectLocation);
   renderLunar();
   renderMarineTrend();
+  renderProfessionalMarine();
   renderSuitability();
   void updateWeather();
 }

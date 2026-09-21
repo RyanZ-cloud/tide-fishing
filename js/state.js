@@ -23,6 +23,7 @@ const initialState = {
   chartViewCenterTs: null,
   chartViewDate: '',
   forecastCacheKey: '',
+  professionalDate: '',
   deferredInstallPrompt: null
 };
 

@@ -94,6 +94,16 @@
         <div class="footer-note">時間軸每 3 小時顯示；預報為模式估算，請搭配官方警特報與現場狀況判斷。</div>
       </section>
 
+      <details class="card pro-marine-card" id="professionalMarineSection">
+        <summary><span><span class="k">進階資訊</span><strong>🌬️ 專業風浪預報</strong></span><span class="pro-summary-hint">展開查看 <b aria-hidden="true">⌄</b></span></summary>
+        <div class="pro-marine-body">
+          <div class="pro-marine-dates" id="professionalMarineDates" aria-label="專業預報日期選擇"></div>
+          <div id="professionalMarineContent"><div class="pro-marine-empty">專業風浪預報載入中…</div></div>
+          <div class="pro-color-key"><span><i class="level-1"></i>平穩</span><span><i class="level-2"></i>稍強</span><span><i class="level-3"></i>偏強</span><span><i class="level-4"></i>強</span></div>
+          <div class="data-source-note">Open-Meteo 模式預報，每 3 小時顯示。僅供行程規劃參考，非航海、救生或安全決策用途。</div>
+        </div>
+      </details>
+
       <section class="card weekly-card" aria-labelledby="weeklyTitle">
         <div class="section-title"><div><div class="k">快速比較</div><h2 id="weeklyTitle">📆 未來 7 天潮汐</h2></div><div class="mini">點選日期查看完整曲線</div></div>
         <div class="weekly-tides" id="weeklyTides" aria-live="polite"></div>
@@ -158,6 +168,6 @@
   <div class="install-row"><button class="btn-secondary install-button" id="installBtn" type="button">安裝到手機</button></div>
 </footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="js/app.js?v=3.11.0"></script>
+<script type="module" src="js/app.js?v=3.11.1"></script>
 </body>
 </html>

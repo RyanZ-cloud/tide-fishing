@@ -19,8 +19,9 @@ export async function fetchSeaForecast(latitude, longitude) {
   const marine = new URL(API.openMeteoMarine);
   marine.search = new URLSearchParams({
     latitude: lat, longitude: lon,
-    current: 'wave_height,wave_period',
-    hourly: 'wave_height,wave_period', forecast_days: '8', timezone: 'Asia/Taipei'
+    current: 'wave_height,wave_period,wave_direction',
+    hourly: 'wave_height,wave_period,wave_direction,wind_wave_height,wind_wave_period,wind_wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction',
+    forecast_days: '8', timezone: 'Asia/Taipei'
   });
   const [weatherResult, marineResult] = await Promise.allSettled([
     getJson(weather), getJson(marine)
@@ -44,7 +45,14 @@ export async function fetchSeaForecast(latitude, longitude) {
       precipitationProbability: weatherPayload.hourly?.precipitation_probability || [],
       precipitation: weatherPayload.hourly?.precipitation || [],
       waveHeight: marinePayload.hourly?.wave_height || [],
-      wavePeriod: marinePayload.hourly?.wave_period || []
+      wavePeriod: marinePayload.hourly?.wave_period || [],
+      waveDirection: marinePayload.hourly?.wave_direction || [],
+      windWaveHeight: marinePayload.hourly?.wind_wave_height || [],
+      windWavePeriod: marinePayload.hourly?.wind_wave_period || [],
+      windWaveDirection: marinePayload.hourly?.wind_wave_direction || [],
+      swellHeight: marinePayload.hourly?.swell_wave_height || [],
+      swellPeriod: marinePayload.hourly?.swell_wave_period || [],
+      swellDirection: marinePayload.hourly?.swell_wave_direction || []
     }
   };
 }
